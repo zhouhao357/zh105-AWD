@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flexbox Playground</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Verdana, Geneva, sans-serif;
+            background-color: #333;
+            color: #ddd;
+            font-size: 14px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1 {
+            text-align: center;
+            padding: 30px 0 20px;
+            color: #fff;
+            font-size: 28px;
+        }
+
+        h2 {
+            color: #aaa;
+            font-size: 18px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #555;
+            padding-bottom: 8px;
+        }
+
+        /* 两栏布局 */
+        .principal {
+            width: calc(50% - 40px);
+            min-width: 525px;
+            margin: 0 20px 20px 20px;
+            float: left;
+        }
+
+        /* 控制区 */
+        .control {
+            background-color: #3a3a3a;
+            border: 1px solid #555;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+
+        .control label {
+            display: inline-block;
+            margin: 3px 8px 3px 0;
+            cursor: pointer;
+            padding: 2px 8px;
+            border-radius: 3px;
+            transition: background 0.2s;
+        }
+
+        .control label:hover {
+            background-color: #555;
+        }
+
+        .control input[type="radio"] {
+            margin-right: 4px;
+        }
+
+        .control input[type="radio"]:checked + span {
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .control label:has(input:checked) {
+            background-color: #2a80b9;
+        }
+
+        .control-group {
+            margin-bottom: 8px;
+        }
+
+        .control-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .control-group strong {
+            display: inline-block;
+            width: 140px;
+            color: #8ab4d6;
+        }
+
+        /* Flex 演示容器 */
+        .flex-container {
+            border: 1px solid #555;
+            display: flex;
+            padding: 20px;
+            width: 100%;
+            margin-bottom: 25px;
+            background-color: #2a2a2a;
+            min-height: 120px;
+        }
+
+        .item {
+            margin: 0;
+            display: flex;
+            padding: 10px;
+            width: 100px;
+            height: 100px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .item p {
+            width: 100%;
+            text-align: center;
+            color: #fff;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        /* flex-direction */
+        #direction .flex-container { flex-wrap: wrap; }
+
+        /* flex-wrap */
+        #wrap .flex-container { width: 400px; }
+
+        /* align-items */
+        #align .flex-container { height: 300px; }
+        #align .item { height: auto; }
+        #align .item:nth-child(1) { height: 60px; }
+        #align .item:nth-child(2) { height: 100px; }
+        #align .item:nth-child(3) { height: 140px; }
+        #align .item:nth-child(4) { height: 80px; }
+        #align .item:nth-child(5) { height: 120px; }
+
+        /* justify-content */
+        #justify .flex-container { padding: 20px 0; }
+
+        /* align-content */
+        #alignContent .flex-container { flex-wrap: wrap; height: 400px; }
+        #alignContent .item { height: 80px; }
+
+        /* === flex-direction 类 === */
+        .flex-container.row { flex-direction: row; }
+        .flex-container.row-reverse { flex-direction: row-reverse; }
+        .flex-container.column { flex-direction: column; }
+        .flex-container.column-reverse { flex-direction: column-reverse; }
+
+        /* === flex-wrap 类 === */
+        .flex-container.nowrap { flex-wrap: nowrap; }
+        .flex-container.wrap { flex-wrap: wrap; }
+        .flex-container.wrap-reverse { flex-wrap: wrap-reverse; }
+
+        /* === align-items 类 === */
+        .flex-container.align-items-start { align-items: flex-start; }
+        .flex-container.align-items-end { align-items: flex-end; }
+        .flex-container.align-items-center { align-items: center; }
+        .flex-container.align-items-baseline { align-items: baseline; }
+        .flex-container.align-items-stretch { align-items: stretch; }
+
+        /* === justify-content 类 === */
+        .flex-container.justify-start { justify-content: flex-start; }
+        .flex-container.justify-end { justify-content: flex-end; }
+        .flex-container.justify-center { justify-content: center; }
+        .flex-container.justify-space-between { justify-content: space-between; }
+        .flex-container.justify-space-around { justify-content: space-around; }
+
+        /* === align-content 类 === */
+        .flex-container.align-content-start { align-content: flex-start; }
+        .flex-container.align-content-end { align-content: flex-end; }
+        .flex-container.align-content-center { align-content: center; }
+        .flex-container.align-content-space-between { align-content: space-between; }
+        .flex-container.align-content-space-around { align-content: space-around; }
+        .flex-container.align-content-stretch { align-content: stretch; }
+
+        /* === align-self 类 === */
+        .item.align-self-auto { align-self: auto; }
+        .item.align-self-start { align-self: flex-start; }
+        .item.align-self-end { align-self: flex-end; }
+        .item.align-self-center { align-self: center; }
+        .item.align-self-baseline { align-self: baseline; }
+        .item.align-self-stretch { align-self: stretch; }
+
+        /* flex-grow / shrink / order 输入区 */
+        .item-input-group {
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        .item-input-group label {
+            font-size: 12px;
+            color: #aaa;
+            margin-right: 4px;
+        }
+
+        .item-input-group input[type="number"] {
+            width: 50px;
+            padding: 2px 4px;
+            background-color: #222;
+            border: 1px solid #555;
+            color: #fff;
+            font-size: 13px;
+        }
+
+        #FCI1 .flex-container { height: 300px; }
+        #FCI1 .item { height: auto; }
+        #FCI1 .item:nth-child(1) { height: 60px; }
+        #FCI1 .item:nth-child(2) { height: 100px; }
+        #FCI1 .item:nth-child(3) { height: 140px; }
+        #FCI1 .item:nth-child(4) { height: 80px; }
+        #FCI1 .item:nth-child(5) { height: 120px; }
+
+        #FCI3 .item { width: 25%; }
+        #FCI4 .item { width: 50%; }
+        #FCI5 .item { width: 20%; }
+
+        /* 颜色 */
+        .c1 { background-color: #2a80b9; }
+        .c2 { background-color: #8f44ad; }
+        .c3 { background-color: #1ab394; }
+        .c4 { background-color: #e74c3c; }
+        .c5 { background-color: #f39c12; }
+
+        /* 高亮 align-self 演示中的目标项 */
+        #FCI1 .item:nth-child(3) {
+            outline: 3px solid #fff;
+            outline-offset: 2px;
+        }
+
+        .clearfix::after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+
+        /* 响应式 */
+        @media only screen and (max-width: 1100px) {
+            .principal { width: calc(100% - 40px); }
+        }
+        @media only screen and (max-width: 580px) {
+            .item { width: 50px; height: 50px; }
+            .principal { min-width: initial; float: none; }
+            #wrap .flex-container { width: 200px; }
+        }
+    </style>
+</head>
+<body>
+
+<h1>Flexbox Playground</h1>
+<p style="text-align:center; color:#888; margin-bottom:25px;">周浩 - Flexbox 弹性布局互动演示</p>
+
+<div class="clearfix">
+
+<!-- ==================== 左栏：Flex 容器属性 ==================== -->
+<div class="principal">
+    <h2>Flex 容器属性</h2>
+
+    <!-- flex-direction -->
+    <div id="direction">
+        <div class="control">
+            <div class="control-group">
+                <strong>flex-direction</strong>
+                <label><input type="radio" name="direction" value="row" checked><span>row</span></label>
+                <label><input type="radio" name="direction" value="row-reverse"><span>row-reverse</span></label>
+                <label><input type="radio" name="direction" value="column"><span>column</span></label>
+                <label><input type="radio" name="direction" value="column-reverse"><span>column-reverse</span></label>
+            </div>
+        </div>
+        <div class="flex-container row">
+            <div class="item c1"><p>1</p></div>
+            <div class="item c2"><p>2</p></div>
+            <div class="item c3"><p>3</p></div>
+            <div class="item c4"><p>4</p></div>
+            <div class="item c5"><p>5</p></div>
+        </div>
+    </div>
+
+    <!-- flex-wrap -->
+    <div id="wrap">
+        <div class="control">
+            <div class="control-group">
+                <strong>flex-wrap</strong>
+                <label><input type="radio" name="wrap" value="nowrap" checked><span>nowrap</span></label>
+                <label><input type="radio" name="wrap" value="wrap"><span>wrap</span></label>
+                <label><input type="radio" name="wrap" value="wrap-reverse"><span>wrap-reverse</span></label>
+            </div>
+        </div>
+        <div class="flex-container nowrap">
+            <div class="item c1"><p>1</p></div>
+            <div class="item c2"><p>2</p></div>
+            <div class="item c3"><p>3</p></div>
+            <div class="item c4"><p>4</p></div>
+            <div class="item c5"><p>5</p></div>
+            <div class="item c1"><p>6</p></div>
+            <div class="item c2"><p>7</p></div>
+        </div>
+    </div>
+
+    <!-- align-items -->
+    <div id="align">
+        <div class="control">
+            <div class="control-group">
+                <strong>align-items</strong>
+                <label><input type="radio" name="align" value="align-items-start"><span>flex-start</span></label>
+                <label><input type="radio" name="align" value="align-items-end"><span>flex-end</span></label>
+                <label><input type="radio" name="align" value="align-items-center" checked><span>center</span></label>
+                <label><input type="radio" name="align" value="align-items-baseline"><span>baseline</span></label>
+                <label><input type="radio" name="align" value="align-items-stretch"><span>stretch</span></label>
+            </div>
+        </div>
+        <div class="flex-container align-items-center">
+            <div class="item c1"><p>1</p></div>
+            <div class="item c2"><p>2</p></div>
+            <div class="item c3"><p>3</p></div>
+            <div class="item c4"><p>4</p></div>
+            <div class="item c5"><p>5</p></div>
+        </div>
+    </div>
+
+    <!-- justify-content -->
+    <div id="justify">
+        <div class="control">
+            <div class="control-group">
+                <strong>justify-content</strong>
+                <label><input type="radio" name="justify" value="justify-start"><span>flex-start</span></label>
+                <label><input type="radio" name="justify" value="justify-end"><span>flex-end</span></label>
+                <label><input type="radio" name="justify" value="justify-center"><span>center</span></label>
+                <label><input type="radio" name="justify" value="justify-space-between" checked><span>space-between</span></label>
+                <label><input type="radio" name="justify" value="justify-space-around"><span>space-around</span></label>
+            </div>
+        </div>
+        <div class="flex-container justify-space-between">
+            <div class="item c1"><p>1</p></div>
+            <div class="item c2"><p>2</p></div>
+            <div class="item c3"><p>3</p></div>
+            <div class="item c4"><p>4</p></div>
+            <div class="item c5"><p>5</p></div>
+        </div>
+    </div>
+
+    <!-- align-content -->
+    <div id="alignContent">
+        <div class="control">
+            <div class="control-group">
+                <strong>align-content</strong>
+                <label><input type="radio" name="alignContent" value="align-content-start"><span>flex-start</span></label>
+                <label><input type="radio" name="alignContent" value="align-content-end"><span>flex-end</span></label>
+                <label><input type="radio" name="alignContent" value="align-content-center"><span>center</span></label>
+                <label><input type="radio" name="alignContent" value="align-content-space-between" checked><span>space-between</span></label>
+                <label><input type="radio" name="alignContent" value="align-content-space-around"><span>space-around</span></label>
+                <label><input type="radio" name="alignContent" value="align-content-stretch"><span>stretch</span></label>
+            </div>
+        </div>
+        <div class="flex-container align-content-space-between">
+            <div class="item c1"><p>1</p></div>
+            <div class="item c2"><p>2</p></div>
+            <div class="item c3"><p>3</p></div>
+            <div class="item c4"><p>4</p></div>
+            <div class="item c5"><p>5</p></div>
+            <div class="item c1"><p>6</p></div>
+            <div class="item c2"><p>7</p></div>
+            <div class="item c3"><p>8</p></div>
+            <div class="item c4"><p>9</p></div>
+            <div class="item c5"><p>10</p></div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== 右栏：Flex 子项属性 ==================== -->
+<div class="principal">
+    <h2>Flex 子项属性</h2>
+
+    <!-- align-self -->
+    <div id="FCI1">
+        <div class="control">
+            <div class="control-group">
+                <strong>align-self</strong>
+                <label><input type="radio" name="alignSelf" value="align-self-auto" checked><span>auto</span></label>
+                <label><input type="radio" name="alignSelf" value="align-self-start"><span>flex-start</span></label>
+                <label><input type="radio" name="alignSelf" value="align-self-end"><span>flex-end</span></label>
+                <label><input type="radio" name="alignSelf" value="align-self-center"><span>center</span></label>
+                <label><input type="radio" name="alignSelf" value="align-self-baseline"><span>baseline</span></label>
+                <label><input type="radio" name="alignSelf" value="align-self-stretch"><span>stretch</span></label>
+            </div>
+            <p style="color:#888; font-size:12px; margin-top:5px;">白色边框项为应用 align-self 的目标项</p>
+        </div>
+        <div class="flex-container align-items-center">
+            <div class="item c1"><p>1</p></div>
+            <div class="item c2"><p>2</p></div>
+            <div class="item c3 align-self-auto"><p>3</p></div>
+            <div class="item c4"><p>4</p></div>
+            <div class="item c5"><p>5</p></div>
+        </div>
+    </div>
+
+    <!-- flex-grow -->
+    <div id="FCI2">
+        <div class="control">
+            <div class="control-group">
+                <strong>flex-grow</strong>
+                <div style="margin-top:8px;">
+                    <div class="item-input-group">
+                        <label>item 1:</label><input type="number" data-target="grow1" value="0" min="0" max="10">
+                    </div>
+                    <div class="item-input-group">
+                        <label>item 2:</label><input type="number" data-target="grow2" value="0" min="0" max="10">
+                    </div>
+                    <div class="item-input-group">
+                        <label>item 3:</label><input type="number" data-target="grow3" value="0" min="0" max="10">
+                    </div>
+                    <div class="item-input-group">
+                        <label>item 4:</label><input type="number" data-target="grow4" value="0" min="0" max="10">
+                    </div>
+                    <div class="item-input-group">
+                        <label>item 5:</label><input type="number" data-target="grow5" value="0" min="0" max="10">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="flex-container">
+            <div class="item c1" id="grow1" style="flex-grow:0;"><p>1</p></div>
+            <div class="item c2" id="grow2" style="flex-grow:0;"><p>2</p></div>
+            <div class="item c3" id="grow3" style="flex-grow:0;"><p>3</p></div>
+            <div class="item c4" id="grow4" style="flex-grow:0;"><p>4</p></div>
+            <div class="item c5" id="grow5" style="flex-grow:0;"><p>5</p></div>
+        </div>
+    </div>
+
+    <!-- flex-shrink -->
+    <div id="FCI3">
+        <div class="control">
+            <div class="control-group">
+                <strong>flex-shrink</strong>
+                <div style="margin-top:8px;">
+                    <div class="item-input-group">
+                        <label>item 1:</label><input type="number" data-target="shrink1" value="1" min="0" max="10">
+                    </div>
+                    <div class="item-input-group">
+                        <label>item 2:</label><input type="number" data-target="shrink2" value="1" min="0" max="10">
+                    </div>
+                    <div class="item-input-group">
+                        <label>item 3:</label><input type="number" data-target="shrink3" value="1" min="0" max="10">
+                    </div>
+                    <div class="item-input-group">
+                        <label>item 4:</label><input type="number" data-target="shrink4" value="1" min="0" max="10">
+                    </div>
+                    <div class="item-input-group">
+                        <label>item 5:</label><input type="number" data-target="shrink5" value="1" min="0" max="10">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="flex-container">
+            <div class="item c1" id="shrink1" style="flex-shrink:1;"><p>1</p></div>
+            <div class="item c2" id="shrink2" style="flex-shrink:1;"><p>2</p></div>
+            <div class="item c3" id="shrink3" style="flex-shrink:1;"><p>3</p></div>
+            <div class="item c4" id="shrink4" style="flex-shrink:1;"><p>4</p></div>
+            <div class="item c5" id="shrink5" style="flex-shrink:1;"><p>5</p></div>
+        </div>
+    </div>
+
+    <!-- flex (shorthand) -->
+    <div id="FCI4">
+        <div class="control">
+            <div class="control-group">
+                <strong>flex (简写)</strong>
+                <div style="margin-top:8px;">
+                    <div class="item-input-group">
+                        <label>item 1 basis %:</label><input type="number" data-target="basis1" value="50" min="0" max="100">
+                    </div>
+                    <div class="item-input-group">
+                        <label>item 1 grow:</label><input type="number" data-target="fgrow1" value="0" min="0" max="10">
+                    </div>
+                    <div class="item-input-group">
+                        <label>item 1 shrink:</label><input type="number" data-target="fshrink1" value="1" min="0" max="10">
+                    </div>
+                </div>
+                <div style="margin-top:8px;">
+                    <div class="item-input-group">
+                        <label>item 2 basis %:</label><input type="number" data-target="basis2" value="50" min="0" max="100">
+                    </div>
+                    <div class="item-input-group">
+                        <label>item 2 grow:</label><input type="number" data-target="fgrow2" value="0" min="0" max="10">
+                    </div>
+                    <div class="item-input-group">
+                        <label>item 2 shrink:</label><input type="number" data-target="fshrink2" value="1" min="0" max="10">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="flex-container">
+            <div class="item c1" id="flex1" style="flex:0 1 50%;"><p>1</p></div>
+            <div class="item c2" id="flex2" style="flex:0 1 50%;"><p>2</p></div>
+        </div>
+    </div>
+
+    <!-- order -->
+    <div id="FCI5">
+        <div class="control">
+            <div class="control-group">
+                <strong>order</strong>
+                <div style="margin-top:8px;">
+                    <div class="item-input-group">
+                        <label>item 1:</label><input type="number" data-target="order1" value="1" min="-10" max="10">
+                    </div>
+                    <div class="item-input-group">
+                        <label>item 2:</label><input type="number" data-target="order2" value="2" min="-10" max="10">
+                    </div>
+                    <div class="item-input-group">
+                        <label>item 3:</label><input type="number" data-target="order3" value="3" min="-10" max="10">
+                    </div>
+                    <div class="item-input-group">
+                        <label>item 4:</label><input type="number" data-target="order4" value="4" min="-10" max="10">
+                    </div>
+                    <div class="item-input-group">
+                        <label>item 5:</label><input type="number" data-target="order5" value="5" min="-10" max="10">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="flex-container">
+            <div class="item c1" id="order1" style="order:1;"><p>1</p></div>
+            <div class="item c2" id="order2" style="order:2;"><p>2</p></div>
+            <div class="item c3" id="order3" style="order:3;"><p>3</p></div>
+            <div class="item c4" id="order4" style="order:4;"><p>4</p></div>
+            <div class="item c5" id="order5" style="order:5;"><p>5</p></div>
+        </div>
+    </div>
+</div>
+
+</div><!-- /clearfix -->
+
+<script>
+    // 单选按钮：修改 flex-container 的 class
+    const radioGroups = [
+        { name: 'direction',   container: '#direction .flex-container',   prefix: '' },
+        { name: 'wrap',        container: '#wrap .flex-container',         prefix: '' },
+        { name: 'align',       container: '#align .flex-container',        prefix: '' },
+        { name: 'justify',     container: '#justify .flex-container',       prefix: '' },
+        { name: 'alignContent',container: '#alignContent .flex-container',  prefix: '' },
+        { name: 'alignSelf',   container: '#FCI1 .item:nth-child(3)',       prefix: '' }
+    ];
+
+    const directionClasses = ['row','row-reverse','column','column-reverse'];
+    const wrapClasses = ['nowrap','wrap','wrap-reverse'];
+    const alignItemsClasses = ['align-items-start','align-items-end','align-items-center','align-items-baseline','align-items-stretch'];
+    const justifyClasses = ['justify-start','justify-end','justify-center','justify-space-between','justify-space-around'];
+    const alignContentClasses = ['align-content-start','align-content-end','align-content-center','align-content-space-between','align-content-space-around','align-content-stretch'];
+    const alignSelfClasses = ['align-self-auto','align-self-start','align-self-end','align-self-center','align-self-baseline','align-self-stretch'];
+
+    const allClasses = [...directionClasses, ...wrapClasses, ...alignItemsClasses, ...justifyClasses, ...alignContentClasses, ...alignSelfClasses];
+
+    document.querySelectorAll('input[type="radio"]').forEach(function(radio) {
+        radio.addEventListener('change', function() {
+            const name = this.name;
+            const value = this.value;
+            const group = radioGroups.find(g => g.name === name);
+            if (!group) return;
+
+            const el = document.querySelector(group.container);
+            if (!el) return;
+
+            if (name === 'alignSelf') {
+                // 移除旧的 align-self 类
+                alignSelfClasses.forEach(c => el.classList.remove(c));
+                el.classList.add(value);
+            } else {
+                // 根据组移除对应的旧类
+                let classesToRemove = [];
+                if (name === 'direction') classesToRemove = directionClasses;
+                else if (name === 'wrap') classesToRemove = wrapClasses;
+                else if (name === 'align') classesToRemove = alignItemsClasses;
+                else if (name === 'justify') classesToRemove = justifyClasses;
+                else if (name === 'alignContent') classesToRemove = alignContentClasses;
+                classesToRemove.forEach(c => el.classList.remove(c));
+                el.classList.add(value);
+            }
+        });
+    });
+
+    // 数字输入：修改 item 的内联样式
+    document.querySelectorAll('input[type="number"]').forEach(function(input) {
+        input.addEventListener('input', function() {
+            const target = this.getAttribute('data-target');
+            const el = document.getElementById(target);
+            if (!el) return;
+            const val = this.value || 0;
+
+            if (target.startsWith('grow')) {
+                el.style.flexGrow = val;
+            } else if (target.startsWith('shrink')) {
+                el.style.flexShrink = val;
+            } else if (target.startsWith('order')) {
+                el.style.order = val;
+            } else if (target.startsWith('basis')) {
+                // 重新设置 flex 简写
+                const growEl = document.querySelector('[data-target="fgrow' + target.slice(-1) + '"]');
+                const shrinkEl = document.querySelector('[data-target="fshrink' + target.slice(-1) + '"]');
+                const growVal = growEl ? (growEl.value || 0) : 0;
+                const shrinkVal = shrinkEl ? (shrinkEl.value || 1) : 1;
+                el.style.flex = growVal + ' ' + shrinkVal + ' ' + val + '%';
+            } else if (target.startsWith('fgrow')) {
+                const num = target.slice(-1);
+                const basisEl = document.querySelector('[data-target="basis' + num + '"]');
+                const shrinkEl = document.querySelector('[data-target="fshrink' + num + '"]');
+                const basisVal = basisEl ? (basisEl.value || 50) : 50;
+                const shrinkVal = shrinkEl ? (shrinkEl.value || 1) : 1;
+                el.style.flex = val + ' ' + shrinkVal + ' ' + basisVal + '%';
+            } else if (target.startsWith('fshrink')) {
+                const num = target.slice(-1);
+                const basisEl = document.querySelector('[data-target="basis' + num + '"]');
+                const growEl = document.querySelector('[data-target="fgrow' + num + '"]');
+                const basisVal = basisEl ? (basisEl.value || 50) : 50;
+                const growVal = growEl ? (growEl.value || 0) : 0;
+                el.style.flex = growVal + ' ' + val + ' ' + basisVal + '%';
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

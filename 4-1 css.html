@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>周浩 - CSS进阶</title>
+    <style>
+        /* 群组选择器 */
+        body, h2, h3, p {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", sans-serif;
+            background: #f5f5f8;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        h2 {
+            letter-spacing: 4px;
+        }
+
+        /* 后代选择器 */
+        #box p {
+            line-height: 1.8;
+            letter-spacing: 1px;
+        }
+
+        /* 子代选择器 */
+        #box > h3 {
+            color: #6366f1;
+            margin-bottom: 0.8rem;
+            letter-spacing: 2px;
+        }
+
+        /* 相邻兄弟选择器 */
+        h2 + #box {
+            border: 3px solid #6366f1;
+            border-radius: 12px;
+            padding: 1.5rem 2rem;
+            background: #fff;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* 通用兄弟选择器 */
+        #box h3 ~ p {
+            font-size: 0.95rem;
+        }
+
+        /* 学号：蓝色加粗 */
+        .xuehao {
+            color: blue;
+            font-weight: bold;
+        }
+
+        /* 姓名：深色加粗 */
+        .xingming {
+            color: #1a1a2e;
+            font-weight: bold;
+        }
+
+        /* 难度的值：红色加粗 */
+        .nandu {
+            color: red;
+            font-weight: bold;
+        }
+
+        /* 知识点：紫色边框 */
+        .zhishidian {
+            border: 2px solid #a855f7;
+            border-radius: 8px;
+            padding: 0.5rem 0.8rem;
+            display: inline-block;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <h2>CSS进阶</h2>
+    <div id="box">
+        <h3>css那些事</h3>
+        <p>
+            学号：<span class="xuehao">24001010105</span>，
+            姓名：<span class="xingming">周浩</span>，
+            班级：计算机科学与技术1班，
+            对于高级网页设计课程难度认为：<span class="nandu">一般</span>
+        </p>
+        <p>
+            <span class="zhishidian">知识点：群组选择器,后代选择器,子代选择器,相邻兄弟选择器,通用兄弟选择器</span>
+        </p>
+    </div>
+</body>
+</html>

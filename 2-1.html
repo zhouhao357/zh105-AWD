@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>大国重器 - 周浩的第一个网页</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: #f5f5f8;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* ========== 顶部导航栏 ========== */
+        .navbar {
+            background: #fff;
+            box-shadow: 0 1px 8px rgba(0, 0, 0, 0.08);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .navbar-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo .logo-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 0.5rem;
+        }
+
+        .nav-menu a {
+            display: block;
+            padding: 0.5rem 1rem;
+            color: #555;
+            text-decoration: none;
+            font-size: 0.95rem;
+            border-radius: 6px;
+            transition: all 0.25s ease;
+        }
+
+        .nav-menu a:hover, .nav-menu a.active {
+            color: #6366f1;
+            background: rgba(99, 102, 241, 0.06);
+        }
+
+        /* ========== Banner ========== */
+        .banner {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%);
+            color: #fff;
+            text-align: center;
+            padding: 3.5rem 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(circle at 25% 30%, rgba(99, 102, 241, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 75% 70%, rgba(168, 85, 247, 0.15) 0%, transparent 50%);
+        }
+
+        .banner-content {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .banner h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .banner p {
+            font-size: 1.05rem;
+            opacity: 0.85;
+        }
+
+        /* ========== 内容区 ========== */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .section-title h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-title p {
+            color: #888;
+            font-size: 0.95rem;
+        }
+
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 40px;
+            height: 3px;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            margin: 1rem auto 0;
+            border-radius: 2px;
+        }
+
+        /* ========== 表格 ========== */
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            background: #fff;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        thead tr {
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+        }
+
+        thead th {
+            padding: 1.1rem 1.2rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #fff;
+            letter-spacing: 0.5px;
+        }
+
+        thead th:not(:last-child) {
+            border-right: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        tbody td {
+            padding: 1.1rem 1.2rem;
+            font-size: 0.92rem;
+            color: #333;
+            border-bottom: 1px solid #eee;
+        }
+
+        tbody td:not(:last-child) {
+            border-right: 1px solid #eee;
+        }
+
+        tbody tr {
+            transition: all 0.25s ease;
+        }
+
+        tbody tr:hover {
+            background: rgba(99, 102, 241, 0.04);
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 0.25rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .tag-aviation { background: rgba(99, 102, 241, 0.12); color: #6366f1; }
+        .tag-navy     { background: rgba(34, 197, 94, 0.12); color: #22c55e; }
+        .tag-space    { background: rgba(236, 72, 153, 0.12); color: #ec4899; }
+
+        /* 返回按钮 */
+        .back-area {
+            text-align: center;
+            margin-top: 2.5rem;
+        }
+
+        .back-btn {
+            display: inline-block;
+            padding: 0.7rem 2rem;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            color: #555;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            color: #fff;
+            border-color: transparent;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        /* ========== 页脚 ========== */
+        .footer {
+            background: #1a1a2e;
+            color: #aaa;
+            text-align: center;
+            padding: 2.5rem 2rem;
+        }
+
+        .footer p {
+            font-size: 0.85rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .footer .footer-links {
+            margin-bottom: 1rem;
+        }
+
+        .footer .footer-links a {
+            color: #888;
+            text-decoration: none;
+            font-size: 0.85rem;
+            margin: 0 0.8rem;
+            transition: color 0.3s ease;
+        }
+
+        .footer .footer-links a:hover {
+            color: #fff;
+        }
+
+        /* ========== 响应式 ========== */
+        @media (max-width: 768px) {
+            .navbar-inner {
+                padding: 0 1rem;
+            }
+
+            .nav-menu {
+                display: none;
+            }
+
+            .banner h1 {
+                font-size: 1.8rem;
+            }
+
+            .container {
+                padding: 2rem 1rem;
+            }
+
+            thead th, tbody td {
+                padding: 0.7rem 0.8rem;
+                font-size: 0.82rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ========== 顶部导航栏 ========== -->
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a href="index.html" class="logo">
+                <span class="logo-icon">周</span>
+                周浩的个人网站
+            </a>
+            <ul class="nav-menu">
+                <li><a href="index.html">首页</a></li>
+                <li><a href="2-1.html" class="active">大国重器</a></li>
+                <li><a href="https://www.huanqiu.com" target="_blank">环球网</a></li>
+                <li><a href="index.html#about">关于</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- ========== Banner ========== -->
+    <header class="banner">
+        <div class="banner-content">
+            <h1>大国重器</h1>
+            <p>中国重大科技工程与装备展示</p>
+        </div>
+    </header>
+
+    <!-- ========== 内容区 ========== -->
+    <main class="container">
+        <div class="section-title">
+            <h2>国之重器一览</h2>
+            <p>展示中国代表性重大科技工程与装备</p>
+        </div>
+
+        <!-- 四行三列表格 -->
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>名称</th>
+                        <th>类别</th>
+                        <th>简介</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>歼-20隐身战斗机</td>
+                        <td><span class="tag tag-aviation">航空</span></td>
+                        <td>中国第五代隐身重型战斗机，具备高隐身、超音速巡航和先进航电系统</td>
+                    </tr>
+                    <tr>
+                        <td>山东舰航空母舰</td>
+                        <td><span class="tag tag-navy">海军</span></td>
+                        <td>中国首艘自主建造的航空母舰，满载排水量约6万吨，搭载歼-15舰载机</td>
+                    </tr>
+                    <tr>
+                        <td>天宫空间站</td>
+                        <td><span class="tag tag-space">航天</span></td>
+                        <td>中国自主建造的空间站，由天和核心舱、问天实验舱和梦天实验舱组成</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="back-area">
+            <a href="index.html" class="back-btn">← 返回首页</a>
+        </div>
+    </main>
+
+    <!-- ========== 页脚 ========== -->
+    <footer class="footer">
+        <div class="footer-links">
+            <a href="index.html">首页</a> |
+            <a href="2-1.html">大国重器</a> |
+            <a href="https://www.huanqiu.com" target="_blank">环球网</a>
+        </div>
+        <p>© 2026 周浩 | 学号 24001010105</p>
+        <p>高级网页设计课程</p>
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>105 周浩</title>
+</head>
+<body>
+    <h2>HTML表单</h2>
+    <form action="http://www.baidu.com" method="get">
+        <p>用户名：<input type="text" name="username"></p>
+        <p>密码：<input type="password" name="password"></p>
+        <p><input type="submit" value="提交"></p>
+        <p>性别：
+            <input type="radio" name="sex" value="male">男
+            <input type="radio" name="sex" value="female">女
+            <input type="radio" name="sex" value="secret">保密
+        </p>
+        <p>爱好：
+            <input type="checkbox" name="hobby" value="football">足球
+            <input type="checkbox" name="hobby" value="basketball">篮球
+            <input type="checkbox" name="hobby" value="tennis">网球
+            <input type="checkbox" name="hobby" value="swimming">游泳
+            <input type="checkbox" name="hobby" value="badminton">羽毛球
+            <input type="checkbox" name="hobby" value="pingpong">乒乓球
+        </p>
+        <p>城市：
+            <select name="city">
+                <option value="beijing">北京</option>
+                <option value="shanghai">上海</option>
+                <option value="guangzhou">广州</option>
+                <option value="shenzhen">深圳</option>
+                <option value="hangzhou">杭州</option>
+                <option value="nanjing">南京</option>
+                <option value="chongqing">重庆</option>
+                <option value="tianjin">天津</option>
+                <option value="wuhan">武汉</option>
+            </select>
+        </p>
+        <p>出生日期：
+            <input type="date" name="birthday">
+        </p>
+        <p>上传文件：
+            <input type="file" name="files" multiple>
+        </p>
+        <p>个人简介：
+            <textarea name="introduction" id="" cols="30" rows="10"></textarea>
+        </p>
+        <p>
+            <input type="button" value="普通按钮" onclick="alert('你点击了普通按钮')">
+            <input type="submit" value="提交">
+            <input type="reset" value="重置">
+        </p>
+    </form>
+
+    <p>表单外按钮：
+        <input type="button" value="表单外按钮" onclick="alert('这是一个表单外的按钮')">
+    </p>
+</body>
+</html>

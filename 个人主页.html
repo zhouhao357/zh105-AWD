@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>周浩的第一个网页</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: #f5f5f8;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* ========== 顶部导航栏 ========== */
+        .navbar {
+            background: #fff;
+            box-shadow: 0 1px 8px rgba(0, 0, 0, 0.08);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .navbar-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo .logo-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 0.5rem;
+        }
+
+        .nav-menu a {
+            display: block;
+            padding: 0.5rem 1rem;
+            color: #555;
+            text-decoration: none;
+            font-size: 0.95rem;
+            border-radius: 6px;
+            transition: all 0.25s ease;
+        }
+
+        .nav-menu a:hover, .nav-menu a.active {
+            color: #6366f1;
+            background: rgba(99, 102, 241, 0.06);
+        }
+
+        /* ========== Banner 大图 ========== */
+        .banner {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%);
+            color: #fff;
+            text-align: center;
+            padding: 4rem 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(circle at 25% 30%, rgba(99, 102, 241, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 75% 70%, rgba(168, 85, 247, 0.15) 0%, transparent 50%);
+        }
+
+        .banner-content {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .banner h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 0.8rem;
+            letter-spacing: 1px;
+        }
+
+        .banner p {
+            font-size: 1.1rem;
+            opacity: 0.85;
+            margin-bottom: 2rem;
+        }
+
+        .banner-btn {
+            display: inline-block;
+            padding: 0.8rem 2.5rem;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .banner-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(99, 102, 241, 0.5);
+        }
+
+        /* ========== 内容区 ========== */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .section-title h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-title p {
+            color: #888;
+            font-size: 0.95rem;
+        }
+
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 40px;
+            height: 3px;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            margin: 1rem auto 0;
+            border-radius: 2px;
+        }
+
+        /* 个人信息卡片 - 三栏 */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .info-card .card-icon.orange { background: rgba(251, 146, 60, 0.1); }
+
+        .info-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+        }
+
+        .info-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-card .card-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            margin: 0 auto 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+        }
+
+        .info-card .card-icon.blue   { background: rgba(99, 102, 241, 0.1); }
+        .info-card .card-icon.purple { background: rgba(168, 85, 247, 0.1); }
+        .info-card .card-icon.green  { background: rgba(34, 197, 94, 0.1); }
+
+        .info-card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #1a1a2e;
+        }
+
+        .info-card p {
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        /* 图片超链接区域 */
+        .image-link-area {
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            margin-bottom: 3rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .image-link-area .image-side {
+            position: relative;
+            overflow: hidden;
+            min-height: 240px;
+        }
+
+        .image-link-area .image-side a {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .image-link-area .image-side img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+
+        .image-link-area .image-side a:hover img {
+            transform: scale(1.05);
+        }
+
+        .image-link-area .text-side {
+            padding: 2.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .image-link-area .text-side h3 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 0.8rem;
+        }
+
+        .image-link-area .text-side p {
+            font-size: 0.95rem;
+            color: #666;
+            margin-bottom: 1.5rem;
+            line-height: 1.8;
+        }
+
+        .image-link-area .text-side .go-btn {
+            display: inline-block;
+            width: fit-content;
+            padding: 0.6rem 1.8rem;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .image-link-area .text-side .go-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        }
+
+        /* 快捷链接 */
+        .quick-links {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+
+        .quick-link-card {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.2rem 1.5rem;
+            background: #fff;
+            border-radius: 10px;
+            text-decoration: none;
+            color: #333;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            transition: all 0.3s ease;
+        }
+
+        .quick-link-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .quick-link-card .ql-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            background: rgba(99, 102, 241, 0.08);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .quick-link-card .ql-text h4 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #1a1a2e;
+        }
+
+        .quick-link-card .ql-text p {
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        /* ========== 页脚 ========== */
+        .footer {
+            background: #1a1a2e;
+            color: #aaa;
+            text-align: center;
+            padding: 2.5rem 2rem;
+        }
+
+        .footer p {
+            font-size: 0.85rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .footer .footer-links {
+            margin-bottom: 1rem;
+        }
+
+        .footer .footer-links a {
+            color: #888;
+            text-decoration: none;
+            font-size: 0.85rem;
+            margin: 0 0.8rem;
+            transition: color 0.3s ease;
+        }
+
+        .footer .footer-links a:hover {
+            color: #fff;
+        }
+
+        /* ========== 响应式 ========== */
+        @media (max-width: 768px) {
+            .navbar-inner {
+                padding: 0 1rem;
+            }
+
+            .nav-menu {
+                display: none;
+            }
+
+            .banner h1 {
+                font-size: 2rem;
+            }
+
+            .banner p {
+                font-size: 0.95rem;
+            }
+
+            .info-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .image-link-area {
+                grid-template-columns: 1fr;
+            }
+
+            .quick-links {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 2rem 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ========== 顶部导航栏 ========== -->
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a href="index.html" class="logo">
+                <span class="logo-icon">周</span>
+                周浩的个人网站
+            </a>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="active">首页</a></li>
+                <li><a href="2-1.html">大国重器</a></li>
+                <li><a href="https://www.huanqiu.com" target="_blank">环球网</a></li>
+                <li><a href="#about">关于</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- ========== Banner 大图 ========== -->
+    <header class="banner">
+        <div class="banner-content">
+            <h1>周浩的第一个网页</h1>
+            <p>学号：24001010105 | 欢迎来到我的个人网站</p>
+            <a href="2-1.html" class="banner-btn">探索大国重器 →</a>
+        </div>
+    </header>
+
+    <!-- ========== 内容区 ========== -->
+    <main class="container">
+
+        <!-- 个人信息三栏 -->
+        <section id="about">
+            <div class="section-title">
+                <h2>关于我</h2>
+                <p>个人基本信息</p>
+            </div>
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="card-icon blue">姓</div>
+                    <h3>姓名</h3>
+                    <p>周浩</p>
+                </div>
+                <div class="info-card">
+                    <div class="card-icon purple">学</div>
+                    <h3>学号</h3>
+                    <p>24001010105</p>
+                </div>
+                <div class="info-card">
+                    <div class="card-icon orange">生</div>
+                    <h3>出生日期</h3>
+                    <p>2006年1月1日</p>
+                </div>
+                <div class="info-card">
+                    <div class="card-icon green">课</div>
+                    <h3>课程</h3>
+                    <p>高级网页设计</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 图片超链接区域 -->
+        <section>
+            <div class="section-title">
+                <h2>特色内容</h2>
+                <p>点击下方图片进入大国重器展示页</p>
+            </div>
+            <div class="image-link-area">
+                <div class="image-side">
+                    <a href="2-1.html">
+                        <img src="https://images.unsplash.com/photo-1457364887578-4c5b8b8c3a3e?w=600&h=480&fit=crop" alt="大国重器">
+                    </a>
+                </div>
+                <div class="text-side">
+                    <h3>大国重器</h3>
+                    <p>展示中国重大科技工程与装备，包括歼-20隐身战斗机、山东舰航空母舰、天宫空间站等国之重器。</p>
+                    <a href="2-1.html" class="go-btn">点击进入 →</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- 快捷链接 -->
+        <section>
+            <div class="section-title">
+                <h2>快捷链接</h2>
+                <p>常用网站导航</p>
+            </div>
+            <div class="quick-links">
+                <a href="https://www.huanqiu.com" target="_blank" rel="noopener noreferrer" class="quick-link-card">
+                    <div class="ql-icon">🌐</div>
+                    <div class="ql-text">
+                        <h4>环球网</h4>
+                        <p>新闻资讯网站</p>
+                    </div>
+                </a>
+                <a href="2-1.html" class="quick-link-card">
+                    <div class="ql-icon">🚀</div>
+                    <div class="ql-text">
+                        <h4>大国重器</h4>
+                        <p>中国重大科技装备</p>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ========== 页脚 ========== -->
+    <footer class="footer">
+        <div class="footer-links">
+            <a href="index.html">首页</a> |
+            <a href="2-1.html">大国重器</a> |
+            <a href="https://www.huanqiu.com" target="_blank">环球网</a>
+        </div>
+        <p>© 2026 周浩 | 学号 24001010105</p>
+        <p>高级网页设计课程</p>
+    </footer>
+
+</body>
+</html>

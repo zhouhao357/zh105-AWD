@@ -1,0 +1,11 @@
+# IDE
+.codebuddy/
+.vscode/
+
+# OS
+Thumbs.db
+Desktop.ini
+
+# 临时文件
+*.tmp
+*.log
