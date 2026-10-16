@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>周浩的《高级网页设计》课堂实践</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: #f0f0f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* ========== 顶部导航栏 ========== */
+        .navbar {
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .navbar-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #fff;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .logo-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 0.3rem;
+        }
+
+        .nav-menu a {
+            display: block;
+            padding: 0.45rem 1rem;
+            color: #ccc;
+            text-decoration: none;
+            font-size: 0.9rem;
+            border-radius: 8px;
+            transition: all 0.25s ease;
+        }
+
+        .nav-menu a:hover {
+            color: #fff;
+            background: rgba(99, 102, 241, 0.25);
+        }
+
+        /* ========== Banner ========== */
+        .banner {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%);
+            color: #fff;
+            text-align: center;
+            padding: 4.5rem 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(168, 85, 247, 0.15) 0%, transparent 50%);
+        }
+
+        .banner-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .banner h1 {
+            font-size: 2.4rem;
+            font-weight: 700;
+            margin-bottom: 0.6rem;
+            letter-spacing: 1.5px;
+        }
+
+        .banner .subtitle {
+            font-size: 1.05rem;
+            opacity: 0.85;
+            margin-bottom: 0.4rem;
+        }
+
+        .banner .info-line {
+            margin-top: 0.8rem;
+            font-size: 0.9rem;
+            opacity: 0.6;
+        }
+
+        .banner-badge {
+            display: inline-block;
+            margin-top: 1.5rem;
+            padding: 0.4rem 1.2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+        }
+
+        /* ========== 内容区 ========== */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 3.5rem 2rem;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .section-title h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 0.4rem;
+        }
+
+        .section-title p {
+            color: #999;
+            font-size: 0.92rem;
+        }
+
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 40px;
+            height: 3px;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            margin: 0.8rem auto 0;
+            border-radius: 2px;
+        }
+
+        /* 页面链接卡片 */
+        .page-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .page-card {
+            display: block;
+            background: #fff;
+            border-radius: 14px;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            text-decoration: none;
+            color: #333;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .page-card:hover {
+            border-color: transparent;
+            transform: translateY(-6px);
+            box-shadow: 0 12px 30px rgba(99, 102, 241, 0.18);
+        }
+
+        .page-card:hover::before {
+            opacity: 1;
+        }
+
+        .page-card .pc-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            margin: 0 auto 1.2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+            transition: transform 0.3s ease;
+        }
+
+        .page-card:hover .pc-icon {
+            transform: scale(1.08);
+        }
+
+        .page-card .pc-icon.c1 { background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(99, 102, 241, 0.06)); color: #6366f1; }
+        .page-card .pc-icon.c2 { background: linear-gradient(135deg, rgba(34, 197, 94, 0.12), rgba(34, 197, 94, 0.06)); color: #22c55e; }
+        .page-card .pc-icon.c3 { background: linear-gradient(135deg, rgba(236, 72, 153, 0.12), rgba(236, 72, 153, 0.06)); color: #ec4899; }
+        .page-card .pc-icon.c4 { background: linear-gradient(135deg, rgba(251, 146, 60, 0.12), rgba(251, 146, 60, 0.06)); color: #fb923c; }
+        .page-card .pc-icon.c5 { background: linear-gradient(135deg, rgba(168, 85, 247, 0.12), rgba(168, 85, 247, 0.06)); color: #a855f7; }
+
+        .page-card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1a1a2e;
+            margin-bottom: 0.4rem;
+        }
+
+        .page-card p {
+            font-size: 0.82rem;
+            color: #999;
+        }
+
+        .page-card .pc-arrow {
+            margin-top: 0.8rem;
+            font-size: 0.8rem;
+            color: #6366f1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .page-card:hover .pc-arrow {
+            opacity: 1;
+        }
+
+        /* 提示词展示框 */
+        .prompt-box {
+            background: #1a1a2e;
+            border-radius: 14px;
+            padding: 2rem 2.5rem;
+            margin-bottom: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .prompt-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
+        }
+
+        .prompt-box h3 {
+            color: #818cf8;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .prompt-box h3::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #818cf8;
+            box-shadow: 0 0 8px #818cf8;
+        }
+
+        .prompt-box pre {
+            color: #ccc;
+            font-size: 0.88rem;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: "Consolas", "Microsoft YaHei", monospace;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 1rem 1.2rem;
+            border-radius: 8px;
+            border-left: 3px solid #6366f1;
+        }
+
+        /* 统计数据条 */
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-item .stat-num {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-item .stat-label {
+            font-size: 0.8rem;
+            color: #999;
+            margin-top: 0.2rem;
+        }
+
+        /* ========== 页脚 ========== */
+        .footer {
+            background: #1a1a2e;
+            color: #888;
+            text-align: center;
+            padding: 2.5rem 2rem;
+        }
+
+        .footer p {
+            font-size: 0.85rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .footer .footer-links {
+            margin-bottom: 1rem;
+        }
+
+        .footer .footer-links a {
+            color: #888;
+            text-decoration: none;
+            font-size: 0.82rem;
+            margin: 0 0.6rem;
+            transition: color 0.3s ease;
+        }
+
+        .footer .footer-links a:hover {
+            color: #fff;
+        }
+
+        /* ========== 响应式 ========== */
+        @media (max-width: 768px) {
+            .navbar-inner {
+                padding: 0 1rem;
+            }
+
+            .nav-menu {
+                display: none;
+            }
+
+            .banner h1 {
+                font-size: 1.7rem;
+            }
+
+            .banner {
+                padding: 3rem 1.5rem;
+            }
+
+            .page-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-bar {
+                gap: 1.5rem;
+            }
+
+            .container {
+                padding: 2rem 1rem;
+            }
+
+            .prompt-box {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ========== 顶部导航栏 ========== -->
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a href="index.html" class="logo">
+                <span class="logo-icon">周</span>
+                课堂实践
+            </a>
+            <ul class="nav-menu">
+                <li><a href="index.html">首页</a></li>
+                <li><a href="个人主页.html">个人主页</a></li>
+                <li><a href="2-1.html">大国重器</a></li>
+                <li><a href="3-1.html">HTML表单</a></li>
+                <li><a href="4-1 css.html">CSS进阶</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- ========== Banner ========== -->
+    <header class="banner">
+        <div class="banner-content">
+            <h1>周浩的《高级网页设计》课堂实践</h1>
+            <p class="subtitle">学号：24001010105 | 姓名：周浩 | 班级：计算机科学与技术1班</p>
+            <p class="info-line">本页面汇总了课程实践的所有网页，点击下方卡片进入对应页面</p>
+            <span class="banner-badge">2026年度课程实践</span>
+        </div>
+    </header>
+
+    <!-- ========== 内容区 ========== -->
+    <main class="container">
+
+        <!-- 统计数据 -->
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-num">5</div>
+                <div class="stat-label">实践页面</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-num">3</div>
+                <div class="stat-label">知识点模块</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-num">100%</div>
+                <div class="stat-label">原生代码</div>
+            </div>
+        </div>
+
+        <!-- 页面链接 -->
+        <section>
+            <div class="section-title">
+                <h2>课堂实践页面导航</h2>
+                <p>点击卡片进入对应实践页面</p>
+            </div>
+            <div class="page-grid">
+                <a href="个人主页.html" class="page-card">
+                    <div class="pc-icon c1">主页</div>
+                    <h3>个人主页</h3>
+                    <p>个人信息展示页面</p>
+                    <div class="pc-arrow">点击进入 →</div>
+                </a>
+                <a href="2-1.html" class="page-card">
+                    <div class="pc-icon c2">重器</div>
+                    <h3>大国重器</h3>
+                    <p>四行三列表格展示</p>
+                    <div class="pc-arrow">点击进入 →</div>
+                </a>
+                <a href="3-1.html" class="page-card">
+                    <div class="pc-icon c3">表单</div>
+                    <h3>HTML表单</h3>
+                    <p>各类表单元素练习</p>
+                    <div class="pc-arrow">点击进入 →</div>
+                </a>
+                <a href="4-1 css.html" class="page-card">
+                    <div class="pc-icon c4">CSS</div>
+                    <h3>CSS进阶</h3>
+                    <p>五种选择器实践</p>
+                    <div class="pc-arrow">点击进入 →</div>
+                </a>
+                <a href="3-2 css.html" class="page-card">
+                    <div class="pc-icon c5">CSS</div>
+                    <h3>CSS基础</h3>
+                    <p>CSS基础样式练习</p>
+                    <div class="pc-arrow">点击进入 →</div>
+                </a>
+            </div>
+        </section>
+
+        <!-- 提示词展示 -->
+        <section>
+            <div class="section-title">
+                <h2>本页提示词</h2>
+                <p>创建本页面的原始指令</p>
+            </div>
+            <div class="prompt-box">
+                <h3>提示词内容</h3>
+<pre>"创建一个新页面，包括本目录下的所有网页的超链接，使用原生代码，不使用CDN，新页面名称为index.html，主题为周浩的《高级网页设计》课堂实践，美化页面，页面中包括本提示词。"</pre>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ========== 页脚 ========== -->
+    <footer class="footer">
+        <div class="footer-links">
+            <a href="index.html">首页</a> |
+            <a href="个人主页.html">个人主页</a> |
+            <a href="2-1.html">大国重器</a> |
+            <a href="3-1.html">HTML表单</a> |
+            <a href="4-1 css.html">CSS进阶</a>
+        </div>
+        <p>© 2026 周浩 | 学号 24001010105 | 计算机科学与技术1班</p>
+        <p>《高级网页设计》课堂实践</p>
+    </footer>
+
+</body>
+</html>

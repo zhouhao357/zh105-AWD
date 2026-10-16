@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>10-3 媒体查询视口变化</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* rem基准：1rem = 16px */
+        html {
+            font-size: 16px;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: "Microsoft YaHei", sans-serif;
+            transition: background-color 0.6s ease;
+        }
+
+        /* 全屏盒子 */
+        .box {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            transition: background-color 0.6s ease;
+        }
+
+        .box h1 {
+            color: #fff;
+            text-shadow: 0.125rem 0.125rem 0.625rem rgba(0, 0, 0, 0.4);
+            transition: font-size 0.4s ease, color 0.6s ease;
+            /* 使用rem单位 */
+            font-size: 3rem;
+            letter-spacing: 0.5rem;
+        }
+
+        .box p {
+            margin-top: 1.25rem;
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 1.25rem;
+            letter-spacing: 0.3rem;
+            text-shadow: 0.0625rem 0.0625rem 0.3125rem rgba(0, 0, 0, 0.3);
+            transition: font-size 0.4s ease;
+        }
+
+        .box .info {
+            margin-top: 2.5rem;
+            padding: 0.625rem 1.875rem;
+            border: 0.125rem solid rgba(255, 255, 255, 0.5);
+            border-radius: 0.625rem;
+            color: #fff;
+            font-size: 1rem;
+            letter-spacing: 0.15rem;
+            backdrop-filter: blur(0.625rem);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* ====== 媒体查询：视口变化时背景颜色变化 ====== */
+
+        /* 超大屏 ≥1200px — 深紫 */
+        @media (min-width: 1200px) {
+            .box {
+                background: linear-gradient(135deg, #2c3e50, #8e44ad);
+            }
+            html {
+                font-size: 20px;
+            }
+        }
+
+        /* 大屏 992px~1199px — 蓝色 */
+        @media (min-width: 992px) and (max-width: 1199.98px) {
+            .box {
+                background: linear-gradient(135deg, #2980b9, #6dd5fa);
+            }
+            html {
+                font-size: 18px;
+            }
+        }
+
+        /* 中屏 768px~991px — 绿色 */
+        @media (min-width: 768px) and (max-width: 991.98px) {
+            .box {
+                background: linear-gradient(135deg, #16a085, #2ecc71);
+            }
+            html {
+                font-size: 16px;
+            }
+        }
+
+        /* 小屏 576px~767px — 橙色 */
+        @media (min-width: 576px) and (max-width: 767.98px) {
+            .box {
+                background: linear-gradient(135deg, #d35400, #f39c12);
+            }
+            html {
+                font-size: 14px;
+            }
+        }
+
+        /* 超小屏 <576px — 红色 */
+        @media (max-width: 575.98px) {
+            .box {
+                background: linear-gradient(135deg, #c0392b, #e74c3c);
+            }
+            html {
+                font-size: 12px;
+            }
+            .box h1 {
+                font-size: 2rem;
+                letter-spacing: 0.3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h1>周浩</h1>
+        <p>高级网页设计 · 媒体查询响应式</p>
+        <div class="info">改变浏览器窗口大小，背景颜色与文字大小会随视口变化</div>
+    </div>
+</body>
+</html>
