@@ -23,5 +23,5 @@ Thumbs.db
 # Log files
 *.log
 
-# Word 临时锁文件
+# Word lock files
 ~$*

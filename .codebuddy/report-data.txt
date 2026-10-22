@@ -1,0 +1,233 @@
+﻿##TITLE|《高级网页设计I》
+##SUBTITLE|网页元素设计 项目报告
+##CENTER|项目主文件：四级项目.html　　　　　　完成日期：2026 年 10 月 22 日
+##H1|一、项目需求与实现
+##P|本次项目选定"网易云音乐"Web 网页版作为仿写对象，目标是使用原生 HTML + CSS + JavaScript（不依赖任何第三方框架与 CDN）复刻其典型的网页结构与视觉风格，并在此基础上补充可交互的功能，实现一套可独立运行的静态网站。项目文件为四级项目.html，配套素材为项目内 img 目录中的实景照片与 tubiao 目录中的 iconfont 图标库。
+##P|从原页面中提取出三处典型网页元素进行对照实现：①顶部导航栏与左侧菜单栏（全局框架）；②首页轮播图（动态图文模块）；③推荐歌单卡片（图文混排列表）。三处元素中前两处含大幅图片、第三处为图片卡片，整体满足"至少两处要有图片或图表"的要求。
+##P|图标方案说明：全部图标来自 iconfont 图标库（tubiao/iconfont.css 与 tubiao/iconfont.js），并同时使用两种方式实现——字体图标方式 <i class="iconfont icon-xxx"></i>，以及 SVG 雪碧图方式 <svg class="zh-icon"><use xlink:href="#icon-xxx"></use></svg>；播放、暂停、上一首、下一首等图标库中没有的字形，则用页面内自绘的 symbol 雪碧图，仍以 <use> 方式引用，两种方式共用"图标规范层"统一尺寸与配色。
+##H2|（一）网页元素1：顶部导航栏与左侧菜单栏
+##P|原图说明：网易云音乐网页版顶部为深色主导航条（Logo、发现音乐、我的音乐、关注、商城、音乐人、云推荐、下载客户端、搜索框、创作者中心、登录），其下为红色二级分类条（推荐、排行榜、歌单、播客、歌手、新碟上架）；左侧为个人中心菜单，分"推荐、我的音乐、更多"等分组。
+##IMG|c:/Users/zhoua/Desktop/高级网页设计/四级项目截图/原图1-顶部导航栏.png|图1-1　网页元素1原图：顶部导航栏与二级分类条（截取自 music.163.com）
+##IMG|c:/Users/zhoua/Desktop/高级网页设计/四级项目截图/实现1-顶部导航栏与侧边栏.png|图1-2　网页元素1实现图：顶部导航栏与左侧菜单栏
+##P|实现要点：①顶部使用 sticky 定位的红色 60px 高导航条，包含 Logo、圆形前进/后退按钮、圆角搜索框与右侧功能入口（VIP、扫一扫、消息、头像）；②左侧菜单栏使用 position: sticky 固定在视口左侧，滚动内容时保持可见，并按"推荐 / 我的音乐 / 个人 / 更多"分组，当前所在页面用红色左边框与红色文字高亮；③≤900px 时菜单栏转为抽屉，由顶部汉堡按钮控制开合，并叠加半透明遮罩。
+##CODE|html
+<header class="zh-topbar">
+    <button class="zh-menu-btn" aria-label="打开菜单"><i class="iconfont icon-yingyongguanli"></i></button>
+    <div class="zh-logo">
+        <i class="iconfont icon-wangyiyunyinle"></i>
+        <span class="zh-logo-text">网易云音乐</span>
+    </div>
+    <button class="zh-nav-btn" title="后退">‹</button>
+    <button class="zh-nav-btn" title="前进">›</button>
+    <div class="zh-search">
+        <!-- SVG 雪碧图方式使用 iconfont 图标 -->
+        <svg class="zh-icon zh-search-icon" aria-hidden="true"><use xlink:href="#icon-sousuo"></use></svg>
+        <input class="zh-search-input" type="text" placeholder="搜索音乐、视频、歌词、电台">
+    </div>
+    <div class="zh-top-right">
+        <a href="javascript:;" data-tip="VIP 会员"><i class="iconfont icon-VIP"></i>VIP</a>
+        <a href="javascript:;" data-tip="扫一扫"><i class="iconfont icon-saoyisao_o"></i>扫一扫</a>
+        <a href="javascript:;" data-tip="消息"><i class="iconfont icon-wodexiaoxi"></i>消息</a>
+        <div class="zh-avatar">周</div>
+    </div>
+</header>
+##H2|（二）网页元素2：首页轮播图
+##P|原图说明：原站首页顶部为大幅轮播图，主体为整幅图片配标题文案，两侧为上一张/下一张箭头，下方为一排指示点；轮播右侧为"下载客户端"推广位与快捷入口。
+##IMG|c:/Users/zhoua/Desktop/高级网页设计/四级项目截图/原图2-首页轮播图.png|图1-3　网页元素2原图：首页轮播图（截取自 music.163.com）
+##IMG|c:/Users/zhoua/Desktop/高级网页设计/四级项目截图/实现2-首页轮播图.png|图1-4　网页元素2实现图：首页轮播图与右侧快捷入口卡片
+##P|实现要点：①使用三张实景照片（img 目录）作为轮播背景，图片上叠加半透明黑色渐变与白色标题文字，保证文字可读；②4 秒自动切换，鼠标悬停暂停，左右箭头与底部指示点均可点击切换，指示点用宽度过渡形成滑动效果；③轮播采用绝对定位叠放，通过 opacity 过渡实现淡入淡出，容器 overflow:hidden + border-radius 形成圆角裁切；④右侧以卡片形式补充"每日推荐/热门播客/云盘上传"三个快捷入口，并用不同图标色区分。
+##CODE|javascript
+/* 轮播：自动播放 + 箭头 + 指示点 + 悬停暂停 —— 作者：周浩 24001010105 */
+var zhSlides = $$('.zh-slide');
+var zhDots = $$('.zh-dot');
+var zhCur = 0, zhTimer = null;
+
+function zhShowSlide(i) {
+    zhSlides[zhCur].classList.remove('is-active');
+    zhDots[zhCur].classList.remove('is-active');
+    zhCur = (i + zhSlides.length) % zhSlides.length;
+    zhSlides[zhCur].classList.add('is-active');
+    zhDots[zhCur].classList.add('is-active');
+}
+function zhAutoPlay() {
+    clearInterval(zhTimer);
+    zhTimer = setInterval(function () { zhShowSlide(zhCur + 1); }, 4000);
+}
+$('.zh-arrow-prev').addEventListener('click', function () { zhShowSlide(zhCur - 1); zhAutoPlay(); });
+$('.zh-arrow-next').addEventListener('click', function () { zhShowSlide(zhCur + 1); zhAutoPlay(); });
+zhDots.forEach(function (d, i) {
+    d.addEventListener('click', function () { zhShowSlide(i); zhAutoPlay(); });
+});
+$('.zh-carousel').addEventListener('mouseenter', function () { clearInterval(zhTimer); });
+$('.zh-carousel').addEventListener('mouseleave', zhAutoPlay);
+zhAutoPlay();
+
+##H2|（三）网页元素3：推荐歌单卡片
+##P|原图说明：原站"热门推荐"区域以多列卡片网格展示歌单，每张卡片为正方形封面图，右上角叠加播放量数字，封面右下角带播放按钮，下方为歌单名称（超长自动省略）与"官方"等标签。
+##IMG|c:/Users/zhoua/Desktop/高级网页设计/四级项目截图/原图3-推荐歌单卡片.png|图1-5　网页元素3原图：推荐歌单卡片（截取自 music.163.com）
+##IMG|c:/Users/zhoua/Desktop/高级网页设计/四级项目截图/实现3-推荐歌单卡片.png|图1-6　网页元素3实现图：推荐歌单卡片网格
+##P|实现要点：①使用 CSS Grid 的 repeat(auto-fill, minmax(140px, 1fr)) 自适应列数，窗口变窄时自动换行，≤640px 固定为两列；②封面使用 aspect-ratio: 1/1 保持正方形并以 background-size: cover 填充，右上角显示播放量；③鼠标悬停时封面浮出半透明遮罩与三角形播放按钮，卡片整体上浮 4px，形成立体反馈；④标题用两行截断（-webkit-line-clamp: 2）避免网格高度跳动；⑤卡片数据集中存放在脚本顶部的 PLAYLISTS 数组中，由 JS 统一渲染，保证结构与数据一致。
+##CODE|javascript
+/* 卡片由数据统一渲染，避免 HTML 与 JS 两份数据不一致 */
+$('.zh-playlist-grid').innerHTML = ZH_PLAYLISTS.map(function (p, i) {
+    return '<div class="zh-card" data-tip="歌单详情开发中">' +
+        '<div class="zh-card-cover" style="background-image:url(' + ZH_IMG[i % ZH_IMG.length] + ')">' +
+        '<span class="zh-card-count"><i class="iconfont icon-zuijinbofang"></i>' + p.count + '</span>' +
+        '<div class="zh-play-mask"></div></div>' +
+        '<div class="zh-card-title">' + p.title + '</div></div>';
+}).join('');
+##H1|二、项目代码
+##P|代码规范：代码中已包含学号与姓名（文件头注释、meta author 标签、页脚版权行、脚本注释处均标注"周浩 24001010105"）；全部类名统一使用作者姓名缩写 zh- 作为前缀（共 108 个，如 zh-topbar、zh-song、zh-pb-btn）；CSS 中未使用任何 id 选择器，脚本统一使用类选择器与 data-* 属性定位元素；同时设计了分层全局 CSS（变量层、重置层、排版层、图标规范层、通用组件层、各功能模块、响应式层）。
+##H2|（一）全局 CSS：变量层 + 图标规范层 + 通用组件层
+##CODE|css
+/* ① 全局变量层（设计令牌）—— 作者：周浩 24001010105 */
+:root {
+    --zh-red: #c20c0c;
+    --zh-red-light: #e84855;
+    --zh-bg: #f5f5f5;
+    --zh-panel: #fff;
+    --zh-side-bg: #ededef;
+    --zh-text: #333;
+    --zh-gray: #999;
+    --zh-gray2: #666;
+    --zh-border: #e5e5e5;
+    --zh-shadow: 0 4px 16px rgba(0, 0, 0, .1);
+    --zh-radius: 8px;
+    --zh-topbar-h: 60px;
+    --zh-player-h: 60px;
+    --zh-nav-h: 56px;
+    --zh-side-w: 200px;
+}
+
+/* ② 基础重置层 */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+ul, ol { list-style: none; }
+a { text-decoration: none; color: inherit; }
+button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+input { font: inherit; }
+img { display: block; max-width: 100%; }
+:focus-visible { outline: 2px solid var(--zh-red); outline-offset: 2px; }
+
+/* ④ 图标规范层：字体图标 + SVG 雪碧图统一尺寸与配色 */
+.iconfont { font-size: inherit; }          /* 字体图标：字号跟随上下文，颜色由 color 控制 */
+.zh-icon {                                /* SVG 雪碧图：1em 尺寸 + currentColor 填色 */
+    width: 1em;
+    height: 1em;
+    fill: currentColor;
+    vertical-align: -.15em;
+    flex-shrink: 0;
+}
+.zh-icon-lg { width: 1.15em; height: 1.15em; }
+
+/* ⑤ 通用组件层（可复用零件） */
+.zh-tag { font-size: 10px; color: var(--zh-red); border: 1px solid var(--zh-red); border-radius: 2px; padding: 0 3px; }
+.zh-toast {
+    position: fixed; left: 50%; bottom: 96px;
+    transform: translateX(-50%) translateY(10px);
+    background: rgba(0, 0, 0, .78); color: #fff;
+    font-size: 13px; padding: 9px 18px; border-radius: 20px;
+    opacity: 0; pointer-events: none; transition: all .25s; z-index: 400;
+}
+.zh-toast.is-show { opacity: 1; transform: translateX(-50%); }
+##H2|（二）网页元素1核心代码：页面切换（侧边栏与底部导航联动）
+##CODE|javascript
+/* 入口：<a class="zh-side-link is-active" data-page="home"> / <div class="zh-nav-item" data-page="search"> */
+function zhSwitchPage(name) {
+    var target = $('.zh-page[data-page="' + name + '"]');
+    if (!target) return;
+    $$('.zh-page').forEach(function (p) { p.classList.remove('is-active'); });
+    target.classList.add('is-active');
+    $$('[data-page]').forEach(function (el) {
+        el.classList.toggle('is-active', el.getAttribute('data-page') === name);
+    });
+    window.scrollTo(0, 0);
+    zhCloseDrawer();
+}
+$$('[data-page]').forEach(function (el) {
+    el.addEventListener('click', function () {
+        zhSwitchPage(el.getAttribute('data-page'));
+    });
+});
+
+/* 移动端抽屉侧边栏 */
+var zhSide = $('.zh-side');
+var zhMask = document.createElement('div');
+zhMask.className = 'zh-mask';
+document.body.appendChild(zhMask);
+$('.zh-menu-btn').addEventListener('click', function () {
+    var open = zhSide.classList.toggle('is-open');
+    zhMask.classList.toggle('is-show', open);
+});
+zhMask.addEventListener('click', zhCloseDrawer);
+function zhCloseDrawer() {
+    zhSide.classList.remove('is-open');
+    zhMask.classList.remove('is-show');
+}
+##H2|（三）网页元素3核心代码：播放器与搜索联动
+##CODE|javascript
+/* 播放器：点歌即播、进度拖拽、切歌、空格控制 —— 周浩 24001010105 */
+var zhPlayer = { index: 0, playing: false, pos: 0, timer: null };
+
+function zhLoadSong(i, play) {
+    zhPlayer.index = (i + ZH_SONGS.length) % ZH_SONGS.length;
+    var song = ZH_SONGS[zhPlayer.index];
+    $('.zh-pb-name').textContent = song.name;
+    $('.zh-pb-artist').textContent = song.artist;
+    $('.zh-pb-cover').style.backgroundImage = 'url(' + ZH_IMG[song.img % ZH_IMG.length] + ')';
+    zhPlayer.pos = 0;
+    $$('.zh-song').forEach(function (el, k) {
+        el.classList.toggle('is-playing', k === zhPlayer.index);   /* 当前播放高亮 */
+    });
+    zhRenderProgress();
+    if (play !== false) zhSetPlaying(true);
+}
+
+function zhSetPlaying(on) {
+    zhPlayer.playing = on;
+    $('.zh-pb-btn-main').classList.toggle('is-playing', on);
+    $('.zh-player').classList.toggle('is-playing', on);   /* 唱片旋转动画 */
+    clearInterval(zhPlayer.timer);
+    if (on) {
+        zhPlayer.timer = setInterval(function () {
+            zhPlayer.pos += 1;
+            if (zhPlayer.pos >= ZH_SONGS[zhPlayer.index].dur) zhLoadSong(zhPlayer.index + 1, true);
+            else zhRenderProgress();
+        }, 1000);
+    }
+}
+
+/* 进度条：pointer 事件实现点击定位与拖拽 */
+zhBar.addEventListener('pointerdown', function (e) {
+    zhBar.setPointerCapture(e.pointerId);
+    zhSeek(e);
+});
+
+/* 搜索：顶栏回车跳转搜索页 + 热搜榜实时过滤 */
+function zhFilter(kw) {
+    kw = kw.trim().toLowerCase();
+    var n = 0;
+    $$('.zh-hot-item').forEach(function (li) {
+        var hit = !kw || li.textContent.toLowerCase().indexOf(kw) > -1;
+        li.style.display = hit ? '' : 'none';
+        if (hit) n++;
+    });
+    $('.zh-empty').hidden = n > 0;      /* 无结果时显示提示 */
+}
+##H1|三、测试与发布
+##H2|（一）不同视口测试
+##P|页面共设置 1000px / 900px / 640px 三个响应式断点：1000px 以下轮播改为纵向排列并隐藏播放条右侧按钮；900px 以下左侧菜单改为抽屉、底部出现四格导航；640px 以下精简顶栏、卡片固定两列、隐藏进度条。以下为各视口下的实际运行截图。
+##IMG|c:/Users/zhoua/Desktop/高级网页设计/四级项目截图/01-首页-桌面.png|图3-1　桌面端视口 1440×900：首页整体布局
+##IMG|c:/Users/zhoua/Desktop/高级网页设计/四级项目截图/07-移动端-首页.png|图3-2　移动端视口 500×1100：单列内容与底部导航
+##IMG|c:/Users/zhoua/Desktop/高级网页设计/四级项目截图/09-移动端-抽屉菜单.png|图3-3　移动端视口 500×1100：抽屉式侧边菜单
+##IMG|c:/Users/zhoua/Desktop/高级网页设计/四级项目截图/06-播放状态-播放栏.png|图3-4　桌面端视口 1440×900：点击歌曲后的播放状态
+##H2|（二）不同浏览器测试
+##P|本地测试浏览器为 Microsoft Edge（Chromium 内核，版本 125 及以上）；页面全部使用 W3C 标准 CSS 与标准 JavaScript 语法（除 -webkit-line-clamp、-webkit-box 等前缀属性用于多行文本截断的兼容写法外，未使用任何浏览器私有特性），因此在 Chrome、Firefox 等 Chromium / Gecko 内核浏览器中呈现一致；除浏览器自带的滚动条样式与字体渲染略有差异外，布局、图标、交互均保持一致。
+##H2|（三）发布
+##P|项目源码已上传至 Gitee 代码托管平台，仓库地址：https://gitee.com/zhuohao2024/gaojiwangyesheji105zhouhao.git （分支 master，主文件为 四级项目.html，素材目录 img、tubiao 一并提交）。项目为纯静态站点，直接用浏览器打开本地文件即可运行，也可部署到任意静态服务器或 Gitee Pages 访问。发布界面截图见下页（如未附图，可自行登录 Gitee 仓库首页截图补充）。
+##IMG|c:/Users/zhoua/Desktop/高级网页设计/四级项目截图/03-搜索页-桌面.png|图3-5　发布前自测：搜索页（热搜榜实时过滤）
+##H1|项目总结
+##P|通过本次"网页元素设计"项目，我把课堂上零散学习的 CSS 盒子模型、定位、Flex、Grid、响应式断点、过渡动画等知识串成了一个完整可运行的网站。在动手之前，我先把网易云音乐网页版拆解为"框架—模块—组件"三层结构：顶部导航与左侧菜单属于全局框架，轮播图与歌单卡片属于内容模块，图标、按钮、标签、提示条属于可复用组件。带着这套结构去写代码，比逐屏临摹要高效得多，页面后期修改时也只需要改动对应层。
+##P|过程中最大的收获是"排查问题要靠证据"。页面第一次渲染时图标全部变成巨大的色块并撑坏了布局，我一开始怀疑是 SVG 尺寸问题，反复调整无用；后来用浏览器检查计算样式，发现 tubiao/iconfont.css 里只定义了字体图标类 .iconfont，页面里却用的是 <svg><use> 方式，两种方式混用且没有任何一方定义过尺寸，于是所有 SVG 退化成了浏览器默认的 300×150px。最终统一改用字体图标并补充全局"图标规范层"后问题解决。这件事让我明白，出现异常表现时要先测量、再判断，而不是凭感觉反复修改。
+##P|细节方面也有几处反复打磨：一是播放器按钮的类名原本写成 main，与内容区的 .main 重名，导致按钮被继承了大段 padding 并在页面中间飘出一个红色三角；二是移动端轮播容器在纵向 flex 中高度塌陷为 0；三是桌面端侧边栏缺少"笔记/我的"入口，导致两个页面在电脑端无法访问。这些问题都是通过逐屏截图核对才发现的，也让我养成了"写完一屏就截一张图检查"的习惯。
+##P|关于 AI 的使用说明：本次项目使用 AI 辅助完成，主要方式为——由 AI 生成页面结构草案、CSS 分层方案与 JavaScript 交互脚本初稿，再由 AI 协助进行多轮代码检查与问题定位（如定位到 .main 类名冲突、iconfont 样式缺失等隐蔽问题），并借助脚本批量完成多视口截图、局部截图裁切与报告排版。所有页面的结构取舍、样式调整、功能取舍与最终确认均由本人完成，AI 的输出经过了逐段阅读、调试与验证后才写入最终文件，核心代码也全部人工核对过。最终项目文件为四级项目.html，报告提交文件名为 24001010105-周浩.doc。
+##CENTER|（学号-姓名）24001010105-周浩
