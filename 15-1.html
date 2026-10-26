@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>15-1 数字七的规则</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #94a3b8;
+            --pass: #eef2ff;
+            --pass-border: #c7d2fe;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        /* ===== 导航栏 ===== */
+        .navbar {
+            background: #fff;
+            box-shadow: 0 1px 8px rgba(0, 0, 0, 0.08);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .navbar-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        /* ===== Hero ===== */
+        .hero {
+            text-align: center;
+            padding: 3rem 1.5rem 2rem;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: #fff;
+        }
+
+        .hero h1 {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .hero p {
+            font-size: 0.95rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* ===== 规则说明 ===== */
+        .rule-bar {
+            max-width: 1100px;
+            margin: 2rem auto 0;
+            padding: 0 1.5rem;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .rule-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--dark);
+        }
+
+        .swatch {
+            width: 22px;
+            height: 22px;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .swatch.num {
+            background: #fff;
+            color: var(--dark);
+        }
+
+        .swatch.empty {
+            background: var(--pass);
+            border-color: var(--pass-border);
+            color: var(--primary);
+        }
+
+        /* ===== 盒子网格 ===== */
+        .board {
+            max-width: 1100px;
+            margin: 1.5rem auto 3rem;
+            padding: 0 1.5rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 8px;
+        }
+
+        .box {
+            aspect-ratio: 1 / 1;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(0.7rem, 1.4vw, 1rem);
+            font-weight: 600;
+            color: var(--dark);
+            transition: all 0.25s ease;
+            user-select: none;
+        }
+
+        .box:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .box.pass {
+            background: var(--pass);
+            border-color: var(--pass-border);
+            color: var(--primary);
+            content: "";
+        }
+
+        .box.pass::after {
+            content: "";
+            display: block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--primary);
+            opacity: 0.4;
+        }
+
+        /* ===== 统计 ===== */
+        .stats {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 1.5rem 2rem;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 1rem 1.5rem;
+            text-align: center;
+            min-width: 140px;
+        }
+
+        .stat-card .num {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .stat-card .label {
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-top: 0.25rem;
+        }
+
+        /* ===== 页脚 ===== */
+        footer {
+            background: var(--dark);
+            color: var(--gray);
+            text-align: center;
+            padding: 1.5rem;
+            font-size: 0.8rem;
+        }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 600px) {
+            .grid {
+                grid-template-columns: repeat(10, 1fr);
+                gap: 5px;
+            }
+            .hero h1 {
+                font-size: 1.4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <div class="logo">周浩 · 数字七的规则</div>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+        <h1>逢七必过</h1>
+        <p>1 ~ 100 共一百个盒子：能被 7 整除或包含数字 7 的盒子显示为空，其余显示对应数字。</p>
+    </section>
+
+    <!-- 图例 -->
+    <div class="rule-bar">
+        <div class="rule-item"><span class="swatch num">8</span>普通数字</div>
+        <div class="rule-item"><span class="swatch empty"></span>满足规则（空盒子）</div>
+    </div>
+
+    <!-- 统计 -->
+    <div class="stats" id="stats"></div>
+
+    <!-- 盒子网格 -->
+    <div class="board">
+        <div class="grid" id="grid"></div>
+    </div>
+
+    <footer>周浩 · 高级网页设计 15-1 · 2026</footer>
+
+    <script>
+        // 判断是否满足“数字七”规则：能被 7 整除 或 包含数字 7
+        function hitRule(n) {
+            return n % 7 === 0 || String(n).indexOf('7') !== -1;
+        }
+
+        const TOTAL = 100;
+        const grid = document.getElementById('grid');
+        const stats = document.getElementById('stats');
+
+        // 容器存在性前置检查
+        if (!grid) {
+            throw new Error('grid 容器未挂载');
+        }
+
+        let passCount = 0;
+        let html = '';
+
+        for (let i = 1; i <= TOTAL; i++) {
+            if (hitRule(i)) {
+                passCount++;
+                html += `<div class="box pass" title="${i}（满足规则）"></div>`;
+            } else {
+                html += `<div class="box">${i}</div>`;
+            }
+        }
+
+        grid.innerHTML = html;
+
+        // 统计区
+        if (stats) {
+            stats.innerHTML = `
+                <div class="stat-card">
+                    <div class="num">${TOTAL}</div>
+                    <div class="label">总数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="num">${passCount}</div>
+                    <div class="label">空盒子</div>
+                </div>
+                <div class="stat-card">
+                    <div class="num">${TOTAL - passCount}</div>
+                    <div class="label">数字盒子</div>
+                </div>
+            `;
+        }
+    </script>
+
+</body>
+</html>
