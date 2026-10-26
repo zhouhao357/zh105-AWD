@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>15-2 JavaScript 程序结构：循环与条件</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #94a3b8;
+            --bg-code: #0f172a;
+            --accent: #22d3ee;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        /* 导航 */
+        .navbar {
+            background: #fff;
+            box-shadow: 0 1px 8px rgba(0,0,0,0.08);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .navbar-inner {
+            max-width: 1100px; margin: 0 auto; padding: 0 1.5rem;
+            height: 60px; display: flex; align-items: center; justify-content: space-between;
+        }
+        .logo { font-size: 1.2rem; font-weight: bold; color: var(--primary); }
+        .nav-links { display: flex; gap: 1.5rem; list-style: none; }
+        .nav-links a { text-decoration: none; color: var(--dark); font-size: 0.9rem; transition: color .3s; }
+        .nav-links a:hover { color: var(--primary); }
+
+        /* Hero */
+        .hero {
+            text-align: center; padding: 3rem 1.5rem 2rem;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff;
+        }
+        .hero h1 { font-size: 2rem; margin-bottom: .75rem; }
+        .hero p { font-size: .95rem; opacity: .9; max-width: 600px; margin: 0 auto; }
+
+        /* 通用 section */
+        .section { max-width: 1100px; margin: 0 auto; padding: 2.5rem 1.5rem; }
+        .section-title { text-align: center; margin-bottom: 2rem; }
+        .section-title h2 { font-size: 1.6rem; margin-bottom: .5rem; }
+        .section-title p { color: var(--gray); font-size: .9rem; }
+
+        /* 卡片 */
+        .card {
+            background: #fff; border: 1px solid #e2e8f0; border-radius: 12px;
+            overflow: hidden; margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .card-header {
+            padding: 1rem 1.25rem; background: #f1f5f9;
+            display: flex; align-items: center; justify-content: space-between;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .card-header h3 { font-size: 1.05rem; }
+        .card-header .tag {
+            font-size: .7rem; padding: .15rem .5rem; border-radius: 4px;
+            color: #fff; background: var(--primary);
+        }
+        .card-body { padding: 1.25rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+
+        /* 代码块 */
+        pre {
+            background: var(--bg-code); color: #e2e8f0; border-radius: 8px;
+            padding: 1rem; font-size: .82rem; line-height: 1.55; overflow-x: auto;
+            font-family: "Consolas", "Monaco", monospace;
+        }
+        pre .kw { color: #c084fc; }      /* 关键字 */
+        pre .str { color: #86efac; }     /* 字符串 */
+        pre .num { color: #fbbf24; }     /* 数字 */
+        pre .com { color: #64748b; font-style: italic; } /* 注释 */
+        pre .fn { color: #67e8f9; }      /* 函数 */
+
+        /* 运行区 */
+        .run-area { display: flex; flex-direction: column; gap: .75rem; }
+        .controls { display: flex; gap: .5rem; flex-wrap: wrap; }
+        .btn {
+            padding: .45rem 1rem; border: none; border-radius: 6px;
+            font-size: .85rem; cursor: pointer; transition: all .2s;
+            background: var(--primary); color: #fff;
+        }
+        .btn:hover { background: var(--primary-dark); transform: translateY(-1px); }
+        .btn.outline { background: transparent; border: 1.5px solid #e2e8f0; color: var(--dark); }
+        .btn.outline:hover { border-color: var(--primary); color: var(--primary); }
+
+        .output {
+            background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px;
+            padding: .8rem 1rem; min-height: 80px; font-family: "Consolas", monospace;
+            font-size: .85rem; color: #334155; white-space: pre-wrap; word-break: break-word;
+        }
+        .output .label { color: var(--gray); font-size: .75rem; display: block; margin-bottom: .3rem; }
+
+        /* 综合演示 */
+        .combined .card-body { grid-template-columns: 1fr; }
+        .combined pre { font-size: .85rem; }
+
+        /* 页脚 */
+        footer {
+            background: var(--dark); color: var(--gray); text-align: center;
+            padding: 1.5rem; font-size: .8rem;
+        }
+
+        /* 响应式 */
+        @media (max-width: 760px) {
+            .card-body { grid-template-columns: 1fr; }
+            .nav-links { display: none; }
+            .hero h1 { font-size: 1.4rem; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="navbar-inner">
+        <div class="logo">周浩 · JavaScript 程序结构</div>
+        <ul class="nav-links">
+            <li><a href="#condition">条件</a></li>
+            <li><a href="#loop">循环</a></li>
+            <li><a href="#combined">综合</a></li>
+        </ul>
+    </div>
+</nav>
+
+<section class="hero">
+    <h1>JavaScript 程序结构</h1>
+    <p>通过「代码展示 + 一键运行」直观理解 条件语句 与 循环语句 的执行过程。</p>
+</section>
+
+<!-- ========== 条件语句 ========== -->
+<section class="section" id="condition">
+    <div class="section-title">
+        <h2>一、条件语句</h2>
+        <p>if / else if / else、switch、三元表达式</p>
+    </div>
+
+    <!-- if-else -->
+    <div class="card">
+        <div class="card-header">
+            <h3>1. if / else if / else —— 成绩等级判定</h3>
+            <span class="tag">条件</span>
+        </div>
+        <div class="card-body">
+<pre><span class="kw">function</span> <span class="fn">getGrade</span>(score) {
+    <span class="kw">if</span> (score >= <span class="num">90</span>)      <span class="kw">return</span> <span class="str">'优秀 A'</span>;
+    <span class="kw">else if</span> (score >= <span class="num">80</span>) <span class="kw">return</span> <span class="str">'良好 B'</span>;
+    <span class="kw">else if</span> (score >= <span class="num">60</span>) <span class="kw">return</span> <span class="str">'及格 C'</span>;
+    <span class="kw">else</span>                    <span class="kw">return</span> <span class="str">'不及格 D'</span>;
+}</pre>
+            <div class="run-area">
+                <div class="controls">
+                    <input type="number" id="scoreInput" value="85" min="0" max="100"
+                           style="padding:.4rem .6rem;border:1px solid #cbd5e1;border-radius:6px;width:90px;">
+                    <button class="btn" onclick="runGrade()">运行</button>
+                </div>
+                <div class="output" id="gradeOut"><span class="label">输出</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- switch -->
+    <div class="card">
+        <div class="card-header">
+            <h3>2. switch —— 星期几</h3>
+            <span class="tag">条件</span>
+        </div>
+        <div class="card-body">
+<pre><span class="kw">function</span> <span class="fn">getDay</span>(n) {
+    <span class="kw">switch</span> (n) {
+        <span class="kw">case</span> <span class="num">1</span>: <span class="kw">return</span> <span class="str">'星期一'</span>;
+        <span class="kw">case</span> <span class="num">2</span>: <span class="kw">return</span> <span class="str">'星期二'</span>;
+        <span class="kw">case</span> <span class="num">3</span>: <span class="kw">return</span> <span class="str">'星期三'</span>;
+        <span class="kw">case</span> <span class="num">4</span>: <span class="kw">return</span> <span class="str">'星期四'</span>;
+        <span class="kw">case</span> <span class="num">5</span>: <span class="kw">return</span> <span class="str">'星期五'</span>;
+        <span class="kw">case</span> <span class="num">6</span>:
+        <span class="kw">case</span> <span class="num">7</span>: <span class="kw">return</span> <span class="str">'周末'</span>;
+        <span class="kw">default</span>:  <span class="kw">return</span> <span class="str">'无效输入'</span>;
+    }
+}</pre>
+            <div class="run-area">
+                <div class="controls">
+                    <input type="number" id="dayInput" value="3" min="1" max="7"
+                           style="padding:.4rem .6rem;border:1px solid #cbd5e1;border-radius:6px;width:90px;">
+                    <button class="btn" onclick="runDay()">运行</button>
+                </div>
+                <div class="output" id="dayOut"><span class="label">输出</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 三元 -->
+    <div class="card">
+        <div class="card-header">
+            <h3>3. 三元运算符 —— 奇偶判断</h3>
+            <span class="tag">条件</span>
+        </div>
+        <div class="card-body">
+<pre><span class="com">// 条件 ? 真值 : 假值</span>
+<span class="kw">function</span> <span class="fn">isOdd</span>(n) {
+    <span class="kw">return</span> n % <span class="num">2</span> === <span class="num">0</span> ? <span class="str">'偶数'</span> : <span class="str">'奇数'</span>;
+}</pre>
+            <div class="run-area">
+                <div class="controls">
+                    <input type="number" id="oddInput" value="7"
+                           style="padding:.4rem .6rem;border:1px solid #cbd5e1;border-radius:6px;width:90px;">
+                    <button class="btn" onclick="runOdd()">运行</button>
+                </div>
+                <div class="output" id="oddOut"><span class="label">输出</span></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ========== 循环语句 ========== -->
+<section class="section" id="loop" style="background:#f1f5f9;">
+    <div class="section-title">
+        <h2>二、循环语句</h2>
+        <p>for、while、do-while、for...of / forEach</p>
+    </div>
+
+    <!-- for -->
+    <div class="card">
+        <div class="card-header">
+            <h3>1. for 循环 —— 求 1~N 的和</h3>
+            <span class="tag">循环</span>
+        </div>
+        <div class="card-body">
+<pre><span class="kw">function</span> <span class="fn">sumToN</span>(n) {
+    <span class="kw">let</span> sum = <span class="num">0</span>;
+    <span class="kw">for</span> (<span class="kw">let</span> i = <span class="num">1</span>; i <= n; i++) {
+        sum += i;
+    }
+    <span class="kw">return</span> sum;
+}</pre>
+            <div class="run-area">
+                <div class="controls">
+                    <input type="number" id="sumInput" value="10" min="1"
+                           style="padding:.4rem .6rem;border:1px solid #cbd5e1;border-radius:6px;width:90px;">
+                    <button class="btn" onclick="runSum()">运行</button>
+                </div>
+                <div class="output" id="sumOut"><span class="label">输出</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- while -->
+    <div class="card">
+        <div class="card-header">
+            <h3>2. while 循环 —— 猜数字（二分逼近）</h3>
+            <span class="tag">循环</span>
+        </div>
+        <div class="card-body">
+<pre><span class="kw">function</span> <span class="fn">guessNumber</span>(target) {
+    <span class="kw">let</span> low = <span class="num">1</span>, high = <span class="num">100</span>, steps = <span class="num">0</span>;
+    <span class="kw">while</span> (low <= high) {
+        <span class="kw">let</span> mid = Math.floor((low + high) / <span class="num">2</span>);
+        steps++;
+        <span class="kw">if</span> (mid === target) <span class="kw">return</span> `猜到 <span class="str">${mid}</span>，用了 <span class="str">${steps}</span> 次`;
+        <span class="kw">else if</span> (mid < target) low = mid + <span class="num">1</span>;
+        <span class="kw">else</span> high = mid - <span class="num">1</span>;
+    }
+}</pre>
+            <div class="run-area">
+                <div class="controls">
+                    <input type="number" id="guessInput" value="37" min="1" max="100"
+                           style="padding:.4rem .6rem;border:1px solid #cbd5e1;border-radius:6px;width:90px;">
+                    <button class="btn" onclick="runGuess()">运行</button>
+                </div>
+                <div class="output" id="guessOut"><span class="label">输出</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- do-while + for-of -->
+    <div class="card">
+        <div class="card-header">
+            <h3>3. do-while 与 for...of —— 遍历数组</h3>
+            <span class="tag">循环</span>
+        </div>
+        <div class="card-body">
+<pre><span class="kw">const</span> fruits = [<span class="str">'苹果'</span>, <span class="str">'香蕉'</span>, <span class="str">'橘子'</span>];
+<span class="kw">let</span> i = <span class="num">0</span>;
+<span class="kw">do</span> {
+    console.log(fruits[i]);
+    i++;
+} <span class="kw">while</span> (i < fruits.length);
+
+<span class="com">// 更简洁的 for...of</span>
+<span class="kw">for</span> (<span class="kw">const</span> f <span class="kw">of</span> fruits) {
+    console.log(f);
+}</pre>
+            <div class="run-area">
+                <div class="controls">
+                    <button class="btn" onclick="runFruits()">运行 do-while</button>
+                    <button class="btn outline" onclick="runForOf()">运行 for...of</button>
+                </div>
+                <div class="output" id="fruitOut"><span class="label">输出</span></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ========== 综合演示 ========== -->
+<section class="section combined" id="combined">
+    <div class="section-title">
+        <h2>三、综合示例 —— 循环 + 条件</h2>
+        <p>打印 1~20：逢 7 过（参考 15-1），其余按奇偶标记</p>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3>完整代码</h3>
+            <span class="tag">综合</span>
+        </div>
+        <div class="card-body">
+<pre><span class="kw">for</span> (<span class="kw">let</span> i = <span class="num">1</span>; i <= <span class="num">20</span>; i++) {
+    <span class="kw">if</span> (i % <span class="num">7</span> === <span class="num">0</span> || String(i).includes(<span class="str">'7'</span>)) {
+        console.log(i + <span class="str">': 过（逢七必过）'</span>);
+    } <span class="kw">else if</span> (i % <span class="num">2</span> === <span class="num">0</span>) {
+        console.log(i + <span class="str">': 偶数'</span>);
+    } <span class="kw">else</span> {
+        console.log(i + <span class="str">': 奇数'</span>);
+    }
+}</pre>
+            <div class="run-area">
+                <div class="controls">
+                    <button class="btn" onclick="runCombined()">运行</button>
+                    <button class="btn outline" onclick="clearOut('combinedOut')">清空</button>
+                </div>
+                <div class="output" id="combinedOut"><span class="label">输出</span></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer>周浩 · 高级网页设计 15-2 · JavaScript 程序结构演示</footer>
+
+<script>
+    // ========== 条件 ==========
+    function getGrade(score) {
+        if (score >= 90) return '优秀 A';
+        else if (score >= 80) return '良好 B';
+        else if (score >= 60) return '及格 C';
+        else return '不及格 D';
+    }
+    function runGrade() {
+        const s = parseInt(document.getElementById('scoreInput').value);
+        document.getElementById('gradeOut').innerHTML =
+            '<span class="label">输出</span>分数 ' + s + ' → ' + getGrade(s);
+    }
+
+    function getDay(n) {
+        switch (n) {
+            case 1: return '星期一';
+            case 2: return '星期二';
+            case 3: return '星期三';
+            case 4: return '星期四';
+            case 5: return '星期五';
+            case 6:
+            case 7: return '周末';
+            default: return '无效输入';
+        }
+    }
+    function runDay() {
+        const n = parseInt(document.getElementById('dayInput').value);
+        document.getElementById('dayOut').innerHTML =
+            '<span class="label">输出</span>数字 ' + n + ' → ' + getDay(n);
+    }
+
+    function runOdd() {
+        const n = parseInt(document.getElementById('oddInput').value);
+        const r = n % 2 === 0 ? '偶数' : '奇数';
+        document.getElementById('oddOut').innerHTML =
+            '<span class="label">输出</span>' + n + ' 是 ' + r;
+    }
+
+    // ========== 循环 ==========
+    function runSum() {
+        const n = parseInt(document.getElementById('sumInput').value);
+        let sum = 0;
+        for (let i = 1; i <= n; i++) sum += i;
+        document.getElementById('sumOut').innerHTML =
+            '<span class="label">输出</span>1 到 ' + n + ' 的和 = ' + sum;
+    }
+
+    function runGuess() {
+        const target = parseInt(document.getElementById('guessInput').value);
+        let low = 1, high = 100, steps = 0, log = '';
+        while (low <= high) {
+            let mid = Math.floor((low + high) / 2);
+            steps++;
+            log += '第' + steps + '次猜 ' + mid + '\n';
+            if (mid === target) { log += '✔ 猜对了！'; break; }
+            else if (mid < target) low = mid + 1;
+            else high = mid - 1;
+        }
+        document.getElementById('guessOut').innerHTML =
+            '<span class="label">输出</span>' + log;
+    }
+
+    function runFruits() {
+        const fruits = ['苹果', '香蕉', '橘子'];
+        let i = 0, log = '';
+        do {
+            log += fruits[i] + '\n';
+            i++;
+        } while (i < fruits.length);
+        document.getElementById('fruitOut').innerHTML =
+            '<span class="label">输出（do-while）</span>' + log;
+    }
+
+    function runForOf() {
+        const fruits = ['苹果', '香蕉', '橘子'];
+        let log = '';
+        for (const f of fruits) log += f + '\n';
+        document.getElementById('fruitOut').innerHTML =
+            '<span class="label">输出（for...of）</span>' + log;
+    }
+
+    // ========== 综合 ==========
+    function runCombined() {
+        let log = '';
+        for (let i = 1; i <= 20; i++) {
+            if (i % 7 === 0 || String(i).includes('7')) {
+                log += i + ': 过（逢七必过）\n';
+            } else if (i % 2 === 0) {
+                log += i + ': 偶数\n';
+            } else {
+                log += i + ': 奇数\n';
+            }
+        }
+        document.getElementById('combinedOut').innerHTML =
+            '<span class="label">输出</span>' + log;
+    }
+
+    function clearOut(id) {
+        document.getElementById(id).innerHTML = '<span class="label">输出</span>';
+    }
+</script>
+
+</body>
+</html>
