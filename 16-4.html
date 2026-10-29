@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>16-4 排行榜切换</title>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+        font-family: "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
+        background: #eef1f5;
+        min-height: 100vh;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        padding: 40px 16px;
+    }
+
+    /* 排行榜卡片 */
+    .rank-card {
+        width: 100%;
+        max-width: 480px;
+        background: #fff;
+        border-radius: 6px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+    }
+
+    /* 标签栏 */
+    .tabs {
+        display: flex;
+        background: #f5f5f5;
+        border-bottom: 1px solid #e6e6e6;
+    }
+
+    .tab {
+        flex: 1;
+        text-align: center;
+        padding: 12px 0;
+        font-size: 15px;
+        color: #666;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-weight: normal;
+        user-select: none;
+    }
+
+    .tab:hover {
+        color: #333;
+    }
+
+    .tab.active {
+        background: #e74c3c;
+        color: #fff;
+        font-weight: bold;
+    }
+
+    /* 榜单列表 */
+    .rank-list {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0;
+        padding: 8px 0;
+    }
+
+    .rank-item {
+        display: flex;
+        align-items: center;
+        padding: 11px 16px;
+        gap: 12px;
+    }
+
+    .rank-num {
+        flex-shrink: 0;
+        width: 26px;
+        height: 26px;
+        border-radius: 3px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 15px;
+        font-weight: bold;
+        color: #fff;
+    }
+
+    /* 1-5 名红色 */
+    .rank-item:nth-child(-n+5) .rank-num {
+        background: #c0392b;
+    }
+
+    /* 6-10 名灰色 */
+    .rank-item:nth-child(n+6) .rank-num {
+        background: #b8bcc0;
+        color: #444;
+    }
+
+    .rank-title {
+        font-size: 14px;
+        color: #333;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* 切换动画 */
+    .rank-list {
+        animation: fadeIn 0.25s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+</style>
+</head>
+<body>
+
+<div class="rank-card">
+    <!-- 标签栏 -->
+    <div class="tabs" id="tabs">
+        <div class="tab active" data-key="daily">每日</div>
+        <div class="tab" data-key="weekly">每周</div>
+        <div class="tab" data-key="monthly">每月</div>
+        <div class="tab" data-key="all">全部</div>
+    </div>
+
+    <!-- 榜单内容 -->
+    <div class="rank-list" id="rankList"></div>
+</div>
+
+<script>
+    // 四个榜单数据（按截图 1:1 录入）
+    const data = {
+        daily: [
+            '最美的时光', '咱们结婚吧', '渗透', '继承者们', '烽火佳人',
+            '极品女士第2季', '爱闪亮', '狼烟 (2013)', '钱多多炼爱记', '苍狼'
+        ],
+        weekly: [
+            '咱们结婚吧', '继承者们', '最美的时光', '爱闪亮', '渗透',
+            '狼烟 (2013)', '三十岁，你好', '钱多多炼爱记', '特种兵之火凤凰', '极品女士第2季'
+        ],
+        monthly: [
+            '特种兵之火凤凰', '咱们结婚吧', '继承者们', '金玉满堂', '王的女人',
+            '爱闪亮', '爱情面前谁怕谁', '英雄联盟', '小爸爸', '我们这拨人'
+        ],
+        all: [
+            '永不磨灭的番号', '特种兵之火凤凰', '新还珠格格', '咱们结婚吧', '小爸爸',
+            '心术', '乡村爱情5', '天天有喜', '一不小心爱上你', '夏日甜心'
+        ]
+    };
+
+    const rankList = document.getElementById('rankList');
+    const tabs = document.querySelectorAll('.tab');
+
+    // 渲染榜单
+    function render(key) {
+        const list = data[key];
+        let html = '';
+        list.forEach((title, i) => {
+            html += `<div class="rank-item">
+                        <span class="rank-num">${i + 1}</span>
+                        <span class="rank-title">${title}</span>
+                    </div>`;
+        });
+        rankList.innerHTML = html;
+        // 触发重绘以播放动画
+        rankList.style.animation = 'none';
+        rankList.offsetHeight;
+        rankList.style.animation = '';
+    }
+
+    // 标签切换
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            render(tab.dataset.key);
+        });
+    });
+
+    // 初始化
+    render('daily');
+</script>
+
+</body>
+</html>
