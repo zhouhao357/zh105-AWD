@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="周浩 24001010105">
+    <meta name="description" content="接口测试工具（fetch 支持 GET/POST 等）- 周浩 24001010105">
+    <title>17-4 接口测试</title>
+    <style>
+        /* ============================================================
+           17-4 远程数据接口测试工具
+           作者：周浩 24001010105 计科24001
+           fetch + async/await + 原生 JS，无任何库
+           支持 GET / POST / PUT / PATCH / DELETE / HEAD / OPTIONS
+           ============================================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            line-height: 1.7;
+            padding: 24px 16px;
+        }
+
+        .box {
+            max-width: 980px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #4f46e5;
+            margin-bottom: 6px;
+        }
+
+        .sub {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .panel {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 18px 20px;
+            margin-bottom: 16px;
+        }
+
+        .panel h3 {
+            font-size: 15px;
+            color: #475569;
+            margin-bottom: 10px;
+        }
+
+        /* 表单 */
+        .row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        input, select, textarea {
+            font: inherit;
+            font-size: 14px;
+            padding: 8px 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            outline: none;
+            color: #1e293b;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: #4f46e5;
+        }
+
+        .row input.url {
+            flex: 1;
+            min-width: 260px;
+            font-family: Consolas, monospace;
+        }
+
+        .row input.small {
+            width: 90px;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 96px;
+            font-family: Consolas, monospace;
+            font-size: 13px;
+            resize: vertical;
+        }
+
+        label {
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        button {
+            font: inherit;
+            font-size: 14px;
+            padding: 8px 18px;
+            border: 1px solid #c7d2fe;
+            background: #eef2ff;
+            color: #4f46e5;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #4f46e5;
+            color: #fff;
+        }
+
+        button.primary {
+            background: linear-gradient(90deg, #4f46e5, #6a5af9);
+            border-color: transparent;
+            color: #fff;
+        }
+
+        button.primary:hover {
+            filter: brightness(1.08);
+        }
+
+        /* 示例按钮 */
+        .samples {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .samples button {
+            font-size: 13px;
+            padding: 5px 12px;
+            background: #f8fafc;
+            border-color: #e2e8f0;
+            color: #475569;
+        }
+
+        .samples button:hover {
+            background: #4f46e5;
+            border-color: #4f46e5;
+            color: #fff;
+        }
+
+        /* 状态徽章 */
+        .badge {
+            display: inline-block;
+            font-family: Consolas, monospace;
+            font-size: 13px;
+            font-weight: 700;
+            border-radius: 6px;
+            padding: 2px 10px;
+            color: #fff;
+            background: #94a3b8;
+        }
+
+        .badge.ok {
+            background: #10b981;
+        }
+
+        .badge.warn {
+            background: #f59e0b;
+        }
+
+        .badge.err {
+            background: #ef4444;
+        }
+
+        .meta {
+            display: flex;
+            gap: 18px;
+            flex-wrap: wrap;
+            font-size: 13px;
+            color: #64748b;
+            margin-bottom: 10px;
+        }
+
+        .meta b {
+            color: #1e293b;
+            font-family: Consolas, monospace;
+        }
+
+        /* 响应体 */
+        .dark {
+            background: #0f172a;
+            color: #e2e8f0;
+            border-radius: 10px;
+            padding: 14px 16px;
+            font-family: Consolas, monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 320px;
+            overflow: auto;
+        }
+
+        .k {
+            color: #c4b5fd;
+        }
+
+        .s {
+            color: #86efac;
+        }
+
+        .n {
+            color: #fbbf24;
+        }
+
+        .b {
+            color: #93c5fd;
+        }
+
+        /* 错误提示 */
+        .notice {
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .notice.info {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            color: #1d4ed8;
+        }
+
+        .notice.warn {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            color: #b45309;
+        }
+
+        .notice.error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #b91c1c;
+        }
+
+        .notice b {
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        /* 表格 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            font-size: 14px;
+        }
+
+        th, td {
+            border: 1px solid #e2e8f0;
+            padding: 8px 12px;
+            text-align: left;
+        }
+
+        th {
+            background: #eef2ff;
+            color: #4f46e5;
+        }
+
+        td code {
+            font-family: Consolas, monospace;
+            background: #f1f5f9;
+            padding: 1px 5px;
+            border-radius: 4px;
+        }
+
+        footer {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 13px;
+            margin-top: 24px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="box">
+        <h1>远程数据接口测试</h1>
+        <div class="sub">作者：周浩　学号：24001010105　班级：计科24001　（fetch + 原生 JS，支持 GET / POST / PUT / PATCH / DELETE / HEAD / OPTIONS）</div>
+
+        <!-- ============ 请求面板 ============ -->
+        <div class="panel">
+            <h3>① 构造请求</h3>
+            <div class="row">
+                <select id="method">
+                    <option>GET</option>
+                    <option>POST</option>
+                    <option>PUT</option>
+                    <option>PATCH</option>
+                    <option>DELETE</option>
+                    <option>HEAD</option>
+                    <option>OPTIONS</option>
+                </select>
+                <input class="url" id="url" type="text" value="https://jsonplaceholder.typicode.com/posts/1">
+                <label>超时</label>
+                <input class="small" id="timeout" type="number" value="10000">
+                <span style="font-size:13px;color:#94a3b8">毫秒</span>
+                <button class="primary" onclick="send()">发送请求</button>
+            </div>
+
+            <div class="row" style="margin-top:10px">
+                <label style="width:88px">请求体(Body)</label>
+                <select id="ctype" style="width:170px">
+                    <option>application/json</option>
+                    <option>application/x-www-form-urlencoded</option>
+                    <option>text/plain</option>
+                </select>
+                <span style="font-size:13px;color:#94a3b8">（GET / HEAD 请求体不会发送）</span>
+            </div>
+            <textarea id="body" style="margin-top:8px">{
+  "title": "高级网页设计",
+  "body": "周浩 24001010105",
+  "userId": 1
+}</textarea>
+
+            <!-- 示例接口 -->
+            <h3 style="margin-top:16px">② 示例接口（点击自动填入）</h3>
+            <div class="samples">
+                <button onclick="useSample('GET', 'https://jsonplaceholder.typicode.com/posts/1', '')">GET 查询文章</button>
+                <button onclick="useSample('GET', 'https://dummyjson.com/products?limit=5', '')">GET 商品列表</button>
+                <button onclick="useSample('GET', 'https://v1.hitokoto.cn/?encode=json', '')">GET 一言（跨域）</button>
+                <button onclick="useSample('POST', 'https://jsonplaceholder.typicode.com/posts', 'post')">POST 新建文章</button>
+                <button onclick="useSample('PUT', 'https://jsonplaceholder.typicode.com/posts/1', 'put')">PUT 修改文章</button>
+                <button onclick="useSample('DELETE', 'https://jsonplaceholder.typicode.com/posts/1', '')">DELETE 删除文章</button>
+                <button onclick="useSample('GET', 'https://dummyjson.com/products/99999', '')">GET 不存在的商品(404)</button>
+                <button onclick="useSample('GET', 'https://not-exist-domain-abcxyz.com/api', '')">GET 错误域名(网络错误)</button>
+            </div>
+        </div>
+
+        <!-- ============ 响应面板 ============ -->
+        <div class="panel">
+            <h3>③ 响应结果</h3>
+            <div id="notice" class="notice info"><b>等待请求…</b>点击上方“发送请求”按钮开始测试。</div>
+            <div class="meta" id="meta"></div>
+            <div class="dark" id="bodyOut">（响应数据将显示在这里）</div>
+            <details style="margin-top:10px">
+                <summary style="cursor:pointer;font-size:13px;color:#64748b">查看响应头 Response Headers</summary>
+                <div class="dark" id="headOut" style="margin-top:8px">（响应头将显示在这里）</div>
+            </details>
+        </div>
+
+        <!-- ============ 知识点 ============ -->
+        <table>
+            <tr>
+                <th>方法</th>
+                <th>说明</th>
+                <th>是否带请求体</th>
+            </tr>
+            <tr>
+                <td><code>GET</code></td>
+                <td>查询数据，参数拼在 URL 查询串上（<code>?limit=5</code>）</td>
+                <td>否</td>
+            </tr>
+            <tr>
+                <td><code>POST</code></td>
+                <td>新增数据，数据放在请求体 Body 里</td>
+                <td>是</td>
+            </tr>
+            <tr>
+                <td><code>PUT</code></td>
+                <td>整体替换某个资源</td>
+                <td>是</td>
+            </tr>
+            <tr>
+                <td><code>PATCH</code></td>
+                <td>局部修改某个资源</td>
+                <td>是</td>
+            </tr>
+            <tr>
+                <td><code>DELETE</code></td>
+                <td>删除资源</td>
+                <td>可选</td>
+            </tr>
+            <tr>
+                <td><code>HEAD</code> / <code>OPTIONS</code></td>
+                <td>只取响应头 / 询问服务器支持哪些方法</td>
+                <td>否</td>
+            </tr>
+            <tr>
+                <th colspan="3">常见错误与处理方式</th>
+            </tr>
+            <tr>
+                <td>网络错误</td>
+                <td colspan="2">域名不存在 / 断网 → fetch 直接 reject，用 <code>try-catch</code> 捕获</td>
+            </tr>
+            <tr>
+                <td>HTTP 错误状态</td>
+                <td colspan="2">404、500 等 → fetch <b>不会</b>自动报错，必须自己判断 <code>res.ok</code></td>
+            </tr>
+            <tr>
+                <td>跨域被拦</td>
+                <td colspan="2">服务器未返回 <code>Access-Control-Allow-Origin</code> → 浏览器控制台报错</td>
+            </tr>
+            <tr>
+                <td>请求超时</td>
+                <td colspan="2">用 <code>AbortController</code> 主动中断</td>
+            </tr>
+        </table>
+
+        <footer>周浩 · 高级网页设计 17-4 · 2026</footer>
+    </div>
+
+    <script>
+        /* ============================================================
+         * 17-4 接口测试 —— 作者：周浩 24001010105
+         * ============================================================ */
+        var methodEl = document.getElementById('method');
+        var urlEl = document.getElementById('url');
+        var bodyEl = document.getElementById('body');
+        var ctypeEl = document.getElementById('ctype');
+        var timeoutEl = document.getElementById('timeout');
+        var noticeEl = document.getElementById('notice');
+        var metaEl = document.getElementById('meta');
+        var bodyOut = document.getElementById('bodyOut');
+        var headOut = document.getElementById('headOut');
+
+        /* 填入示例：body 为 key 时从下表取对应的 JSON 字符串 */
+        var SAMPLE_BODIES = {
+            post: '{\n  "title": "高级网页设计",\n  "body": "周浩 24001010105",\n  "userId": 1\n}',
+            put: '{\n  "id": 1,\n  "title": "标题已被修改"\n}'
+        };
+
+        function useSample(method, url, bodyKey) {
+            methodEl.value = method;
+            urlEl.value = url;
+            bodyEl.value = bodyKey ? (SAMPLE_BODIES[bodyKey] || '') : '';
+            send();
+        }
+
+        /* 简单的 JSON 着色 */
+        function colorJson(str) {
+            return str
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+                .replace(/"([^"]+)":/g, '<span class="k">"$1"</span>:')
+                .replace(/: "([^"]*)"/g, ': <span class="s">"$1"</span>')
+                .replace(/: (\d+\.?\d*)/g, ': <span class="n">$1</span>')
+                .replace(/: (true|false|null)/g, ': <span class="b">$1</span>');
+        }
+
+        async function send() {
+            var method = methodEl.value;
+            var url = urlEl.value.trim();
+            var body = bodyEl.value.trim();
+            var timeout = Number(timeoutEl.value) || 10000;
+
+            if (!url) {
+                showNotice('error', '请填写接口地址');
+                return;
+            }
+            /* GET / HEAD 不发送请求体 */
+            var hasBody = (method === 'POST' || method === 'PUT' || method === 'PATCH');
+
+            showNotice('info', '请求中… ' + method + ' ' + url);
+            metaEl.innerHTML = '';
+            bodyOut.textContent = '（等待响应…）';
+
+            /* 用 AbortController 实现超时中断 */
+            var controller = new AbortController();
+            var timer = setTimeout(function () {
+                controller.abort();
+            }, timeout);
+
+            var t0 = Date.now();
+            try {
+                var opt = {
+                    method: method,
+                    signal: controller.signal
+                };
+                if (hasBody && body) {
+                    opt.headers = { 'Content-Type': ctypeEl.value };
+                    opt.body = body;
+                }
+
+                /* ① 发出请求 */
+                var res = await fetch(url, opt);
+                clearTimeout(timer);
+                var cost = Date.now() - t0;
+
+                /* ② 读取响应头并展示 */
+                var headers = [];
+                res.headers.forEach(function (v, k) {
+                    headers.push(k + ': ' + v);
+                });
+                headOut.textContent = headers.join('\n');
+
+                /* ③ 判断状态码：4xx / 5xx 都要提示 */
+                var ok = res.ok;
+                var cls = ok ? 'ok' : (res.status < 500 ? 'warn' : 'err');
+                metaEl.innerHTML =
+                    '<span>状态：<span class="badge ' + cls + '">' + res.status + ' ' + res.statusText + '</span></span>' +
+                    '<span>耗时：<b>' + cost + ' ms</b></span>' +
+                    '<span>类型：<b>' + (res.headers.get('content-type') || '未知') + '</b></span>' +
+                    '<span>跨域：<b>' + corsText(res) + '</b></span>';
+
+                /* ④ 读取响应体：优先按 JSON 解析，失败就按文本显示 */
+                var text = await res.text();
+                var showText = text;
+                try {
+                    showText = JSON.stringify(JSON.parse(text), null, 2);
+                    showText = colorJson(showText);
+                } catch (e) {
+                    /* 不是合法 JSON，按纯文本显示 */
+                }
+                bodyOut.innerHTML = showText;
+
+                if (!ok) {
+                    showNotice('error',
+                        '请求未成功：HTTP ' + res.status + ' ' + res.statusText +
+                        (res.status === 404 ? '　→　服务器上找不到该资源（资源 ID 写错了？）'
+                            : res.status >= 500 ? '　→　服务器内部错误，稍后再试'
+                                : '　→　请检查请求方法、地址或权限'));
+                } else {
+                    showNotice('info', '请求成功！耗时 ' + cost + ' ms，响应数据如下（JSON 已格式化）');
+                }
+            } catch (e) {
+                clearTimeout(timer);
+                var cost2 = Date.now() - t0;
+                metaEl.innerHTML = '<span>耗时：<b>' + cost2 + ' ms</b></span>';
+                bodyOut.textContent = '（没有拿到响应数据）';
+                headOut.textContent = '（没有响应头）';
+
+                if (e.name === 'AbortError') {
+                    showNotice('error', '请求超时：超过 ' + timeout + ' 毫秒仍未响应，已被 AbortController 中断。');
+                } else {
+                    showNotice('error',
+                        '网络请求失败：' + e.message +
+                        '　→　常见原因：域名写错、网络断开、接口未开放跨域(CORS)、协议不是 http/https。');
+                }
+            }
+        }
+
+        /* 说明跨域情况：能拿到响应说明跨域已被放行 */
+        function corsText(res) {
+            var v = res.headers.get('access-control-allow-origin');
+            if (v) {
+                return '已放行 ' + v;
+            }
+            return '请求成功 → 跨域已放行（该响应头未开放读取）';
+        }
+
+        function showNotice(type, text) {
+            noticeEl.className = 'notice ' + type;
+            var icon = type === 'error' ? '❌' : (type === 'warn' ? '⚠️' : 'ℹ️');
+            noticeEl.innerHTML = '<b>' + icon + ' ' + (type === 'error' ? '错误提示' : type === 'warn' ? '注意' : '状态') + '</b>' + text;
+        }
+
+        /* 回车也能发送 */
+        urlEl.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') { send(); }
+        });
+    </script>
+
+</body>
+</html>

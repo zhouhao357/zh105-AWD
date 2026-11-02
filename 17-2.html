@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="周浩 24001010105">
+    <meta name="description" content="获取接口数据演示（fetch + 原生 JS）- 周浩 24001010105">
+    <title>17-2 获取接口的数据并展示</title>
+    <style>
+        /* ============================================================
+           17-2 获取接口的数据并展示
+           作者：周浩 24001010105 计科24001
+           要求：①接口支持跨域（Access-Control-Allow-Origin: *）
+                ②全部使用原生 fetch + 原生 JavaScript，不依赖任何库
+           接口一：一言 API     https://v1.hitokoto.cn
+           接口二：每日60秒     https://60s.viki.moe/v2/60s
+           ============================================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            line-height: 1.7;
+            padding: 24px 16px;
+        }
+
+        .box {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #4f46e5;
+            margin-bottom: 6px;
+        }
+
+        .sub {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .out-title {
+            font-size: 15px;
+            font-weight: bold;
+            margin: 18px 0 6px;
+            color: #475569;
+        }
+
+        /* 深色代码 / 原始 JSON 展示区 */
+        .dark {
+            background: #0f172a;
+            color: #e2e8f0;
+            border-radius: 10px;
+            padding: 14px 18px;
+            font-family: Consolas, monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 260px;
+            overflow-y: auto;
+        }
+
+        /* 一言展示卡 */
+        .hitokoto {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 16px 20px;
+            font-size: 17px;
+            color: #334155;
+        }
+
+        .hitokoto .from {
+            display: block;
+            margin-top: 8px;
+            font-size: 13px;
+            color: #94a3b8;
+            text-align: right;
+        }
+
+        /* 按钮区 */
+        .btns {
+            margin: 14px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        button {
+            font: inherit;
+            font-size: 14px;
+            padding: 7px 14px;
+            border: 1px solid #c7d2fe;
+            background: #eef2ff;
+            color: #4f46e5;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #4f46e5;
+            color: #fff;
+        }
+
+        /* 状态行 */
+        .status {
+            font-family: Consolas, monospace;
+            font-size: 13px;
+            color: #64748b;
+            margin-bottom: 6px;
+        }
+
+        .status b {
+            color: #0f766e;
+        }
+
+        .status.err b {
+            color: #dc2626;
+        }
+
+        /* 60s 新闻卡 */
+        .news-card {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 16px 20px;
+        }
+
+        .news-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 6px;
+            border-bottom: 1px dashed #e2e8f0;
+            padding-bottom: 8px;
+            margin-bottom: 8px;
+        }
+
+        .news-head b {
+            font-size: 16px;
+        }
+
+        .news-head span {
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+        .news-list {
+            list-style: none;
+        }
+
+        .news-list li {
+            display: flex;
+            gap: 8px;
+            padding: 5px 0;
+            font-size: 14px;
+            color: #334155;
+            border-bottom: 1px dashed #f1f5f9;
+        }
+
+        .news-list li:last-child {
+            border-bottom: none;
+        }
+
+        .news-list .no {
+            color: #4f46e5;
+            font-family: Consolas, monospace;
+            font-size: 12px;
+            font-weight: 700;
+            flex-shrink: 0;
+            padding-top: 2px;
+        }
+
+        .news-tip {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px dashed #e2e8f0;
+            font-size: 13px;
+            color: #94a3b8;
+            text-align: right;
+        }
+
+        /* 运行日志 */
+        #out {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 14px 18px;
+            min-height: 110px;
+            font-family: Consolas, monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+            word-break: break-all;
+            color: #0f766e;
+        }
+
+        /* 对照表 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 28px;
+            background: #fff;
+            font-size: 14px;
+        }
+
+        th, td {
+            border: 1px solid #e2e8f0;
+            padding: 8px 12px;
+            text-align: left;
+        }
+
+        th {
+            background: #eef2ff;
+            color: #4f46e5;
+        }
+
+        td code {
+            font-family: Consolas, monospace;
+            background: #f1f5f9;
+            padding: 1px 5px;
+            border-radius: 4px;
+        }
+
+        footer {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 13px;
+            margin-top: 28px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="box">
+        <h1>获取接口的数据并展示</h1>
+        <div class="sub">作者：周浩　学号：24001010105　班级：计科24001　（fetch + 原生 JS，接口均支持跨域）</div>
+
+        <!-- ===== 接口一：一言 API ===== -->
+        <div class="out-title">接口一：一言 API（fetch 请求，响应头 Access-Control-Allow-Origin: *）</div>
+        <div class="btns">
+            <button onclick="loadHitokoto()">🔄 重新获取一言</button>
+            <button onclick="loadError()">⚠ 错误处理演示（请求错误地址）</button>
+        </div>
+        <div class="status" id="status1">请求地址：https://v1.hitokoto.cn/?c=d&c=e&encode=json</div>
+        <div class="hitokoto" id="hitokoto">加载中…</div>
+        <div class="out-title">接口返回的原始 JSON</div>
+        <div class="dark" id="raw1">…</div>
+
+        <!-- ===== 接口二：每日 60 秒读懂世界 ===== -->
+        <div class="out-title">接口二：每日 60 秒读懂世界（fetch 请求，同样支持跨域）</div>
+        <div class="btns">
+            <button onclick="loadNews()">🔄 重新获取今日新闻</button>
+        </div>
+        <div class="status" id="status2">请求地址：https://60s.viki.moe/v2/60s</div>
+        <div class="news-card" id="newsCard">加载中…</div>
+        <div class="out-title">接口返回的原始 JSON（前 1200 字符）</div>
+        <div class="dark" id="raw2">…</div>
+
+        <!-- ===== 运行日志 ===== -->
+        <div class="out-title">运行日志</div>
+        <div id="out">（执行操作后这里会输出过程信息）</div>
+
+        <!-- 知识点对照表 -->
+        <table>
+            <tr>
+                <th>对比项</th>
+                <th>接口一：一言 API</th>
+                <th>接口二：每日 60 秒</th>
+            </tr>
+            <tr>
+                <td>请求地址</td>
+                <td><code>v1.hitokoto.cn/?encode=json</code></td>
+                <td><code>60s.viki.moe/v2/60s</code></td>
+            </tr>
+            <tr>
+                <td>跨域许可</td>
+                <td>响应头 <code>Access-Control-Allow-Origin: *</code></td>
+                <td>响应头 <code>Access-Control-Allow-Origin: *</code></td>
+            </tr>
+            <tr>
+                <td>请求方式</td>
+                <td><code>fetch(url)</code> + <code>async/await</code></td>
+                <td><code>fetch(url)</code> + <code>async/await</code></td>
+            </tr>
+            <tr>
+                <td>关键取值字段</td>
+                <td><code>data.hitokoto</code>、<code>data.from</code>、<code>data.from_who</code></td>
+                <td><code>data.date</code>、<code>data.news[]</code>、<code>data.tip</code></td>
+            </tr>
+            <tr>
+                <td>展示方式</td>
+                <td>原生 <code>innerHTML</code> 渲染句子卡片</td>
+                <td>原生 <code>map + join</code> 渲染 15 条新闻列表</td>
+            </tr>
+        </table>
+
+        <footer>周浩 · 高级网页设计 17-2 · 2026</footer>
+    </div>
+
+    <script>
+        /* ============================================================
+         * 17-2 获取接口的数据并展示 —— 作者：周浩 24001010105
+         * 全部使用原生 fetch + 原生 JavaScript（无 axios / 无 jQuery）
+         * ============================================================ */
+        var out = document.getElementById('out');
+
+        function log(text) {
+            out.textContent = text;
+        }
+
+        /* ============ 接口一：一言 API ============ */
+        var HITO_URL = 'https://v1.hitokoto.cn/?c=d&c=e&encode=json';
+
+        async function loadHitokoto() {
+            var status = document.getElementById('status1');
+            status.className = 'status';
+            status.innerHTML = '请求中… <b>' + HITO_URL + '</b>';
+            document.getElementById('hitokoto').textContent = '加载中…';
+
+            try {
+                /* ① 发出请求，await 等待响应头 */
+                var res = await fetch(HITO_URL + '&_=' + Date.now());
+
+                /* ② fetch 收到 404/500 时不会自动报错，必须自己检查 res.ok */
+                if (!res.ok) {
+                    throw new Error('HTTP ' + res.status + ' ' + res.statusText);
+                }
+
+                status.innerHTML = '请求成功，状态码 <b>' + res.status + ' ' + res.statusText + '</b>' +
+                    '，跨域许可 <b>Access-Control-Allow-Origin: ' +
+                    (res.headers.get('access-control-allow-origin') || '*') + '</b>';
+
+                /* ③ 把响应体按 JSON 解析成对象 */
+                var data = await res.json();
+
+                /* ④ 原生 DOM 渲染 */
+                document.getElementById('hitokoto').innerHTML =
+                    '「' + data.hitokoto + '」' +
+                    '<span class="from">—— ' + (data.from_who || '佚名') + '《' + (data.from || '无') + '》</span>';
+                document.getElementById('raw1').textContent = JSON.stringify(data, null, 2);
+
+                log(
+                    '【一言 API】fetch 请求流程：\n' +
+                    '① await fetch(url) 发出请求\n' +
+                    '② res.status = ' + res.status + '，res.ok = ' + res.ok + '（状态码正常）\n' +
+                    '③ await res.json() 解析出 ' + Object.keys(data).length + ' 个字段\n' +
+                    '④ 取 data.hitokoto / data.from / data.from_who 渲染到卡片'
+                );
+            } catch (e) {
+                status.className = 'status err';
+                status.innerHTML = '请求失败：<b>' + e.message + '</b>';
+                document.getElementById('hitokoto').textContent = '❌ 获取失败，请检查网络后重试';
+                log('【一言 API】发生错误：' + e.message + '（被 try/catch 捕获，页面不会崩溃）');
+            }
+        }
+
+        /* 错误处理演示：故意请求一个不存在的地址 */
+        function loadError() {
+            var status = document.getElementById('status1');
+            var BAD_URL = HITO_URL.replace('hitokoto.cn', 'hitokoto.cn/不存在的路径');
+            status.className = 'status err';
+            status.innerHTML = '故意请求错误地址：<b>' + BAD_URL + '</b>';
+            fetch(BAD_URL).then(function (res) {
+                if (!res.ok) {
+                    throw new Error('HTTP ' + res.status + ' ' + res.statusText);
+                }
+                return res.json();
+            }).catch(function (e) {
+                document.getElementById('hitokoto').textContent = '❌ 演示：请求失败被 catch 捕获';
+                log(
+                    '【错误处理演示】\n' +
+                    '故意请求错误地址 → 服务器返回 404\n' +
+                    '→ 代码里 if (!res.ok) 主动抛出错误\n' +
+                    '→ 被 catch 捕获：' + e.message + '\n\n' +
+                    '结论：fetch 收到 404 时 Promise 不会自动 reject，必须自己检查 res.ok！'
+                );
+            });
+        }
+
+        /* ============ 接口二：每日 60 秒读懂世界 ============ */
+        var NEWS_URL = 'https://60s.viki.moe/v2/60s';
+
+        async function loadNews() {
+            var status = document.getElementById('status2');
+            status.className = 'status';
+            status.innerHTML = '请求中… <b>' + NEWS_URL + '</b>';
+            document.getElementById('newsCard').textContent = '加载中…';
+
+            try {
+                var res = await fetch(NEWS_URL + '?_=' + Date.now());
+                if (!res.ok) {
+                    throw new Error('HTTP ' + res.status + ' ' + res.statusText);
+                }
+                status.innerHTML = '请求成功，状态码 <b>' + res.status + ' ' + res.statusText + '</b>' +
+                    '，跨域许可 <b>Access-Control-Allow-Origin: ' +
+                    (res.headers.get('access-control-allow-origin') || '*') + '</b>';
+
+                var result = await res.json();
+                if (result.code !== 200) {
+                    throw new Error(result.message || '接口返回异常');
+                }
+                var d = result.data;   // { date, news: [15 条], tip, image, link … }
+
+                /* 用 map + join 拼出新闻列表，再一次性渲染（比循环 innerHTML 更高效） */
+                var items = d.news.map(function (n, i) {
+                    return '<li><span class="no">' + (i + 1) + '</span><span>' + n + '</span></li>';
+                }).join('');
+
+                document.getElementById('newsCard').innerHTML =
+                    '<div class="news-head"><b>每天 60 秒读懂世界</b>' +
+                    '<span>' + d.date + '（' + d.day_of_week + ' · 农历' + d.lunar_date + '）</span></div>' +
+                    '<ul class="news-list">' + items + '</ul>' +
+                    '<div class="news-tip">' + d.tip + '</div>';
+
+                document.getElementById('raw2').textContent = JSON.stringify(result, null, 2).slice(0, 1200) + '\n…（过长已截断）';
+
+                log(
+                    '【每日60秒】fetch 请求流程：\n' +
+                    '① await fetch(url) 发出请求\n' +
+                    '② res.status = ' + res.status + '，业务码 result.code = ' + result.code + '\n' +
+                    '③ result.data.news 是一个含 ' + d.news.length + ' 条字符串的数组\n' +
+                    '④ map + join 拼出列表 HTML，一次性 innerHTML 渲染'
+                );
+            } catch (e) {
+                status.className = 'status err';
+                status.innerHTML = '请求失败：<b>' + e.message + '</b>';
+                document.getElementById('newsCard').textContent = '❌ 获取失败，请检查网络后重试';
+                log('【每日60秒】发生错误：' + e.message + '（被 try/catch 捕获）');
+            }
+        }
+
+        /* 页面打开自动请求两个接口 */
+        loadHitokoto();
+        loadNews();
+    </script>
+
+</body>
+</html>

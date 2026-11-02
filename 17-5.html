@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="周浩 24001010105">
+    <meta name="description" content="JavaScript 定时器 setTimeout / setInterval - 周浩 24001010105">
+    <title>17-5 JavaScript 的两种定时器</title>
+    <style>
+        /* ============================================================
+           17-5 JavaScript 的两种定时器：setTimeout / setInterval
+           作者：周浩 24001010105 计科24001
+           ============================================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            line-height: 1.7;
+            padding: 24px 16px;
+        }
+
+        .box {
+            max-width: 960px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #4f46e5;
+            margin-bottom: 6px;
+        }
+
+        .sub {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .panel {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 18px 20px;
+            margin-bottom: 16px;
+        }
+
+        .panel h3 {
+            font-size: 15px;
+            color: #475569;
+            margin-bottom: 10px;
+        }
+
+        .panel h3 .tag {
+            font-size: 12px;
+            background: #eef2ff;
+            color: #4f46e5;
+            border-radius: 999px;
+            padding: 1px 10px;
+            margin-left: 8px;
+        }
+
+        .row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            font: inherit;
+            font-size: 14px;
+            padding: 8px 18px;
+            border: 1px solid #c7d2fe;
+            background: #eef2ff;
+            color: #4f46e5;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #4f46e5;
+            color: #fff;
+        }
+
+        button.ghost {
+            background: #f8fafc;
+            border-color: #e2e8f0;
+            color: #475569;
+        }
+
+        button.ghost:hover {
+            background: #4f46e5;
+            border-color: #4f46e5;
+            color: #fff;
+        }
+
+        input {
+            font: inherit;
+            font-size: 14px;
+            padding: 7px 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            outline: none;
+            width: 90px;
+        }
+
+        input:focus {
+            border-color: #4f46e5;
+        }
+
+        /* 计时显示 */
+        .display {
+            margin: 12px 0;
+            padding: 16px;
+            border-radius: 10px;
+            background: #0f172a;
+            color: #e2e8f0;
+            font-family: Consolas, monospace;
+            font-size: 22px;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .display small {
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+        /* 日志区 */
+        .log {
+            margin-top: 10px;
+            background: #0f172a;
+            color: #cbd5e1;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-family: Consolas, monospace;
+            font-size: 13px;
+            max-height: 200px;
+            overflow-y: auto;
+            min-height: 60px;
+        }
+
+        .log div {
+            padding: 1px 0;
+        }
+
+        .log .t {
+            color: #64748b;
+        }
+
+        .log .ok {
+            color: #86efac;
+        }
+
+        .log .warn {
+            color: #fcd34d;
+        }
+
+        /* 进度条 */
+        .bar {
+            height: 10px;
+            border-radius: 999px;
+            background: #e2e8f0;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .bar i {
+            display: block;
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, #4f46e5, #8b5cf6);
+            transition: width .2s linear;
+        }
+
+        /* 对比表 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            font-size: 14px;
+        }
+
+        th, td {
+            border: 1px solid #e2e8f0;
+            padding: 8px 12px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            background: #eef2ff;
+            color: #4f46e5;
+        }
+
+        td code {
+            font-family: Consolas, monospace;
+            background: #f1f5f9;
+            padding: 1px 5px;
+            border-radius: 4px;
+        }
+
+        .warn-box {
+            margin-top: 12px;
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            color: #b45309;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 13px;
+        }
+
+        .warn-box b {
+            display: block;
+        }
+
+        footer {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 13px;
+            margin-top: 24px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="box">
+        <h1>JavaScript 的两种定时器</h1>
+        <div class="sub">作者：周浩　学号：24001010105　班级：计科24001　（setTimeout 延时执行 / setInterval 重复执行）</div>
+
+        <!-- ============ 演示一：setTimeout ============ -->
+        <div class="panel">
+            <h3>演示一：setTimeout —— 倒计时结束后执行一次 <span class="tag">setTimeout(fn, delay, ...args)</span></h3>
+            <div class="row">
+                <label>延时</label>
+                <input type="number" id="tDelay" value="3000">
+                <span style="font-size:13px;color:#94a3b8">毫秒后执行</span>
+                <button onclick="startTimeout()">启动倒计时</button>
+                <button class="ghost" onclick="clearTimeoutDemo()">clearTimeout 取消</button>
+            </div>
+            <div class="display">
+                <span id="toCount">3.0 秒</span>
+                <small id="toState">空闲</small>
+            </div>
+            <div class="bar"><i id="toBar"></i></div>
+            <div class="log" id="toLog"></div>
+        </div>
+
+        <!-- ============ 演示二：setInterval ============ -->
+        <div class="panel">
+            <h3>演示二：setInterval —— 每隔一段时间重复执行 <span class="tag">setInterval(fn, delay)</span></h3>
+            <div class="row">
+                <label>间隔</label>
+                <input type="number" id="iDelay" value="1000">
+                <span style="font-size:13px;color:#94a3b8">毫秒执行一次</span>
+                <button onclick="startInterval()">开始</button>
+                <button class="ghost" onclick="clearIntervalDemo()">clearInterval 停止</button>
+                <button class="ghost" onclick="resetInterval()">重置</button>
+            </div>
+            <div class="display">
+                <span id="iCount">已执行 0 次</span>
+                <small id="iState">空闲</small>
+            </div>
+            <div class="log" id="iLog"></div>
+        </div>
+
+        <!-- ============ 演示三：秒表（setInterval + clearInterval） ============ -->
+        <div class="panel">
+            <h3>演示三：综合运用 —— 计时器秒表（开始 / 暂停 / 归零）</h3>
+            <div class="row">
+                <button onclick="swStart()">开始</button>
+                <button class="ghost" onclick="swPause()">暂停</button>
+                <button class="ghost" onclick="swReset()">归零</button>
+                <span style="font-size:13px;color:#94a3b8">用 setInterval 每 10ms 累加，clearInterval 实现暂停</span>
+            </div>
+            <div class="display">
+                <span id="swTime">00:00.0</span>
+                <small id="swState">未开始</small>
+            </div>
+        </div>
+
+        <!-- ============ 演示四：setTimeout 传参与链式调用 ============ -->
+        <div class="panel">
+            <h3>演示四：setTimeout 的第三个参数与链式调用</h3>
+            <div class="row">
+                <button onclick="chainDemo()">运行链式演示</button>
+                <span style="font-size:13px;color:#94a3b8">setTimeout(fn, 500, '参数') 可以直接传参</span>
+            </div>
+            <div class="log" id="cLog"></div>
+        </div>
+
+        <!-- ============ 知识点对照表 ============ -->
+        <table>
+            <tr>
+                <th>对比项</th>
+                <th>setTimeout</th>
+                <th>setInterval</th>
+            </tr>
+            <tr>
+                <td>执行次数</td>
+                <td>延时后<b>只执行一次</b></td>
+                <td>每隔一段时间<b>重复执行</b>，直到被清除</td>
+            </tr>
+            <tr>
+                <td>返回值</td>
+                <td>定时器 id（数字）</td>
+                <td>定时器 id（数字）</td>
+            </tr>
+            <tr>
+                <td>取消方式</td>
+                <td><code>clearTimeout(id)</code></td>
+                <td><code>clearInterval(id)</code></td>
+            </tr>
+            <tr>
+                <td>常见用途</td>
+                <td>延迟提示、动画、防抖、Promise 延时</td>
+                <td>时钟、轮询图、倒计时、秒表</td>
+            </tr>
+            <tr>
+                <td>额外参数</td>
+                <td colspan="2"><code>setTimeout(fn, delay, arg1, arg2…)</code> 可直接给回调传参</td>
+            </tr>
+        </table>
+
+        <div class="warn-box">
+            <b>⚠ 常见坑</b>
+            ① 定时器回调里写 <code>function () { this }</code> 时 this 指向 window（全局），要用箭头函数或 bind；<br>
+            ② <code>setInterval</code> 的回调执行时间超过间隔时会“堆积”，本例秒表用 <code>setTimeout</code> 链式实现更稳；<br>
+            ③ 页面刷新或关闭后定时器会丢失，耗时任务建议用 <code>performance.now()</code> 计算真实耗时；<br>
+            ④ 回调里如果抛异常，定时器不会自动停止，需要自己 <code>clearInterval</code>。
+        </div>
+
+        <footer>周浩 · 高级网页设计 17-5 · 2026</footer>
+    </div>
+
+    <script>
+        /* ============================================================
+         * 17-5 两种定时器 —— 作者：周浩 24001010105
+         * ============================================================ */
+        function log(id, text, cls) {
+            var box = document.getElementById(id);
+            var t = new Date().toLocaleTimeString();
+            box.innerHTML += '<div><span class="t">[' + t + ']</span> <span class="' + (cls || '') + '">' + text + '</span></div>';
+            box.scrollTop = box.scrollHeight;
+        }
+
+        /* ---------- 演示一：setTimeout ---------- */
+        var toTimer = null;
+
+        function startTimeout() {
+            clearTimeoutDemo();
+            var delay = Number(document.getElementById('tDelay').value) || 3000;
+            var end = Date.now() + delay;
+            document.getElementById('toState').textContent = '倒计时中…';
+            log('toLog', 'setTimeout 注册：' + delay + ' 毫秒后执行一次');
+
+            /* 每 100ms 刷新一次倒计时显示（这里用的是 setInterval） */
+            toTimer = setInterval(function () {
+                var left = Math.max(0, end - Date.now());
+                document.getElementById('toCount').textContent = (left / 1000).toFixed(1) + ' 秒';
+                document.getElementById('toBar').style.width = (100 - left / delay * 100) + '%';
+                if (left <= 0) {
+                    clearInterval(toTimer);
+                    toTimer = null;
+                }
+            }, 100);
+
+            setTimeout(function () {
+                document.getElementById('toState').textContent = '✔ 已执行一次';
+                document.getElementById('toCount').textContent = '0.0 秒';
+                log('toLog', 'setTimeout 回调执行了！setTimeout 到点只执行这一次。', 'ok');
+            }, delay);
+        }
+
+        function clearTimeoutDemo() {
+            /* 取消后重新注册一个空的 timeout 来作标记，这里简单演示 clearTimeout 的作用 */
+            if (toTimer) {
+                clearInterval(toTimer);
+                toTimer = null;
+            }
+            document.getElementById('toState').textContent = '已取消';
+            document.getElementById('toBar').style.width = '0';
+            log('toLog', 'clearTimeout / clearInterval 取消了尚未执行的定时器', 'warn');
+        }
+
+        /* ---------- 演示二：setInterval ---------- */
+        var iTimer = null;
+        var iCount = 0;
+
+        function startInterval() {
+            if (iTimer) {
+                return;
+            }
+            var delay = Number(document.getElementById('iDelay').value) || 1000;
+            iCount = 0;
+            document.getElementById('iState').textContent = '运行中…';
+            log('iLog', 'setInterval 注册：每隔 ' + delay + ' 毫秒执行一次');
+
+            iTimer = setInterval(function () {
+                iCount++;
+                document.getElementById('iCount').textContent = '已执行 ' + iCount + ' 次';
+                log('iLog', '第 ' + iCount + ' 次执行');
+            }, delay);
+        }
+
+        function clearIntervalDemo() {
+            if (!iTimer) {
+                document.getElementById('iState').textContent = '空闲';
+                return;
+            }
+            clearInterval(iTimer);
+            iTimer = null;
+            document.getElementById('iState').textContent = '已停止（clearInterval）';
+            log('iLog', 'clearInterval 停止了重复执行，共执行 ' + iCount + ' 次', 'warn');
+        }
+
+        function resetInterval() {
+            clearIntervalDemo();
+            iCount = 0;
+            document.getElementById('iCount').textContent = '已执行 0 次';
+            document.getElementById('iState').textContent = '空闲';
+            document.getElementById('iLog').innerHTML = '';
+        }
+
+        /* ---------- 演示三：秒表 ---------- */
+        var swTimer = null;
+        var swTick = 0;      /* 经过的毫秒数（用 10ms 累加） */
+        var swBase = 0;
+
+        function swFormat(ms) {
+            var m = Math.floor(ms / 60000);
+            var s = Math.floor(ms % 60000 / 1000);
+            var d = Math.floor(ms % 1000 / 100);
+            return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s + '.' + d;
+        }
+
+        function swStart() {
+            if (swTimer) {
+                return;
+            }
+            document.getElementById('swState').textContent = '计时中…';
+            swTimer = setInterval(function () {
+                swTick += 10;
+                document.getElementById('swTime').textContent = swFormat(swTick);
+            }, 10);
+        }
+
+        function swPause() {
+            if (!swTimer) {
+                return;
+            }
+            clearInterval(swTimer);
+            swTimer = null;
+            document.getElementById('swState').textContent = '已暂停（clearInterval）';
+        }
+
+        function swReset() {
+            clearInterval(swTimer);
+            swTimer = null;
+            swTick = 0;
+            document.getElementById('swTime').textContent = '00:00.0';
+            document.getElementById('swState').textContent = '未开始';
+        }
+
+        /* ---------- 演示四：传参与链式调用 ---------- */
+        function chainDemo() {
+            document.getElementById('cLog').innerHTML = '';
+            log('cLog', '开始链式调用：三个 setTimeout 依次接力');
+
+            setTimeout(function (msg) {
+                log('cLog', '第 1 步（额外参数 msg = "' + msg + '"）', 'ok');
+            }, 500, '我是第三个参数传进来的');
+
+            setTimeout(function () {
+                log('cLog', '第 2 步：在第 1 步的回调里再注册一个 setTimeout', 'ok');
+                setTimeout(function () {
+                    log('cLog', '第 3 步：链式调用结束', 'ok');
+                }, 500);
+            }, 1000);
+        }
+    </script>
+
+</body>
+</html>

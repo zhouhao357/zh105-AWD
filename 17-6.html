@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="周浩 24001010105">
+    <meta name="description" content="Promise 与 async/await 异步操作演示（包饺子）- 周浩 24001010105">
+    <title>17-6 Promise 与 async 包饺子</title>
+    <style>
+        /* ============================================================
+           17-6 用 Promise 和 async 完成异步操作：包饺子流程
+           作者：周浩 24001010105 计科24001
+           流程：买原料 → (同时 和面 + 和馅) → 包饺子 → 煮饺子 → 装盘
+           ============================================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            line-height: 1.7;
+            padding: 24px 16px;
+        }
+
+        .box {
+            max-width: 980px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #4f46e5;
+            margin-bottom: 6px;
+        }
+
+        .sub {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .panel {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 18px 20px;
+            margin-bottom: 16px;
+        }
+
+        .panel h3 {
+            font-size: 15px;
+            color: #475569;
+            margin-bottom: 10px;
+        }
+
+        .row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            font: inherit;
+            font-size: 14px;
+            padding: 8px 18px;
+            border: 1px solid #c7d2fe;
+            background: #eef2ff;
+            color: #4f46e5;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #4f46e5;
+            color: #fff;
+        }
+
+        button.primary {
+            background: linear-gradient(90deg, #4f46e5, #8b5cf6);
+            border-color: transparent;
+            color: #fff;
+        }
+
+        button.primary:hover {
+            filter: brightness(1.08);
+        }
+
+        button.ghost {
+            background: #f8fafc;
+            border-color: #e2e8f0;
+            color: #475569;
+        }
+
+        input {
+            font: inherit;
+            font-size: 14px;
+            padding: 6px 9px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            outline: none;
+            width: 78px;
+        }
+
+        input:focus {
+            border-color: #4f46e5;
+        }
+
+        /* 结果条 */
+        .result {
+            margin: 12px 0;
+            padding: 14px 18px;
+            border-radius: 10px;
+            background: #0f172a;
+            color: #e2e8f0;
+            font-family: Consolas, monospace;
+            font-size: 15px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .result small {
+            color: #94a3b8;
+            font-size: 13px;
+        }
+
+        /* 甘特图 */
+        .gantt {
+            margin-top: 10px;
+        }
+
+        .g-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 7px;
+        }
+
+        .g-name {
+            width: 96px;
+            flex-shrink: 0;
+            font-size: 13px;
+            color: #475569;
+            text-align: right;
+        }
+
+        .g-track {
+            position: relative;
+            flex: 1;
+            height: 24px;
+            background: #f1f5f9;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .g-bar {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            transition: width .2s linear, left .2s linear;
+        }
+
+        .g-scale {
+            display: flex;
+            justify-content: space-between;
+            font-family: Consolas, monospace;
+            font-size: 11px;
+            color: #94a3b8;
+            margin-left: 106px;
+            margin-top: 2px;
+        }
+
+        /* 步骤列表 */
+        .steps {
+            list-style: none;
+            margin-top: 14px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        .steps li {
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 13px;
+            background: #f8fafc;
+            transition: all .25s;
+        }
+
+        .steps li b {
+            display: block;
+            font-size: 14px;
+            color: #1e293b;
+        }
+
+        .steps li.doing {
+            border-color: #f59e0b;
+            background: #fffbeb;
+        }
+
+        .steps li.done {
+            border-color: #10b981;
+            background: #ecfdf5;
+        }
+
+        .steps li small {
+            color: #94a3b8;
+        }
+
+        /* 日志 */
+        .log {
+            margin-top: 10px;
+            background: #0f172a;
+            color: #cbd5e1;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-family: Consolas, monospace;
+            font-size: 13px;
+            height: 190px;
+            overflow-y: auto;
+        }
+
+        .log .t {
+            color: #64748b;
+        }
+
+        .log .ok {
+            color: #86efac;
+        }
+
+        .log .par {
+            color: #c4b5fd;
+        }
+
+        /* 代码块 */
+        .code {
+            background: #0f172a;
+            color: #e2e8f0;
+            border-radius: 10px;
+            padding: 14px 16px;
+            font-family: Consolas, monospace;
+            font-size: 13px;
+            white-space: pre;
+            overflow-x: auto;
+            margin-bottom: 12px;
+        }
+
+        .k {
+            color: #c4b5fd;
+        }
+
+        .s {
+            color: #86efac;
+        }
+
+        .c {
+            color: #64748b;
+        }
+
+        /* 表格 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            font-size: 14px;
+        }
+
+        th, td {
+            border: 1px solid #e2e8f0;
+            padding: 8px 12px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            background: #eef2ff;
+            color: #4f46e5;
+        }
+
+        td code {
+            font-family: Consolas, monospace;
+            background: #f1f5f9;
+            padding: 1px 5px;
+            border-radius: 4px;
+        }
+
+        footer {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 13px;
+            margin-top: 24px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="box">
+        <h1>Promise 与 async 完成异步操作：包饺子</h1>
+        <div class="sub">作者：周浩　学号：24001010105　班级：计科24001</div>
+
+        <!-- ============ 控制区 ============ -->
+        <div class="panel">
+            <h3>① 选择执行方式</h3>
+            <div class="row">
+                <button class="primary" onclick="runAsync()">▶ async/await + Promise.all（并行，推荐）</button>
+                <button onclick="runSerial()">▶ 串行 await（一个做完再做下一个）</button>
+                <button class="ghost" onclick="resetAll()">↻ 重置</button>
+            </div>
+            <div class="row" style="margin-top:10px">
+                <label>和面耗时</label><input type="number" id="tDough" value="1500">
+                <label>和馅耗时</label><input type="number" id="tFill" value="1000">
+                <span style="font-size:13px;color:#94a3b8">（把“和面”调得比“和馅”长，并行效果更明显）</span>
+            </div>
+            <div class="result">
+                <span id="rState">等待开始…</span>
+                <span id="rTime">总耗时：—</span>
+            </div>
+        </div>
+
+        <!-- ============ 流程与甘特图 ============ -->
+        <div class="panel">
+            <h3>② 执行流程与时间线（横条重叠 = 同时进行）</h3>
+            <ul class="steps" id="steps"></ul>
+            <div class="gantt" id="gantt"></div>
+            <div class="g-scale">
+                <span>0 ms</span>
+                <span id="scaleMid">—</span>
+                <span id="scaleEnd">—</span>
+            </div>
+        </div>
+
+        <!-- ============ 日志 ============ -->
+        <div class="panel">
+            <h3>③ 运行日志</h3>
+            <div class="log" id="log"></div>
+        </div>
+
+        <!-- ============ 代码 ============ -->
+        <div class="panel">
+            <h3>④ 核心代码</h3>
+            <div class="code" id="code1"></div>
+            <div class="code" id="code2"></div>
+        </div>
+
+        <!-- ============ 知识点 ============ -->
+        <table>
+            <tr>
+                <th>知识点</th>
+                <th>说明</th>
+            </tr>
+            <tr>
+                <td><code>Promise</code></td>
+                <td>表示一个“将来才会拿到结果”的对象，有 pending / fulfilled / rejected 三种状态</td>
+            </tr>
+            <tr>
+                <td><code>async function</code></td>
+                <td>函数内可使用 <code>await</code>，返回值自动变成 Promise</td>
+            </tr>
+            <tr>
+                <td><code>await</code></td>
+                <td>等待一个 Promise 结束，拿到结果后才继续往下执行（“同步等待异步”）</td>
+            </tr>
+            <tr>
+                <td><code>Promise.all([...])</code></td>
+                <td>并发执行多个异步任务，<b>全部完成</b>才 resolve，返回结果数组 —— 本页“同时和面和馅”就靠它</td>
+            </tr>
+            <tr>
+                <td><code>Promise.allSettled</code></td>
+                <td>并发执行，<b>不管成功失败</b>都等完，返回每个任务的结果状态</td>
+            </tr>
+            <tr>
+                <td><code>Promise.race([...])</code></td>
+                <td>并发执行，<b>谁先完成</b>就用谁的结果</td>
+            </tr>
+            <tr>
+                <td><code>try / catch</code></td>
+                <td>捕获 await 过程中抛出的错误</td>
+            </tr>
+        </table>
+
+        <footer>周浩 · 高级网页设计 17-6 · 2026</footer>
+    </div>
+
+    <script>
+        /* ============================================================
+         * 17-6 包饺子 —— 作者：周浩 24001010105
+         * 用 setTimeout 模拟耗时操作，用 Promise / async 编排流程
+         * ============================================================ */
+        var STEP_DEFS = [
+            { key: 'buy', name: '买原料', color: '#4f46e5', desc: '去超市买面粉、肉馅、葱姜' },
+            { key: 'dough', name: '和面', color: '#8b5cf6', desc: '面粉加水揉成面团' },
+            { key: 'filling', name: '和馅', color: '#0ea5e9', desc: '肉馅加调料搅匀' },
+            { key: 'wrap', name: '包饺子', color: '#f59e0b', desc: '擀皮、 包馅、捏褶' },
+            { key: 'boil', name: '煮饺子', color: '#ec4899', desc: '下锅煮熟' },
+            { key: 'serve', name: '装盘', color: '#10b981', desc: '捞出装盘，开吃！' }
+        ];
+
+        var t0 = 0;
+        var records = [];        /* { key, start, end } */
+        var running = false;
+
+        /* ---------- 通用工具 ---------- */
+        function log(text, cls) {
+            var box = document.getElementById('log');
+            var t = (Date.now() - t0);
+            box.innerHTML += '<div><span class="t">[' + t + ' ms]</span> <span class="' + (cls || '') + '">' + text + '</span></div>';
+            box.scrollTop = box.scrollHeight;
+        }
+
+        /* 用 Promise + setTimeout 模拟一个耗时的异步操作 */
+        function delay(ms, value) {
+            return new Promise(function (resolve) {
+                setTimeout(function () {
+                    resolve(value);
+                }, ms);
+            });
+        }
+
+        /* 记录一个步骤的起止时间 */
+        function mark(key, start, end) {
+            records.push({ key: key, start: start, end: end });
+            draw();
+        }
+
+        /* ---------- 各步骤（async 函数，返回 Promise） ---------- */
+        async function buyMaterials() {
+            var s = Date.now() - t0;
+            log('▶ 开始 买原料…');
+            await delay(800);
+            mark('buy', s, Date.now() - t0);
+            log('✔ 买原料 完成（面粉 / 肉馅 / 葱姜）', 'ok');
+            return '原料';
+        }
+
+        async function makeDough() {
+            var s = Date.now() - t0;
+            log('▶ 开始 和面…（与其他任务并行）', 'par');
+            await delay(Number(document.getElementById('tDough').value) || 1500);
+            mark('dough', s, Date.now() - t0);
+            log('✔ 和面 完成（面团醒好）', 'ok');
+            return '面团';
+        }
+
+        async function makeFilling() {
+            var s = Date.now() - t0;
+            log('▶ 开始 和馅…（与其他任务并行）', 'par');
+            await delay(Number(document.getElementById('tFill').value) || 1000);
+            mark('filling', s, Date.now() - t0);
+            log('✔ 和馅 完成（饺子馅）', 'ok');
+            return '饺子馅';
+        }
+
+        async function wrapDumplings() {
+            var s = Date.now() - t0;
+            log('▶ 开始 包饺子…');
+            await delay(1000);
+            mark('wrap', s, Date.now() - t0);
+            log('✔ 包饺子 完成（共 30 个）', 'ok');
+        }
+
+        async function boilDumplings() {
+            var s = Date.now() - t0;
+            log('▶ 开始 煮饺子…');
+            await delay(1500);
+            mark('boil', s, Date.now() - t0);
+            log('✔ 煮饺子 完成（浮起即熟）', 'ok');
+        }
+
+        async function serve() {
+            var s = Date.now() - t0;
+            log('▶ 开始 装盘…');
+            await delay(300);
+            mark('serve', s, Date.now() - t0);
+            log('✔ 装盘完成，饺子可以吃啦！', 'ok');
+        }
+
+        /* ---------- 方式一：async/await + Promise.all（并行） ---------- */
+        async function runAsync() {
+            if (running) { return; }
+            prepare();
+
+            try {
+                /* 第 1 步：买原料（必须先完成） */
+                await buyMaterials();
+
+                /* 第 2 步：和面 与 和馅 同时进行（并发），全部完成才继续 */
+                log('⇉ 用 Promise.all 同时启动「和面」和「和馅」两个任务…', 'par');
+                var res = await Promise.all([makeDough(), makeFilling()]);
+                log('⇉ Promise.all 已完成，结果 = [' + res.join(', ') + ']', 'par');
+
+                /* 第 3 步：后面的步骤依次进行 */
+                await wrapDumplings();
+                await boilDumplings();
+                await serve();
+
+                finish('async/await + Promise.all（并行）');
+            } catch (e) {
+                log('❌ 出错了：' + e.message, 'warn');
+                document.getElementById('rState').textContent = '❌ 执行出错';
+                running = false;
+            }
+        }
+
+        /* ---------- 方式二：串行 await（一个做完再做下一个） ---------- */
+        async function runSerial() {
+            if (running) { return; }
+            prepare();
+
+            try {
+                await buyMaterials();
+                await makeDough();      /* 和面做完 */
+                await makeFilling();    /* 才开始和馅 */
+                await wrapDumplings();
+                await boilDumplings();
+                await serve();
+
+                finish('串行 await（依次执行）');
+            } catch (e) {
+                log('❌ 出错了：' + e.message, 'warn');
+                document.getElementById('rState').textContent = '❌ 执行出错';
+                running = false;
+            }
+        }
+
+        /* ---------- 准备与收尾 ---------- */
+        function prepare() {
+            running = true;
+            records = [];
+            t0 = Date.now();
+            document.getElementById('log').innerHTML = '';
+            document.getElementById('rState').textContent = '执行中…';
+            document.getElementById('rTime').textContent = '总耗时：—';
+            drawSteps('idle');
+            draw();
+        }
+
+        function finish(way) {
+            var total = Date.now() - t0;
+            document.getElementById('rState').textContent = '🎉 饺子包好啦！（' + way + '）';
+            document.getElementById('rTime').textContent = '总耗时：' + total + ' ms';
+            log('🎉 全部完成，总耗时 ' + total + ' ms', 'ok');
+            running = false;
+        }
+
+        function resetAll() {
+            records = [];
+            t0 = Date.now();
+            document.getElementById('log').innerHTML = '';
+            document.getElementById('rState').textContent = '等待开始…';
+            document.getElementById('rTime').textContent = '总耗时：—';
+            drawSteps('idle');
+            draw();
+        }
+
+        /* ---------- 绘制步骤卡片 ---------- */
+        function drawSteps(state) {
+            document.getElementById('steps').innerHTML = STEP_DEFS.map(function (s) {
+                var done = records.some(function (r) { return r.key === s.key; });
+                var cls = state === 'idle' ? '' : (done ? 'done' : 'doing');
+                var time = done ? (function (r) { return r.end - r.start; })(records.filter(function (r) { return r.key === s.key; })[0]) + ' ms' : '等待中';
+                return '<li class="' + cls + '"><b>' + s.name + '</b><small>' + s.desc + '</small><br><small>' + time + '</small></li>';
+            }).join('');
+        }
+
+        /* ---------- 绘制甘特图 ---------- */
+        function draw() {
+            var total = 0;
+            records.forEach(function (r) {
+                total = Math.max(total, r.end);
+            });
+            total = Math.max(total, 1);
+
+            document.getElementById('gantt').innerHTML = STEP_DEFS.map(function (s) {
+                var rec = records.filter(function (r) { return r.key === s.key; })[0];
+                if (!rec) {
+                    return '<div class="g-row"><span class="g-name">' + s.name + '</span>' +
+                        '<div class="g-track"></div></div>';
+                }
+                var left = rec.start / total * 100;
+                var w = Math.max((rec.end - rec.start) / total * 100, 3);
+                return '<div class="g-row"><span class="g-name">' + s.name + '</span>' +
+                    '<div class="g-track"><div class="g-bar" style="left:' + left + '%;width:' + w + '%;background:' + s.color + '">' +
+                    (rec.end - rec.start) + 'ms</div></div></div>';
+            });
+
+            document.getElementById('scaleMid').textContent = Math.round(total / 2) + ' ms';
+            document.getElementById('scaleEnd').textContent = total + ' ms';
+            drawSteps('run');
+        }
+
+        /* ---------- 代码展示 ---------- */
+        function showCode() {
+            document.getElementById('code1').innerHTML =
+                '<span class="c">/* 方式一：async/await + Promise.all（和面与和馅并行） */</span>\n' +
+                '<span class="k">async function</span> makeDumplings() {\n' +
+                '    <span class="k">await</span> buyMaterials();                    <span class="c">// 先买原料</span>\n' +
+                '    <span class="k">const</span> [dough, filling] = <span class="k">await</span> Promise.all([\n' +
+                '        makeDough(),                        <span class="c">// 和面</span>\n' +
+                '        makeFilling()                       <span class="c">// 和馅（同时进行）</span>\n' +
+                '    ]);\n' +
+                '    <span class="k">await</span> wrapDumplings();\n' +
+                '    <span class="k">await</span> boilDumplings();\n' +
+                '    <span class="k">await</span> serve();\n' +
+                '}\n\n' +
+                '<span class="c">/* 模拟耗时操作：用 Promise + setTimeout */</span>\n' +
+                '<span class="k">function</span> delay(ms, value) {\n' +
+                '    <span class="k">return new</span> Promise(resolve =&gt; {\n' +
+                '        setTimeout(() =&gt; resolve(value), ms);\n' +
+                '    });\n' +
+                '}';
+
+            document.getElementById('code2').innerHTML =
+                '<span class="c">/* 方式二：Promise 链式写法（不用 async/await） */</span>\n' +
+                'buyMaterials()\n' +
+                '    .then(() =&gt; Promise.all([makeDough(), makeFilling()]))  <span class="c">// 并行</span>\n' +
+                '    .then(() =&gt; wrapDumplings())\n' +
+                '    .then(() =&gt; boilDumplings())\n' +
+                '    .then(() =&gt; serve())\n' +
+                '    .catch(err =&gt; console.error(\'出错了：\', err));';
+        }
+
+        showCode();
+        draw();
+    </script>
+
+</body>
+</html>

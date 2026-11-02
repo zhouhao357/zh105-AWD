@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="周浩 24001010105">
+    <meta name="description" content="JSON 演示 - 周浩 24001010105">
+    <title>17-1 JSON</title>
+    <style>
+        /* 17-1 JSON 演示 —— 作者：周浩 24001010105 计科24001 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            line-height: 1.7;
+            padding: 24px 16px;
+        }
+
+        .box {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #4f46e5;
+            margin-bottom: 6px;
+        }
+
+        .sub {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .out-title {
+            font-size: 15px;
+            font-weight: bold;
+            margin: 14px 0 6px;
+            color: #475569;
+        }
+
+        /* 展示区：深色代码框 */
+        .json-view {
+            background: #0f172a;
+            color: #e2e8f0;
+            border-radius: 10px;
+            padding: 14px 18px;
+            font-family: Consolas, monospace;
+            font-size: 14px;
+            white-space: pre;
+            overflow-x: auto;
+        }
+
+        /* 按钮区 */
+        .btns {
+            margin: 16px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        button {
+            font: inherit;
+            font-size: 14px;
+            padding: 7px 14px;
+            border: 1px solid #c7d2fe;
+            background: #eef2ff;
+            color: #4f46e5;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #4f46e5;
+            color: #fff;
+        }
+
+        /* 运行结果 */
+        #out {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 14px 18px;
+            min-height: 130px;
+            font-family: Consolas, monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+            word-break: break-all;
+            color: #0f766e;
+        }
+
+        /* 对照表 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 28px;
+            background: #fff;
+            font-size: 14px;
+        }
+
+        th, td {
+            border: 1px solid #e2e8f0;
+            padding: 8px 12px;
+            text-align: left;
+        }
+
+        th {
+            background: #eef2ff;
+            color: #4f46e5;
+        }
+
+        td code {
+            font-family: Consolas, monospace;
+            background: #f1f5f9;
+            padding: 1px 5px;
+            border-radius: 4px;
+        }
+
+        footer {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 13px;
+            margin-top: 28px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="box">
+        <h1>JSON：数据交换格式</h1>
+        <div class="sub">作者：周浩　学号：24001010105　班级：计科24001</div>
+
+        <!-- 一段标准的 JSON 文本 -->
+        <div class="out-title">一段标准的 JSON 文本（注意：键和字符串值都必须用双引号）</div>
+        <div class="json-view" id="jsonView"></div>
+
+        <!-- 操作按钮 -->
+        <div class="btns">
+            <button onclick="doParse()">1. JSON.parse：字符串 → 对象</button>
+            <button onclick="doUse()">2. 解析后像普通对象一样使用</button>
+            <button onclick="doStringify()">3. JSON.stringify：对象 → 字符串</button>
+            <button onclick="doPretty()">4. 格式化输出（缩进 2 空格）</button>
+            <button onclick="doLose()">5. 函数和 undefined 会丢失</button>
+            <button onclick="doStorage()">6. 实际用途：localStorage 存取</button>
+        </div>
+
+        <div class="out-title">运行结果</div>
+        <div id="out">（点击上方按钮查看结果）</div>
+
+        <!-- JSON 语法规则对照表 -->
+        <table>
+            <tr>
+                <th>规则</th>
+                <th>正确 ✔</th>
+                <th>错误 ✘</th>
+            </tr>
+            <tr>
+                <td>键必须用双引号</td>
+                <td><code>{"name": "周浩"}</code></td>
+                <td><code>{name: "周浩"}</code>、<code>{'name': ...}</code></td>
+            </tr>
+            <tr>
+                <td>字符串值必须用双引号</td>
+                <td><code>{"city": "长春"}</code></td>
+                <td><code>{"city": '长春'}</code></td>
+            </tr>
+            <tr>
+                <td>不能写函数、undefined</td>
+                <td>只放 数字 / 字符串 / 布尔 / null / 数组 / 对象</td>
+                <td><code>{"fn": function(){}}</code>（会被丢弃）</td>
+            </tr>
+            <tr>
+                <td>不能有注释、末尾不能有多余逗号</td>
+                <td><code>{"a": 1, "b": 2}</code></td>
+                <td><code>{"a": 1,}</code>、<code>{/*xx*/}</code></td>
+            </tr>
+            <tr>
+                <td>字符串 ↔ 对象 互转</td>
+                <td><code>JSON.parse(jsonStr)</code>、<code>JSON.stringify(obj)</code></td>
+                <td>直接把字符串当对象用（<code>jsonStr.name</code> 是 undefined）</td>
+            </tr>
+        </table>
+
+        <footer>周浩 · 高级网页设计 17-1 · 2026</footer>
+    </div>
+
+    <script>
+        /* ============ 演示数据 ============ */
+        // 作者：周浩 24001010105
+        // 一段 JSON 字符串（真实场景中它来自服务器接口、配置文件或 localStorage）
+        var jsonStr = '{' +
+            '\n  "name": "周浩",' +
+            '\n  "stuNo": "24001010105",' +
+            '\n  "className": "计科24001",' +
+            '\n  "age": 19,' +
+            '\n  "isStudent": true,' +
+            '\n  "skills": ["HTML", "CSS", "JavaScript"],' +
+            '\n  "dorm": { "building": "5号楼", "room": "302" }' +
+            '\n}';
+
+        var out = document.getElementById('out');
+        document.getElementById('jsonView').textContent = jsonStr;
+
+        function print(text) {
+            out.textContent = text;
+        }
+
+        /* ============ 各个演示 ============ */
+
+        // 1. JSON.parse：JSON 字符串 → JS 对象
+        function doParse() {
+            var stu;
+            try {
+                stu = JSON.parse(jsonStr);          // 解析：字符串变对象
+                print(
+                    'JSON.parse(jsonStr) 解析成功！\n\n' +
+                    'typeof jsonStr → ' + typeof jsonStr + '（字符串）\n' +
+                    'typeof stu     → ' + typeof stu + '（对象）\n\n' +
+                    '解析得到的对象：\n' + JSON.stringify(stu, null, 2)
+                );
+            } catch (e) {
+                print('解析失败：' + e.message);
+            }
+        }
+
+        // 2. 解析后的数据可以像普通对象一样使用
+        function doUse() {
+            var stu = JSON.parse(jsonStr);
+            print(
+                'stu.name            → ' + stu.name + '\n' +
+                'stu["stuNo"]        → ' + stu['stuNo'] + '\n' +
+                'stu.skills[1]       → ' + stu.skills[1] + '\n' +
+                'stu.dorm.room       → ' + stu.dorm.room + '（嵌套对象）\n' +
+                'stu.isStudent       → ' + stu.isStudent + '（布尔值）\n\n' +
+                'skills 数组长度     → ' + stu.skills.length
+            );
+        }
+
+        // 3. JSON.stringify：JS 对象 → JSON 字符串
+        function doStringify() {
+            var stu = JSON.parse(jsonStr);
+            var str = JSON.stringify(stu);          // 序列化：对象变字符串
+            print(
+                'JSON.stringify(stu) 得到一个字符串：\n\n' + str + '\n\n' +
+                'typeof str → ' + typeof str + '\n' +
+                '长度 → ' + str.length + ' 个字符\n' +
+                '（对象没法直接发送/存储，转成字符串才行）'
+            );
+        }
+
+        // 4. stringify 第 3 个参数控制缩进，常用于美化输出
+        function doPretty() {
+            var stu = JSON.parse(jsonStr);
+            print(
+                'JSON.stringify(stu, null, 2) 带缩进输出：\n\n' + JSON.stringify(stu, null, 2)
+            );
+        }
+
+        // 5. 对象里的函数、undefined 在序列化时会丢失
+        function doLose() {
+            var obj = {
+                name: '周浩',
+                sayHi: function () { return 'hi'; },   // 函数 → 丢失
+                remark: undefined,                      // undefined → 丢失
+                score: null                             // null → 保留为 null
+            };
+            print(
+                '原始对象：{ name, sayHi: 函数, remark: undefined, score: null }\n\n' +
+                'JSON.stringify(obj) → ' + JSON.stringify(obj) + '\n\n' +
+                '结论：函数和 undefined 属性被直接丢掉了，null 正常保留为 null。'
+            );
+        }
+
+        // 6. JSON 的实际用途：localStorage 只能存字符串
+        function doStorage() {
+            var stu = JSON.parse(jsonStr);
+            localStorage.setItem('zh-student', JSON.stringify(stu));    // 存
+            var back = JSON.parse(localStorage.getItem('zh-student'));  // 取
+            print(
+                'localStorage.setItem("zh-student", JSON.stringify(stu))  ← 存入\n' +
+                'JSON.parse(localStorage.getItem("zh-student"))           ← 读出\n\n' +
+                '读回的数据：' + back.name + '（' + back.stuNo + '），爱好之一：' + back.skills[0] + '\n\n' +
+                '这就是 JSON 最大的用处：在“对象”和“字符串”之间搭桥，让数据可以被存储和传输。'
+            );
+        }
+
+        print('（点击上方按钮查看结果）');
+    </script>
+
+</body>
+</html>
