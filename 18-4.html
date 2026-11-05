@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="周浩 24001010105">
+    <meta name="description" content="ECharts 两个图表示例（本地 cdn 引入）- 周浩 24001010105">
+    <title>18-4 ECharts 图表</title>
+    <style>
+        /* ============================================================
+           18-4 ECharts 两个图表
+           作者：周浩 24001010105 计科24001
+           ECharts 已下载到本地 cdn 目录：cdn/echarts.min.js（离线可用）
+           ============================================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            line-height: 1.7;
+            padding: 22px 16px 40px;
+        }
+
+        .wrap {
+            max-width: 1180px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #4f46e5;
+            margin-bottom: 4px;
+        }
+
+        .sub {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 14px;
+            margin-bottom: 18px;
+        }
+
+        .card {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            box-shadow: 0 14px 34px rgba(15, 23, 42, .07);
+            padding: 16px 20px 20px;
+            margin-bottom: 18px;
+        }
+
+        .card-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .card-head h2 {
+            font-size: 17px;
+            color: #1e293b;
+        }
+
+        .card-head span {
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+        .chart {
+            width: 100%;
+            height: 400px;
+        }
+
+        .btns {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            font: inherit;
+            font-size: 13px;
+            padding: 6px 14px;
+            border: 1px solid #c7d2fe;
+            background: #eef2ff;
+            color: #4f46e5;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #4f46e5;
+            color: #fff;
+        }
+
+        /* 说明区 */
+        .notes {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .note {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .note b {
+            display: block;
+            color: #1e293b;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .note code {
+            color: #4f46e5;
+            font-family: Consolas, monospace;
+        }
+
+        .code {
+            background: #0f172a;
+            color: #e2e8f0;
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-family: Consolas, monospace;
+            font-size: 13px;
+            white-space: pre;
+            overflow-x: auto;
+            margin-top: 10px;
+        }
+
+        .k {
+            color: #c4b5fd;
+        }
+
+        .s {
+            color: #86efac;
+        }
+
+        .c {
+            color: #64748b;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            font-size: 13px;
+        }
+
+        th, td {
+            border: 1px solid #e2e8f0;
+            padding: 8px 12px;
+            text-align: left;
+        }
+
+        th {
+            background: #eef2ff;
+            color: #4f46e5;
+        }
+
+        footer {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 13px;
+            margin-top: 24px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="wrap">
+        <h1>ECharts 图表示例</h1>
+        <div class="sub">作者：周浩　学号：24001010105　班级：计科24001　（ECharts 已下载到本地 <code>cdn/echarts.min.js</code>，断网也能用）</div>
+
+        <!-- ============ 图一 ============ -->
+        <div class="card">
+            <div class="card-head">
+                <h2>图一：销售额与增长率（柱状图 + 折线图 双 Y 轴）</h2>
+                <div class="btns">
+                    <button onclick="refreshBar()">随机刷新数据</button>
+                    <button onclick="toggleLine()">显示/隐藏折线</button>
+                </div>
+            </div>
+            <span>数据含义：某电商平台近 6 个月 GMV（柱）与同比增长率（线），可直观看到“量涨利薄”的趋势。</span>
+            <div class="chart" id="chart1"></div>
+        </div>
+
+        <!-- ============ 图二 ============ -->
+        <div class="card">
+            <div class="card-head">
+                <h2>图二：品类销售占比（环形饼图 + 玫瑰图）</h2>
+                <div class="btns">
+                    <button onclick="switchPie()">切换饼图 / 玫瑰图</button>
+                    <button onclick="refreshPie()">随机刷新数据</button>
+                </div>
+            </div>
+            <span>数据含义：各一级品类销售额占比，点击扇区可高亮，配合右侧百分比标签查看明细。</span>
+            <div class="chart" id="chart2"></div>
+        </div>
+
+        <!-- ============ 说明 ============ -->
+        <div class="notes">
+            <div class="note">
+                <b>① 引入本地 ECharts</b>
+                <code>&lt;script src="cdn/echarts.min.js"&gt;&lt;/script&gt;，
+                文件已下载到项目内的 <code>cdn</code> 目录，不依赖外网；
+                若联网也可以换成 <code>https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js</code>。
+            </div>
+            <div class="note">
+                <b>② 三步走：初始化 → 写 option → setOption</b>
+                <code>echarts.init(dom)</code> 得到实例，<code>setOption(option)</code> 绘制；
+                窗口尺寸变化时记得调用 <code>chart.resize()</code>。
+            </div>
+            <div class="note">
+                <b>③ 常用配置</b>
+                <code>tooltip</code> 提示框、<code>legend</code> 图例、<code>grid</code> 留白、
+                <code>xAxis / yAxis</code> 坐标轴、<code>series</code> 数据系列（type 决定图形）。
+            </div>
+            <div class="note">
+                <b>④ 联动与事件</b>
+                <code>chart.on('click', ...)</code> 监听点击；
+                <code>setOption(option, true)</code> 表示全量覆盖更新，
+                <code>notMerge: true</code> 可清除旧系列后再画。
+            </div>
+        </div>
+
+        <!-- 核心代码 -->
+        <div class="card">
+            <h2 style="font-size:17px;color:#1e293b;margin-bottom:4px">核心代码</h2>
+            <span style="font-size:13px;color:#94a3b8">图一：柱状 + 折线双轴</span>
+            <div class="code" id="code1"></div>
+            <span style="font-size:13px;color:#94a3b8">图二：环形饼图</span>
+            <div class="code" id="code2"></div>
+        </div>
+
+        <!-- 配置对照表 -->
+        <table>
+            <tr>
+                <th>配置项</th>
+                <th>作用</th>
+                <th>本例取值</th>
+            </tr>
+            <tr>
+                <td><code>tooltip.trigger</code></td>
+                <td>提示框触发方式</td>
+                <td>axis（按坐标轴联动）</td>
+            </tr>
+            <tr>
+                <td><code>yAxis[].type / yAxisIndex</code></td>
+                <td>坐标轴类型与归属系列</td>
+                <td>value + value，第二个用不同 yAxisIndex</td>
+            </tr>
+            <tr>
+                <td><code>series[].type</code></td>
+                <td>图形类型</td>
+                <td>bar / line / pie / roseType</td>
+            </tr>
+            <tr>
+                <td><code>radius</code></td>
+                <td>饼图半径，支持百分比数组</td>
+                <td>['45%', '68%']（环形）</td>
+            </tr>
+            <tr>
+                <td><code>label.formatter</code></td>
+                <td>标签文本格式化</td>
+                <td>'{b}: {d}%'</td>
+            </tr>
+            <tr>
+                <td><code>chart.resize()</code></td>
+                <td>容器尺寸变化后重绘</td>
+                <td>绑定 window resize 事件</td>
+            </tr>
+        </table>
+
+        <footer>周浩 · 高级网页设计 18-4 · 2026</footer>
+    </div>
+
+    <!-- 本地 ECharts（离线可用） -->
+    <script src="cdn/echarts.min.js"></script>
+
+    <script>
+        /* ============================================================
+         * 18-4 ECharts 两个图 —— 作者：周浩 24001010105
+         * ============================================================ */
+        var c1 = echarts.init(document.getElementById('chart1'));
+        var c2 = echarts.init(document.getElementById('chart2'));
+
+        var months = ['4月', '5月', '6月', '7月', '8月', '9月'];
+        var sales = [286, 342, 398, 455, 512, 604];      /* 万元 */
+        var growth = [8.2, 12.5, 9.8, 16.4, 11.3, 18.2]; /* % */
+
+        var cats = ['手机数码', '家用电器', '服饰鞋包', '食品生鲜', '图书文具', '其他'];
+        var vals = [3860, 2140, 1680, 1320, 620, 380];
+
+        /* ---------- 图一：柱状 + 折线 ---------- */
+        function barOption() {
+            return {
+                title: {
+                    text: '近 6 个月 GMV 与同比增长率',
+                    left: 'center',
+                    textStyle: { fontSize: 15, color: '#334155' }
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: { type: 'cross' }
+                },
+                legend: { data: ['销售额(万元)', '同比增长率(%)'], top: 40 },
+                grid: { left: 60, right: 60, top: 80, bottom: 50 },
+                xAxis: {
+                    type: 'category',
+                    data: months,
+                    axisLine: { lineStyle: { color: '#cbd5e1' } },
+                    axisLabel: { color: '#64748b' }
+                },
+                yAxis: [
+                    {
+                        type: 'value',
+                        name: '销售额(万元)',
+                        splitLine: { lineStyle: { color: '#f1f5f9' } },
+                        axisLabel: { color: '#64748b' }
+                    },
+                    {
+                        type: 'value',
+                        name: '增长率(%)',
+                        splitLine: { show: false },
+                        axisLabel: { color: '#64748b', formatter: '{value}%' }
+                    }
+                ],
+                series: [
+                    {
+                        name: '销售额(万元)',
+                        type: 'bar',
+                        data: sales,
+                        barWidth: 26,
+                        itemStyle: {
+                            borderRadius: [6, 6, 0, 0],
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                { offset: 0, color: '#818cf8' },
+                                { offset: 1, color: '#4f46e5' }
+                            ])
+                        },
+                        label: { show: true, position: 'top', color: '#4f46e5', fontSize: 11 }
+                    },
+                    {
+                        name: '同比增长率(%)',
+                        type: 'line',
+                        yAxisIndex: 1,
+                        data: growth,
+                        smooth: true,
+                        symbolSize: 8,
+                        lineStyle: { width: 3, color: '#f43f5e' },
+                        itemStyle: { color: '#f43f5e' },
+                        areaStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                { offset: 0, color: 'rgba(244,63,94,.25)' },
+                                { offset: 1, color: 'rgba(244,63,94,0)' }
+                            ])
+                        }
+                    }
+                ]
+            };
+        }
+
+        c1.setOption(barOption());
+
+        function refreshBar() {
+            sales = sales.map(function (v) { return Math.round(v * (0.85 + Math.random() * 0.3)); });
+            growth = growth.map(function (v) { return +(v * (0.85 + Math.random() * 0.3)).toFixed(1); });
+            c1.setOption(barOption());
+        }
+
+        function toggleLine() {
+            var on = c1.getOption().series[1];
+            c1.setOption({
+                series: [{ name: '销售额(万元)' }, { name: '同比增长率(%)', type: on ? 'line' : 'none' }]
+            });
+        }
+
+        /* ---------- 图二：环形饼图 / 玫瑰图 ---------- */
+        var isRose = false;
+
+        function pieOption() {
+            return {
+                title: {
+                    text: isRose ? '品类销售占比（玫瑰图）' : '品类销售占比（环形饼图）',
+                    left: 'center',
+                    textStyle: { fontSize: 15, color: '#334155' }
+                },
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{b}<br/>销售额：{c} 万元<br/>占比：{d}%'
+                },
+                legend: {
+                    bottom: 10,
+                    itemWidth: 14,
+                    itemHeight: 14,
+                    textStyle: { color: '#64748b' }
+                },
+                series: [
+                    {
+                        name: '品类销售额',
+                        type: 'pie',
+                        radius: isRose ? ['20%', '68%'] : ['45%', '68%'],
+                        center: ['50%', '46%'],
+                        roseType: isRose ? 'radius' : null,
+                        avoidLabelOverlap: true,
+                        itemStyle: {
+                            borderRadius: 6,
+                            borderColor: '#fff',
+                            borderWidth: 2
+                        },
+                        label: {
+                            formatter: '{b}\n{d}%',
+                            color: '#475569',
+                            fontSize: 12
+                        },
+                        labelLine: { length: 12, length2: 10 },
+                        data: cats.map(function (c, i) {
+                            return { name: c, value: vals[i] };
+                        })
+                    }
+                ]
+            };
+        }
+
+        c2.setOption(pieOption());
+
+        function switchPie() {
+            isRose = !isRose;
+            c2.setOption(pieOption(), true);
+        }
+
+        function refreshPie() {
+            vals = vals.map(function (v) { return Math.round(v * (0.85 + Math.random() * 0.3)); });
+            c2.setOption(pieOption(), true);
+        }
+
+        /* 窗口尺寸变化时重绘 */
+        window.addEventListener('resize', function () {
+            c1.resize();
+            c2.resize();
+        });
+
+        /* ---------- 代码展示 ---------- */
+        function showCode() {
+            document.getElementById('code1').innerHTML =
+                '<span class="c">// ① 初始化</span>\n' +
+                '<span class="k">var</span> c1 = echarts.init(document.getElementById(<span class="s">\'chart1\'</span>));\n\n' +
+                '<span class="c">// ② 写 option</span>\n' +
+                '<span class="k">var</span> option = {\n' +
+                '    title: { text: <span class="s">\'近 6 个月 GMV 与同比增长率\'</span> },\n' +
+                '    tooltip: { trigger: <span class="s">\'axis\'</span> },\n' +
+                '    legend: { data: [<span class="s">\'销售额(万元)\'</span>, <span class="s">\'同比增长率(%)\'</span>] },\n' +
+                '    grid: { left: 60, right: 60, top: 80, bottom: 50 },\n' +
+                '    xAxis: { type: <span class="s">\'category\'</span>, data: months },\n' +
+                '    yAxis: [\n' +
+                '        { type: <span class="s">\'value\'</span>, name: <span class="s">\'销售额(万元)\'</span> },\n' +
+                '        { type: <span class="s">\'value\'</span>, name: <span class="s">\'增长率(%)\'</span> }   <span class="c">// 第二个 Y 轴</span>\n' +
+                '    ],\n' +
+                '    series: [\n' +
+                '        { name: <span class="s">\'销售额(万元)\'</span>, type: <span class="s">\'bar\'</span>, data: sales,\n' +
+                '          itemStyle: { borderRadius: [6, 6, 0, 0] } },\n' +
+                '        { name: <span class="s">\'同比增长率(%)\'</span>, type: <span class="s">\'line\'</span>, yAxisIndex: 1, data: growth, smooth: true }\n' +
+                '    ]\n' +
+                '};\n\n' +
+                '<span class="c">// ③ 绘制 &amp; 更新</span>\n' +
+                'c1.setOption(option);\n' +
+                'c1.setOption(option, <span class="k">true</span>);          <span class="c">// true 表示全量覆盖</span>\n' +
+                'window.addEventListener(<span class="s">\'resize\'</span>, () =&gt; c1.resize());';
+
+            document.getElementById('code2').innerHTML =
+                '<span class="c">// 环形饼图（radius 用数组表示内外半径）</span>\n' +
+                '<span class="k">var</span> option = {\n' +
+                '    tooltip: { trigger: <span class="s">\'item\'</span>, formatter: <span class="s">\'{b}: {d}%\'</span> },\n' +
+                '    legend: { bottom: 10 },\n' +
+                '    series: [{\n' +
+                '        name: <span class="s">\'品类销售额\'</span>,\n' +
+                '        type: <span class="s">\'pie\'</span>,\n' +
+                '        radius: [<span class="s">\'45%\'</span>, <span class="s">\'68%\'</span>],   <span class="c">// 环形</span>\n' +
+                '        center: [<span class="s">\'50%\'</span>, <span class="s">\'46%\'</span>],\n' +
+                '        label: { formatter: <span class="s">\'{b}\\n{d}%\'</span> },\n' +
+                '        data: [\n' +
+                '            { name: <span class="s">\'手机数码\'</span>, value: 3860 },\n' +
+                '            { name: <span class="s">\'家用电器\'</span>, value: 2140 },\n' +
+                '            { name: <span class="s">\'服饰鞋包\'</span>, value: 1680 }\n' +
+                '        ]\n' +
+                '    }]\n' +
+                '};\n' +
+                'c2.setOption(option);';
+        }
+
+        showCode();
+    </script>
+
+</body>
+</html>

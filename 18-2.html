@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="周浩 24001010105">
+    <meta name="description" content="基于 Canvas 的电商系统界面 - 周浩 24001010105">
+    <title>18-2 基于 Canvas 的电商系统界面</title>
+    <style>
+        /* ============================================================
+           18-2 基于 canvas 的电商系统界面
+           作者：周浩 24001010105 计科24001
+           整个界面（导航、分类、商品卡、购物车栏）全部用 canvas 绘制并可点击交互
+           ============================================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", sans-serif;
+            background: #f1f5f9;
+            color: #1e293b;
+            line-height: 1.7;
+        }
+
+        .wrap {
+            max-width: 1220px;
+            margin: 0 auto;
+            padding: 18px 16px 40px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 25px;
+            color: #4f46e5;
+            margin-bottom: 4px;
+        }
+
+        .sub {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 13px;
+            margin-bottom: 14px;
+        }
+
+        .stage {
+            background: #fff;
+            border-radius: 14px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 18px 44px rgba(15, 23, 42, .1);
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+            cursor: pointer;
+        }
+
+        .legend {
+            margin-top: 12px;
+            font-size: 13px;
+            color: #64748b;
+            text-align: center;
+        }
+
+        .notes {
+            margin-top: 16px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+            gap: 12px;
+        }
+
+        .note {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .note b {
+            display: block;
+            color: #1e293b;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .note code {
+            color: #4f46e5;
+            font-family: Consolas, monospace;
+        }
+
+        footer {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 13px;
+            margin-top: 26px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="wrap">
+        <h1>基于 Canvas 的电商系统界面</h1>
+        <div class="sub">作者：周浩　学号：24001010105　班级：计科24001　（整个界面由 canvas 绘制，商品、分类、购物车均可点击）</div>
+
+        <div class="stage">
+            <canvas id="cv" width="1200" height="700"></canvas>
+        </div>
+
+        <div class="legend">👆 点击左侧分类可筛选商品　·　点击商品卡“加入购物车”　·　点击底部“清空购物车”</div>
+
+        <!-- 知识点 -->
+        <div class="notes">
+            <div class="note">
+                <b>① 为什么用 canvas 画界面</b>
+                canvas 只能画“图形”，没有现成的按钮控件，所以要用代码自己算每个元素的坐标，
+                这正好练习了 <code>fillRect / fillText / roundRect / arc</code> 等绘图 API。
+            </div>
+            <div class="note">
+                <b>② 命中检测（点击哪里？)</b>
+                把每个按钮的矩形区域存进数组，鼠标点击时把坐标换算成 canvas 内部坐标，
+                再和每个矩形做相交判断，命中就执行对应逻辑（这就是最简单的交互）。
+            </div>
+            <div class="note">
+                <b>③ 文字排版</b>
+                <code>fillText()</code> 画文字，<code>textAlign</code> 控制对齐，
+                <code>measureText()</code> 可以量出文字宽度，用来居中或截断。
+            </div>
+            <div class="note">
+                <b>④ 商品图怎么来的</b>
+                这里用渐变色块 + emoji 代替真实图片；真实项目里同样可以
+                <code>ctx.drawImage(img, x, y, w, h)</code> 把图片贴进来。
+            </div>
+        </div>
+
+        <footer>周浩 · 高级网页设计 18-2 · 2026</footer>
+    </div>
+
+    <script>
+        /* ============================================================
+         * Canvas 电商系统界面 —— 作者：周浩 24001010105
+         * ============================================================ */
+        var cv = document.getElementById('cv');
+        var ctx = cv.getContext('2d');
+        var W = cv.width, H = cv.height;
+
+        /* ---------- 商品数据 ---------- */
+        var CATS = ['全部商品', '手机数码', '家用电器', '服饰鞋包', '食品生鲜', '图书文具'];
+
+        var GOODS = [
+            { name: '智能手机 Pro 12GB', cat: '手机数码', price: 4299, old: 4999, sales: 1203, rate: 4.8, emoji: '📱', c1: '#c7d2fe', c2: '#818cf8' },
+            { name: '轻薄笔记本电脑 14 寸', cat: '手机数码', price: 5699, old: 6299, sales: 486, rate: 4.7, emoji: '💻', c1: '#bae6fd', c2: '#38bdf8' },
+            { name: '无线蓝牙耳机', cat: '手机数码', price: 399, old: 599, sales: 5320, rate: 4.6, emoji: '🎧', c1: '#ddd6fe', c2: '#a78bfa' },
+            { name: '变频空调 大 1.5 匹', cat: '家用电器', price: 3299, old: 3599, sales: 872, rate: 4.5, emoji: '❄️', c1: '#fef3c7', c2: '#fbbf24' },
+            { name: '滚筒洗衣机 10 公斤', cat: '家用电器', price: 2799, old: 3199, sales: 341, rate: 4.4, emoji: '🧺', c1: '#fecdd3', c2: '#fb7185' },
+            { name: '智能扫地机器人', cat: '家用电器', price: 1899, old: 2299, sales: 657, rate: 4.6, emoji: '🤖', c1: '#bbf7d0', c2: '#34d399' },
+            { name: '纯棉休闲外套', cat: '服饰鞋包', price: 299, old: 459, sales: 2310, rate: 4.3, emoji: '🧥', c1: '#e0e7ff', c2: '#6366f1' },
+            { name: '运动跑鞋 轻弹款', cat: '服饰鞋包', price: 459, old: 699, sales: 4127, rate: 4.7, emoji: '👟', c1: '#f1f5f9', c2: '#94a3b8' },
+            { name: '真皮通勤手提包', cat: '服饰鞋包', price: 899, old: 1299, sales: 763, rate: 4.5, emoji: '👜', c1: '#f5d0fe', c2: '#e879f9' },
+            { name: '有机蔬菜礼盒', cat: '食品生鲜', price: 128, old: 168, sales: 8930, rate: 4.8, emoji: '🥬', c1: '#dcfce7', c2: '#4ade80' },
+            { name: '进口车厘子 2 斤', cat: '食品生鲜', price: 89, old: 119, sales: 12480, rate: 4.9, emoji: '🍒', c1: '#ffe4e6', c2: '#fb7185' },
+            { name: 'JavaScript 权威指南', cat: '图书文具', price: 139, old: 199, sales: 3120, rate: 4.9, emoji: '📘', c1: '#e0f2fe', c2: '#0ea5e9' }
+        ];
+
+        var state = {
+            cat: '全部商品',
+            cart: {},          /* { 商品名: 数量 } */
+            anim: {}           /* { 商品名: 动画进度 } */
+        };
+        var hitAreas = [];    /* 可点击区域：{x,y,w,h,type,data} */
+
+        /* ---------- 绘制辅助 ---------- */
+        function roundRect(x, y, w, h, r) {
+            ctx.beginPath();
+            ctx.moveTo(x + r, y);
+            ctx.arcTo(x + w, y, x + w, y + h, r);
+            ctx.arcTo(x + w, y + h, x, y + h, r);
+            ctx.arcTo(x, y + h, x, y, r);
+            ctx.arcTo(x, y, x + w, y, r);
+            ctx.closePath();
+        }
+        function text(str, x, y, size, color, align, weight) {
+            ctx.font = (weight || 'normal') + ' ' + size + 'px "Microsoft YaHei", sans-serif';
+            ctx.fillStyle = color;
+            ctx.textAlign = align || 'left';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(str, x, y);
+        }
+        function circle(x, y, r, fill) {
+            ctx.beginPath();
+            ctx.arc(x, y, r, 0, Math.PI * 2);
+            ctx.fillStyle = fill;
+            ctx.fill();
+        }
+        function money(n) {
+            return '¥' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        }
+
+        /* ---------- 主绘制 ---------- */
+        function draw() {
+            hitAreas = [];
+            ctx.clearRect(0, 0, W, H);
+            ctx.fillStyle = '#f1f5f9';
+            ctx.fillRect(0, 0, W, H);
+
+            drawTopBar();
+            drawSidebar();
+            drawGoods();
+            drawCartBar();
+            requestAnimationFrame(draw);
+        }
+
+        /* 顶部导航栏 */
+        function drawTopBar() {
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, W, 64);
+            ctx.fillStyle = '#e2e8f0';
+            ctx.fillRect(0, 63, W, 1);
+
+            /* Logo */
+            ctx.fillStyle = '#4f46e5';
+            roundRect(24, 14, 36, 36, 10);
+            ctx.fill();
+            text('优', 42, 33, 20, '#ffffff', 'center', 'bold');
+            text('优选商城', 70, 33, 20, '#1e293b', 'left', 'bold');
+
+            /* 搜索框 */
+            roundRect(230, 16, 420, 34, 17);
+            ctx.fillStyle = '#f1f5f9';
+            ctx.fill();
+            text('🔍', 250, 33, 14, '#94a3b8', 'center');
+            text('搜索商品，如：耳机 / 咖啡 / 手机', 272, 33, 14, '#94a3b8');
+
+            /* 右侧入口 */
+            var rightItems = ['首页', '分类', '购物车', '我的'];
+            var rx = W - 30;
+            for (var i = rightItems.length - 1; i >= 0; i--) {
+                var label = rightItems[i];
+                ctx.font = '14px "Microsoft YaHei"';
+                var w = ctx.measureText(label).width;
+                text(label, rx, 33, 14, label === '购物车' ? '#4f46e5' : '#475569', 'right');
+                rx -= (w + 34);
+            }
+        }
+
+        /* 左侧分类栏 */
+        function drawSidebar() {
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 64, 190, H - 64 - 96);
+            ctx.fillStyle = '#e2e8f0';
+            ctx.fillRect(189, 64, 1, H - 64 - 96);
+
+            text('商品分类', 20, 92, 15, '#1e293b', 'left', 'bold');
+            CATS.forEach(function (c, i) {
+                var y = 120 + i * 42;
+                var on = state.cat === c;
+                if (on) {
+                    ctx.fillStyle = '#eef2ff';
+                    roundRect(10, y - 15, 170, 30, 8);
+                    ctx.fill();
+                    ctx.fillStyle = '#4f46e5';
+                    roundRect(10, y - 15, 4, 30, 2);
+                    ctx.fill();
+                }
+                text(c, 26, y, 14, on ? '#4f46e5' : '#475569', 'left', on ? 'bold' : 'normal');
+                hitAreas.push({ x: 10, y: y - 15, w: 170, h: 30, type: 'cat', data: c });
+            });
+
+            /* 侧栏底部小广告 */
+            ctx.fillStyle = '#f8fafc';
+            roundRect(14, 400, 162, 92, 10);
+            ctx.fill();
+            text('🎁', 95, 430, 26, '#f59e0b', 'center');
+            text('新人满 200 减 30', 95, 462, 13, '#64748b', 'center');
+            text('点击领取优惠券', 95, 480, 12, '#4f46e5', 'center');
+        }
+
+        /* 商品区 */
+        function drawGoods() {
+            var list = GOODS.filter(function (g) {
+                return state.cat === '全部商品' || g.cat === state.cat;
+            });
+
+            text(state.cat + '（' + list.length + ' 件商品）', 214, 92, 16, '#1e293b', 'left', 'bold');
+            text('按销量排序 ▾', W - 24, 92, 13, '#94a3b8', 'right');
+
+            var cols = 3, cw = 316, ch = 214, gap = 18;
+            var startX = 206, startY = 112;
+
+            list.forEach(function (g, i) {
+                var col = i % cols, row = Math.floor(i / cols);
+                var x = startX + col * (cw + gap);
+                var y = startY + row * (ch + gap);
+
+                /* 卡片 */
+                ctx.fillStyle = '#ffffff';
+                roundRect(x, y, cw, ch, 12);
+                ctx.fill();
+                ctx.strokeStyle = '#e2e8f0';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+
+                /* 商品图（渐变色块 + emoji） */
+                var grad = ctx.createLinearGradient(x, y, x + cw, y + 120);
+                grad.addColorStop(0, g.c1);
+                grad.addColorStop(1, g.c2);
+                ctx.save();
+                roundRect(x + 14, y + 14, 104, 104, 10);
+                ctx.clip();
+                ctx.fillStyle = grad;
+                ctx.fillRect(x + 14, y + 14, 104, 104);
+                text(g.emoji, x + 66, y + 66, 44, '#ffffff', 'center');
+                ctx.restore();
+
+                /* 名称 */
+                text(g.name, x + 132, y + 40, 15, '#1e293b', 'left', 'bold');
+                text('★ ' + g.rate + '　销量 ' + g.sales, x + 132, y + 66, 13, '#94a3b8');
+
+                /* 价格 */
+                text(money(g.price), x + 132, y + 96, 19, '#dc2626', 'left', 'bold');
+                var pw = ctx.measureText(money(g.price)).width;
+                ctx.font = '13px "Microsoft YaHei"';
+                ctx.textAlign = 'left';
+                ctx.fillStyle = '#94a3b8';
+                ctx.fillText(money(g.old), x + 142 + pw, y + 99);
+                ctx.fillRect(x + 142 + pw, y + 95, ctx.measureText(money(g.old)).width, 1);
+
+                /* 加入购物车按钮（放在图片下方，避免与价格重叠） */
+                var bw = 104, bh = 32, bx = x + 14, by = y + 132;
+                ctx.fillStyle = '#4f46e5';
+                roundRect(bx, by, bw, bh, 16);
+                ctx.fill();
+                text('加入购物车', bx + bw / 2, by + bh / 2 + 1, 13, '#ffffff', 'center');
+
+                /* 已在购物车中的数量角标 */
+                if (state.cart[g.name]) {
+                    ctx.fillStyle = '#10b981';
+                    circle(bx + bw - 8, by + 4, 10, '#10b981');
+                    text('×' + state.cart[g.name], bx + bw - 8, by + 5, 11, '#ffffff', 'center', 'bold');
+                }
+                hitAreas.push({ x: bx, y: by, w: bw, h: bh, type: 'add', data: g });
+
+                /* 卡片整体也可点击（加购） */
+                hitAreas.push({ x: x, y: y, w: cw, h: ch, type: 'card', data: g });
+            });
+        }
+
+        /* 底部购物车栏 */
+        function drawCartBar() {
+            var barH = 96;
+            var y0 = H - barH;
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, y0, W, barH);
+            ctx.fillStyle = '#e2e8f0';
+            ctx.fillRect(0, y0, W, 1);
+
+            var total = 0, count = 0;
+            Object.keys(state.cart).forEach(function (k) {
+                var g = GOODS.filter(function (x) { return x.name === k; })[0];
+                if (g) {
+                    total += g.price * state.cart[k];
+                    count += state.cart[k];
+                }
+            });
+
+            text('🛒 购物车', 24, y0 + 34, 17, '#1e293b', 'left', 'bold');
+            text(count ? ('已选 ' + count + ' 件商品') : '还没有加入商品', 24, y0 + 60, 13, '#94a3b8');
+
+            /* 清空按钮 */
+            ctx.strokeStyle = '#cbd5e1';
+            ctx.lineWidth = 1;
+            roundRect(W - 150, y0 + 24, 96, 32, 16);
+            ctx.stroke();
+            text('清空购物车', W - 102, y0 + 41, 13, '#64748b', 'center');
+            hitAreas.push({ x: W - 150, y: y0 + 24, w: 96, h: 32, type: 'clear', data: '' });
+
+            /* 合计 */
+            text('合计：', W - 420, y0 + 40, 15, '#475569', 'right');
+            text(money(total), W - 300, y0 + 40, 26, '#dc2626', 'right', 'bold');
+            text('（已含运费优惠）', W - 292, y0 + 44, 12, '#94a3b8', 'left');
+
+            /* 结算按钮 */
+            ctx.fillStyle = count ? '#dc2626' : '#cbd5e1';
+            roundRect(W - 270, y0 + 22, 110, 40, 20);
+            ctx.fill();
+            text('去结算', W - 215, y0 + 43, 15, '#ffffff', 'center', 'bold');
+        }
+
+        /* ---------- 交互：命中检测 ---------- */
+        cv.addEventListener('click', function (e) {
+            var r = cv.getBoundingClientRect();
+            var x = (e.clientX - r.left) * (W / r.width);
+            var y = (e.clientY - r.top) * (H / r.height);
+
+            /* 从后往前遍历，先命中的（按钮）优先 */
+            for (var i = hitAreas.length - 1; i >= 0; i--) {
+                var a = hitAreas[i];
+                if (x >= a.x && x <= a.x + a.w && y >= a.y && y <= a.y + a.h) {
+                    handle(a);
+                    return;
+                }
+            }
+        });
+
+        function handle(a) {
+            if (a.type === 'cat') {
+                state.cat = a.data;
+            } else if (a.type === 'add' || a.type === 'card') {
+                var g = a.data;
+                state.cart[g.name] = (state.cart[g.name] || 0) + 1;
+                state.anim[g.name] = Date.now();
+            } else if (a.type === 'clear') {
+                state.cart = {};
+            }
+        }
+
+        /* 启动绘制循环（内部用 requestAnimationFrame 持续重绘） */
+        draw();
+    </script>
+
+</body>
+</html>

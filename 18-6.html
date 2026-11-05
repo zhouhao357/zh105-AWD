@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="周浩 24001010105">
+    <meta name="description" content="基于 Mermaid 的智能客服系统流程图与 ER 图 - 周浩 24001010105">
+    <title>18-6 Mermaid 智能客服流程图与 ER 图</title>
+    <style>
+        /* ============================================================
+           18-6 基于 Mermaid 的智能客服系统流程图 + ER 图
+           作者：周浩 24001010105 计科24001
+           Mermaid 已下载到本地：cdn/mermaid.min.js（离线可用）
+           ============================================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            line-height: 1.75;
+            padding: 22px 16px 40px;
+        }
+
+        .wrap {
+            max-width: 1180px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #4f46e5;
+            margin-bottom: 4px;
+        }
+
+        .sub {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+
+        .card {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            box-shadow: 0 14px 34px rgba(15, 23, 42, .07);
+            padding: 16px 20px 20px;
+            margin-bottom: 18px;
+        }
+
+        .card-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .card-head h2 {
+            font-size: 17px;
+        }
+
+        .card-head span {
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+        button {
+            font: inherit;
+            font-size: 13px;
+            padding: 6px 14px;
+            border: 1px solid #c7d2fe;
+            background: #eef2ff;
+            color: #4f46e5;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #4f46e5;
+            color: #fff;
+        }
+
+        .btns {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        /* 图表容器 */
+        .diagram {
+            overflow: auto;
+            text-align: center;
+            padding: 10px 4px;
+            border-radius: 10px;
+            background: #fcfdff;
+            border: 1px dashed #e2e8f0;
+        }
+
+        /* 铺满模式：忽略 mermaid 自带的内联 max-width，让图撑满容器宽度 */
+        .diagram.fit svg {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+        }
+
+        /* 原始尺寸模式：1:1 显示，可读性最好 */
+        .diagram.native svg {
+            max-width: none !important;
+            height: auto !important;
+        }
+
+        .loading {
+            color: #94a3b8;
+            font-size: 14px;
+            padding: 30px 0;
+        }
+
+        /* 暗色主题时，图表容器也跟着变深，避免深色节点压在浅色底上看不清 */
+        body.dark-mode .diagram {
+            background: #0f172a;
+            border-color: #334155;
+        }
+
+        body.dark-mode .diagram .loading {
+            color: #cbd5e1;
+        }
+
+        /* 源码 */
+        .code {
+            background: #0f172a;
+            color: #e2e8f0;
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-family: Consolas, monospace;
+            font-size: 12.5px;
+            white-space: pre;
+            overflow-x: auto;
+            margin-top: 10px;
+            max-height: 330px;
+        }
+
+        .notes {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .note {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .note b {
+            display: block;
+            color: #1e293b;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .note code {
+            color: #4f46e5;
+            font-family: Consolas, monospace;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            font-size: 13px;
+        }
+
+        th, td {
+            border: 1px solid #e2e8f0;
+            padding: 8px 12px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            background: #eef2ff;
+            color: #4f46e5;
+        }
+
+        td code {
+            font-family: Consolas, monospace;
+            background: #f1f5f9;
+            padding: 1px 5px;
+            border-radius: 4px;
+            color: #4f46e5;
+        }
+
+        footer {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 13px;
+            margin-top: 24px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="wrap">
+        <h1>基于 Mermaid 的智能客服系统图</h1>
+        <div class="sub">作者：周浩　学号：24001010105　班级：计科24001　（Mermaid 已下载到本地 <code>cdn/mermaid.min.js</code>，流程图与 ER 图均由代码生成）</div>
+
+        <!-- ============ 流程图 ============ -->
+        <div class="card">
+            <div class="card-head">
+                <h2>① 一次会话的完整流程图（flowchart）</h2>
+                <div class="btns">
+                    <button onclick="setFit('flowBox','fit')">铺满宽度</button>
+                    <button onclick="setFit('flowBox','native')">原始尺寸</button>
+                    <button onclick="rerender('default')">默认主题</button>
+                    <button onclick="rerender('dark')">暗色主题</button>
+                    <button onclick="rerender('forest')">森林主题</button>
+                    <button onclick="copySvg()">复制当前图 SVG</button>
+                </div>
+            </div>
+            <span>涵盖：接入 → 意图识别 → 混合检索 → 重排 → 生成 → 事实校验 → 兜底/转人工，并带知识库增量更新的反馈闭环。默认铺满宽度显示，也可点「原始尺寸」按 1:1 查看。</span>
+            <div class="diagram fit" id="flowBox">
+                <div class="loading">图表渲染中…</div>
+            </div>
+        </div>
+
+        <!-- ============ ER 图 ============ -->
+        <div class="card">
+            <div class="card-head">
+                <h2>② 数据模型 ER 图（erDiagram）</h2>
+                <div class="btns">
+                    <button onclick="setFit('erBox','fit')">铺满宽度</button>
+                    <button onclick="setFit('erBox','native')">原始尺寸</button>
+                    <button onclick="copySvgEr()">复制当前图 SVG</button>
+                </div>
+            </div>
+            <span>核心实体：用户、会话、消息、工单、反馈、知识条目、FAQ、评测样本；标注了主键与一对多基数。</span>
+            <div class="diagram fit" id="erBox">
+                <div class="loading">图表渲染中…</div>
+            </div>
+        </div>
+
+        <!-- ============ 知识点 ============ -->
+        <div class="notes">
+            <div class="note">
+                <b>① 用代码画图</b>
+                Mermaid 用类 Markdown 的文本描述图形，页面里写一个
+                <code>&lt;pre class="mermaid"&gt;</code> 即可自动渲染成 SVG，
+                比用画图工具手绘更适合放进项目文档里版本管理。
+            </div>
+            <div class="note">
+                <b>② 初始化与渲染</b>
+                <code>mermaid.initialize({ startOnLoad:false, theme:'default' })</code>，
+                再用 <code>mermaid.render(id, code)</code> 手动渲染成 SVG 字符串，
+                这样可以自己控制渲染时机、主题切换与错误处理。
+            </div>
+            <div class="note">
+                <b>③ 流程图语法</b>
+                <code>flowchart TD</code> 定义方向，<code>[]</code> 矩形、
+                <code>{}</code> 判断、<code>[()]</code> 圆角、<code>[( )]</code> 数据库；
+                <code>--&gt;</code> 实线箭头、<code>-.-&gt;</code> 虚线、<code>--&gt;|文字|</code> 带标签。
+            </div>
+            <div class="note">
+                <b>④ ER 图语法</b>
+                <code>erDiagram</code> 开头，实体用大写；
+                <code>A ||--o{ B : "关系"</code> 表示一对多，
+                实体内部用 <code>类型 字段 PK</code> 列出属性。
+            </div>
+            <div class="note">
+                <b>⑤ 显示模式</b>
+                Mermaid 生成的 SVG 会带内联 <code>max-width</code>，
+                页面里用 <code>.fit svg{ width:100% !important }</code> 覆盖它即可铺满容器；
+                想 1:1 看清晰文字就切到 <code>.native</code> 模式。
+            </div>
+        </div>
+
+        <!-- ============ 源码 ============ -->
+        <div class="card">
+            <h2 style="font-size:17px;margin-bottom:4px">Mermaid 源码</h2>
+            <span style="font-size:13px;color:#94a3b8">流程图源码</span>
+            <div class="code" id="codeFlow"></div>
+            <span style="font-size:13px;color:#94a3b8">ER 图源码</span>
+            <div class="code" id="codeEr"></div>
+        </div>
+
+        <!-- ============ 对照表 ============ -->
+        <table>
+            <tr>
+                <th>图形</th>
+                <th>用途</th>
+                <th>常用声明</th>
+            </tr>
+            <tr>
+                <td>flowchart</td>
+                <td>业务流程、算法流程、状态流转</td>
+                <td><code>flowchart TD / LR</code></td>
+            </tr>
+            <tr>
+                <td>erDiagram</td>
+                <td>数据库实体关系（ER）设计</td>
+                <td><code>erDiagram</code> + 基数符号</td>
+            </tr>
+            <tr>
+                <td>sequenceDiagram</td>
+                <td>接口调用时序</td>
+                <td><code>participant / --&gt;&gt;</code></td>
+            </tr>
+            <tr>
+                <td>gantt</td>
+                <td>项目排期</td>
+                <td><code>section / dateFormat</code></td>
+            </tr>
+            <tr>
+                <td>stateDiagram-v2</td>
+                <td>状态机</td>
+                <td><code>[*] --&gt; 状态</code></td>
+            </tr>
+        </table>
+
+        <footer>周浩 · 高级网页设计 18-6 · 2026</footer>
+    </div>
+
+    <!-- 本地 Mermaid（离线可用） -->
+    <script src="cdn/mermaid.min.js"></script>
+
+    <script>
+        /* ============================================================
+         * 18-6 Mermaid 流程图 + ER 图 —— 作者：周浩 24001010105
+         * ============================================================ */
+
+        /* ---------- 流程图源码 ---------- */
+        var FLOW = [
+            'flowchart TD',
+            '    A[用户提问<br/>网页 / App / 电话] --> B[接入层<br/>会话管理与上下文]',
+            '    B --> C[文本预处理<br/>分词 · 纠错 · 敏感词过滤]',
+            '    C --> D[意图识别 NLU<br/>意图分类 + 槽位抽取]',
+            '    D --> E{意图置信度达标?}',
+            '    E -- 否 --> F[澄清追问<br/>补齐缺失槽位]',
+            '    F --> D',
+            '    E -- 是 --> G[混合检索<br/>向量检索 + BM25]',
+            '    G --> H{召回结果足够相关?}',
+            '    H -- 否 --> I[兜底话术 / 转人工坐席]',
+            '    H -- 是 --> J[Reranker 精排<br/>取 Top-3 知识片段]',
+            '    J --> K[LLM 生成答案<br/>Prompt + 思维链 + 引用]',
+            '    K --> L{事实一致性校验通过?}',
+            '    L -- 否 --> M[幻觉抑制<br/>重新生成或放弃回答]',
+            '    M --> K',
+            '    L -- 是 --> N[返回答案 + 引用溯源]',
+            '    I --> O[(会话日志 / 用户反馈)]',
+            '    N --> O',
+            '    O --> P[知识库增量更新<br/>切分 · 向量化 · 索引刷新]',
+            '    P -. 反馈闭环 .-> G'
+        ].join('\n');
+
+        /* ---------- ER 图源码 ---------- */
+        var ER = [
+            'erDiagram',
+            '    USER ||--o{ SESSION : "发起会话"',
+            '    USER ||--o{ MESSAGE : "发送消息"',
+            '    USER ||--o{ FEEDBACK : "提交反馈"',
+            '    USER ||--o{ TICKET : "提交工单"',
+            '    SESSION ||--o{ MESSAGE : "包含消息"',
+            '    SESSION ||--o| TICKET : "转人工"',
+            '    SESSION ||--o{ FEEDBACK : "产生反馈"',
+            '    MESSAGE ||--o| FEEDBACK : "被评价"',
+            '    KNOWLEDGE ||--o{ CHUNK : "切分为片段"',
+            '    FAQ ||--o{ CHUNK : "切分为片段"',
+            '    FAQ }o--|| KNOWLEDGE : "归属知识域"',
+            '    EVALCASE }o--o{ SESSION : "评测会话"',
+            '',
+            '    USER {',
+            '        string user_id PK "用户ID"',
+            '        string nickname "昵称"',
+            '        string channel "接入渠道"',
+            '        datetime created_at "创建时间"',
+            '    }',
+            '    SESSION {',
+            '        string session_id PK "会话ID"',
+            '        string user_id FK "所属用户"',
+            '        string channel "渠道"',
+            '        int turn_count "对话轮数"',
+            '        string intent "识别意图"',
+            '        datetime created_at "创建时间"',
+            '    }',
+            '    MESSAGE {',
+            '        string message_id PK "消息ID"',
+            '        string session_id FK "所属会话"',
+            '        string role "角色 user 或 bot"',
+            '        string content "内容"',
+            '        string refs "引用来源"',
+            '        datetime created_at "创建时间"',
+            '    }',
+            '    KNOWLEDGE {',
+            '        string knowledge_id PK "知识ID"',
+            '        string title "标题"',
+            '        string domain "所属知识域"',
+            '        string version "版本号"',
+            '        datetime effective_at "生效时间"',
+            '    }',
+            '    CHUNK {',
+            '        string chunk_id PK "片段ID"',
+            '        string knowledge_id FK "所属知识"',
+            '        string content "片段文本"',
+            '        string vector_id "向量ID"',
+            '    }',
+            '    FAQ {',
+            '        string faq_id PK "问答ID"',
+            '        string question "标准问题"',
+            '        string answer "标准答案"',
+            '        int hit_count "命中次数"',
+            '    }',
+            '    TICKET {',
+            '        string ticket_id PK "工单ID"',
+            '        string session_id FK "来源会话"',
+            '        string status "处理状态"',
+            '        string owner "处理人"',
+            '    }',
+            '    FEEDBACK {',
+            '        string feedback_id PK "反馈ID"',
+            '        string message_id FK "被评价消息"',
+            '        int score "评分"',
+            '        string comment "评论"',
+            '    }',
+            '    EVALCASE {',
+            '        string case_id PK "样本ID"',
+            '        string question "测试问题"',
+            '        string expect_answer "期望答案"',
+            '        string category "评测类别"',
+            '    }'
+        ].join('\n');
+
+        /* ---------- 渲染 ---------- */
+        var theme = 'default';
+
+        function errText(e) {
+            if (!e) { return '未知错误'; }
+            return e.message || e.str || String(e);
+        }
+
+        /**
+         * 用 mermaid.render() 渲染一段图表源码，返回 SVG 字符串
+         * 说明：mermaid.render 会在 body 下建一个临时容器做文字测量，
+         *       比把 <pre class="mermaid"> 直接丢进页面再 run() 稳。
+         */
+        function renderOne(id, text) {
+            return mermaid.render(id, text).then(function (res) {
+                return res.svg;
+            });
+        }
+
+        function renderAll() {
+            var flowBox = document.getElementById('flowBox');
+            var erBox = document.getElementById('erBox');
+            flowBox.innerHTML = '<div class="loading">图表渲染中…</div>';
+            erBox.innerHTML = '<div class="loading">图表渲染中…</div>';
+
+            mermaid.initialize({
+                startOnLoad: false,
+                theme: theme,
+                securityLevel: 'loose',
+                flowchart: { htmlLabels: true, curve: 'basis', useMaxWidth: true },
+                er: { useMaxWidth: true },
+                fontFamily: '"Microsoft YaHei", sans-serif'
+            });
+
+            var suffix = Date.now();
+            /* 先渲染流程图，成功后再渲染 ER 图（串行避免临时容器互相干扰） */
+            renderOne('mermaidFlow' + suffix, FLOW)
+                .then(function (svg) {
+                    flowBox.innerHTML = svg;
+                })
+                .catch(function (e) {
+                    flowBox.innerHTML = '<div class="loading">❌ 流程图渲染失败：' + errText(e) + '</div>';
+                })
+                .then(function () {
+                    return renderOne('mermaidEr' + suffix, ER)
+                        .then(function (svg) {
+                            erBox.innerHTML = svg;
+                        })
+                        .catch(function (e) {
+                            erBox.innerHTML = '<div class="loading">❌ ER 图渲染失败：' + errText(e) + '</div>';
+                        });
+                });
+        }
+
+        function rerender(t) {
+            theme = t;
+            /* 暗色主题时同步把图表容器背景换成深色 */
+            document.body.classList.toggle('dark-mode', t === 'dark');
+            renderAll();
+        }
+
+        /* 切换图表的显示模式：铺满容器宽度 / 原始尺寸 1:1 */
+        function setFit(boxId, mode) {
+            var box = document.getElementById(boxId);
+            box.classList.remove('fit', 'native');
+            box.classList.add(mode);
+            var svg = box.querySelector('svg');
+            if (!svg) { return; }
+            if (mode === 'native') {
+                /* 按 viewBox 的原始像素尺寸 1:1 显示 */
+                var vb = (svg.getAttribute('viewBox') || '').split(/\s+/);
+                var w = parseFloat(vb[2]), h = parseFloat(vb[3]);
+                if (w && h) {
+                    svg.setAttribute('width', w);
+                    svg.setAttribute('height', h);
+                }
+                svg.style.maxWidth = 'none';
+            } else {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.maxWidth = '';
+            }
+        }
+
+        function copySvg() {
+            var svg = document.querySelector('#flowBox svg');
+            if (!svg) {
+                alert('还没有生成 SVG');
+                return;
+            }
+            var text = '<svg xmlns="http://www.w3.org/2000/svg">' + svg.innerHTML + '</svg>';
+            copy(text);
+        }
+
+        function copySvgEr() {
+            var svg = document.querySelector('#erBox svg');
+            if (!svg) {
+                alert('还没有生成 SVG');
+                return;
+            }
+            var text = '<svg xmlns="http://www.w3.org/2000/svg">' + svg.innerHTML + '</svg>';
+            copy(text);
+        }
+
+        function copy(text) {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(function () {
+                    alert('SVG 源码已复制到剪贴板，可直接保存为 .svg 文件');
+                });
+            } else {
+                var ta = document.createElement('textarea');
+                ta.value = text;
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                alert('SVG 源码已复制到剪贴板，可直接保存为 .svg 文件');
+            }
+        }
+
+        /* ---------- 源码展示 ---------- */
+        document.getElementById('codeFlow').textContent = FLOW;
+        document.getElementById('codeEr').textContent = ER;
+
+        renderAll();
+    </script>
+
+</body>
+</html>

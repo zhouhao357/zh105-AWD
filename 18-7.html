@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="周浩 24001010105">
+    <meta name="description" content="基于 Three.js 的两个三维图标 - 周浩 24001010105">
+    <title>18-7 Three.js 三维图标</title>
+    <style>
+        /* ============================================================
+           18-7 基于 Three.js 的两个三维图标
+           作者：周浩 24001010105 计科24001
+           Three.js 已下载到本地：cdn/three.min.js（r149 UMD 版，离线可用）
+           ============================================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            line-height: 1.7;
+            padding: 22px 16px 40px;
+        }
+
+        .wrap {
+            max-width: 1180px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #4f46e5;
+            margin-bottom: 4px;
+        }
+
+        .sub {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 14px;
+            margin-bottom: 18px;
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+
+        .card {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            box-shadow: 0 14px 34px rgba(15, 23, 42, .07);
+            overflow: hidden;
+        }
+
+        .card-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 14px 18px 6px;
+        }
+
+        .card-head h2 {
+            font-size: 16px;
+        }
+
+        .card-head span {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .stage {
+            height: 380px;
+            background: radial-gradient(circle at 50% 30%, #ffffff 0%, #eef2ff 100%);
+            position: relative;
+        }
+
+        .stage canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            cursor: grab;
+        }
+
+        .stage canvas:active {
+            cursor: grabbing;
+        }
+
+        .tip {
+            position: absolute;
+            left: 12px;
+            bottom: 10px;
+            font-size: 12px;
+            color: #94a3b8;
+            background: rgba(255, 255, 255, .8);
+            border-radius: 6px;
+            padding: 2px 8px;
+        }
+
+        .btns {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            font: inherit;
+            font-size: 12.5px;
+            padding: 5px 12px;
+            border: 1px solid #c7d2fe;
+            background: #eef2ff;
+            color: #4f46e5;
+            border-radius: 7px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #4f46e5;
+            color: #fff;
+        }
+
+        .note {
+            padding: 10px 18px 16px;
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .note b {
+            color: #1e293b;
+        }
+
+        .notes {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .nd {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .nd b {
+            display: block;
+            color: #1e293b;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .nd code {
+            color: #4f46e5;
+            font-family: Consolas, monospace;
+        }
+
+        .code {
+            background: #0f172a;
+            color: #e2e8f0;
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-family: Consolas, monospace;
+            font-size: 12.5px;
+            white-space: pre;
+            overflow-x: auto;
+            max-height: 320px;
+        }
+
+        .k {
+            color: #c4b5fd;
+        }
+
+        .s {
+            color: #86efac;
+        }
+
+        .c {
+            color: #64748b;
+        }
+
+        footer {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 13px;
+            margin-top: 24px;
+        }
+
+        @media (max-width: 820px) {
+            .row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="wrap">
+        <h1>基于 Three.js 的两个三维图标</h1>
+        <div class="sub">作者：周浩　学号：24001010105　班级：计科24001　（Three.js 已下载到本地 <code>cdn/three.min.js</code>，断网也能运行）</div>
+
+        <div class="row">
+            <!-- 图标一 -->
+            <div class="card">
+                <div class="card-head">
+                    <h2>图标一：立方体徽标</h2>
+                    <div class="btns">
+                        <button onclick="iconA.changeColor()">换配色</button>
+                        <button onclick="iconA.reset()">重置视角</button>
+                    </div>
+                </div>
+                <div class="stage">
+                    <canvas id="cvA"></canvas>
+                    <div class="tip">按住拖动旋转 · 滚轮缩放 · 双击复位</div>
+                </div>
+                <div class="note">
+                    <b>构成：</b>BoxGeometry 立方体 + MeshStandardMaterial 金属质感材质 +
+                    EdgesGeometry 描边线框 + 环绕小方块 + 圆形地台（接收阴影）。
+                </div>
+            </div>
+
+            <!-- 图标二 -->
+            <div class="card">
+                <div class="card-head">
+                    <h2>图标二：轨道星球</h2>
+                    <div class="btns">
+                        <button onclick="iconB.changeColor()">换配色</button>
+                        <button onclick="iconB.reset()">重置视角</button>
+                    </div>
+                </div>
+                <div class="stage">
+                    <canvas id="cvB"></canvas>
+                    <div class="tip">按住拖动旋转 · 滚轮缩放 · 双击复位</div>
+                </div>
+                <div class="note">
+                    <b>构成：</b>SphereGeometry 球体 + 线框球 + 三条 TorusGeometry 轨道环 +
+                    轨道上的卫星小球 + Points 粒子星云 + 圆形地台。
+                </div>
+            </div>
+        </div>
+
+        <!-- 知识点 -->
+        <div class="notes">
+            <div class="note">
+                <b>① 三大核心对象</b>
+                <code>Scene</code>（场景，装所有物体）、<code>Camera</code>（相机，决定看到什么）、
+                <code>WebGLRenderer</code>（渲染器，把场景画到 canvas）。
+                一句话：把物体加进场景，相机对准，渲染器每帧重画。
+            </div>
+            <div class="note">
+                <b>② 几何体 + 材质 = 网格</b>
+                <code>new THREE.Mesh(geometry, material)</code>；
+                几何体决定形状（Box/Sphere/Torus/Circle），
+                材质决定外观（Standard/Basic/Line/Points）。
+            </div>
+            <div class="note">
+                <b>③ 光照才有立体感</b>
+                AmbientLight 补光、DirectionalLight 主光（可投影）、
+                PointLight 点光；材质 roughness 越小越有金属反光。
+            </div>
+            <div class="note">
+                <b>④ 渲染循环与交互</b>
+                <code>requestAnimationFrame</code> 里 <code>renderer.render(scene, camera)</code>；
+                拖拽旋转改 <code>group.rotation</code>，滚轮改 <code>camera.position.z</code>，
+                容器尺寸变化要调用 <code>renderer.setSize</code>。
+            </div>
+        </div>
+
+        <!-- 核心代码 -->
+        <div class="card" style="padding: 16px 18px 18px;">
+            <h2 style="font-size:16px;margin-bottom:4px">核心代码</h2>
+            <div class="code" id="code"></div>
+        </div>
+
+        <footer>周浩 · 高级网页设计 18-7 · 2026</footer>
+    </div>
+
+    <!-- 本地 Three.js（离线可用） -->
+    <script src="cdn/three.min.js"></script>
+
+    <script>
+        /* ============================================================
+         * 18-7 Three.js 两个三维图标 —— 作者：周浩 24001010105
+         * ============================================================ */
+
+        /**
+         * 通用的三维图标场景：负责渲染循环、灯光、拖拽旋转、滚轮缩放
+         * @param {string} canvasId 画布 id
+         * @param {Function} build   构建场景内容的回调，参数为 group
+         */
+        function createIcon(canvasId, build) {
+            var canvas = document.getElementById(canvasId);
+            var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+            var scene = new THREE.Scene();
+            var camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+            camera.position.set(0, 1.8, 6.6);
+            /* 必须 lookAt 到中心，否则相机沿 -Z 平视，物体整体偏到画面下方 */
+            camera.lookAt(0, 0.1, 0);
+
+            /* 灯光：环境光 + 主方向光（投影）+ 补光 */
+            scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+            var key = new THREE.DirectionalLight(0xffffff, 0.9);
+            key.position.set(4, 7, 5);
+            key.castShadow = true;
+            key.shadow.mapSize.width = key.shadow.mapSize.height = 1024;
+            scene.add(key);
+            var fill = new THREE.PointLight(0x818cf8, 0.8, 30);
+            fill.position.set(-4, 2, -3);
+            scene.add(fill);
+
+            var group = new THREE.Group();
+            scene.add(group);
+
+            /* 地台 */
+            var ground = new THREE.Mesh(
+                new THREE.CircleGeometry(3.2, 64),
+                new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.95 })
+            );
+            ground.rotation.x = -Math.PI / 2;
+            ground.position.y = -1.05;
+            ground.receiveShadow = true;
+            scene.add(ground);
+
+            var api = build(group);
+
+            /* ---------- 交互：拖拽旋转 + 滚轮缩放 ---------- */
+            var dragging = false, lastX = 0, lastY = 0, lastMove = 0;
+            var rotX = 0, rotY = 0;
+
+            canvas.addEventListener('mousedown', function (e) {
+                dragging = true;
+                lastX = e.clientX;
+                lastY = e.clientY;
+            });
+            window.addEventListener('mouseup', function () {
+                dragging = false;
+            });
+            window.addEventListener('mousemove', function (e) {
+                if (!dragging) { return; }
+                var dx = e.clientX - lastX, dy = e.clientY - lastY;
+                lastX = e.clientX;
+                lastY = e.clientY;
+                rotY += dx * 0.01;
+                rotX += dy * 0.01;
+                group.rotation.y = rotY;
+                group.rotation.x = rotX;
+                lastMove = Date.now();
+            });
+            canvas.addEventListener('wheel', function (e) {
+                e.preventDefault();
+                camera.position.z = Math.min(10, Math.max(2.6, camera.position.z + e.deltaY * 0.002));
+            }, { passive: false });
+            canvas.addEventListener('dblclick', function () {
+                api.reset();
+            });
+
+            /* ---------- 尺寸自适应 ---------- */
+            function resize() {
+                var w = canvas.clientWidth, h = canvas.clientHeight;
+                if (!w || !h) { return; }
+                renderer.setSize(w, h, false);
+                camera.aspect = w / h;
+                camera.updateProjectionMatrix();
+            }
+            window.addEventListener('resize', resize);
+            resize();
+
+            /* ---------- 渲染循环 ---------- */
+            function animate() {
+                requestAnimationFrame(animate);
+                /* 2 秒无操作则自动缓慢旋转 */
+                if (!dragging && Date.now() - lastMove > 2000) {
+                    group.rotation.y += 0.006;
+                }
+                api.update();
+                renderer.render(scene, camera);
+            }
+            animate();
+
+            return {
+                api: api,
+                reset: function () {
+                    rotX = 0; rotY = 0;
+                    group.rotation.set(0, 0, 0);
+                    camera.position.set(0, 1.8, 6.6);
+                    camera.lookAt(0, 0.1, 0);
+                },
+                /* 换配色（转发给各图标自己的实现） */
+                changeColor: function () {
+                    api.changeColor();
+                }
+            };
+        }
+
+        /* ============ 图标一：立方体徽标 ============ */
+        var iconA = createIcon('cvA', function (group) {
+            var main = new THREE.Mesh(
+                new THREE.BoxGeometry(1.7, 1.7, 1.7),
+                new THREE.MeshStandardMaterial({ color: 0x6366f1, metalness: 0.45, roughness: 0.28 })
+            );
+            main.castShadow = true;
+            group.add(main);
+
+            /* 描边线框 */
+            var edges = new THREE.LineSegments(
+                new THREE.EdgesGeometry(main.geometry),
+                new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.6 })
+            );
+            group.add(edges);
+
+            /* 环绕小方块 */
+            var small = new THREE.Mesh(
+                new THREE.BoxGeometry(0.42, 0.42, 0.42),
+                new THREE.MeshStandardMaterial({ color: 0xf472b6, metalness: 0.6, roughness: 0.25 })
+            );
+            small.castShadow = true;
+            group.add(small);
+
+            /* 底座圆环 */
+            var ring = new THREE.Mesh(
+                new THREE.TorusGeometry(1.75, 0.035, 12, 96),
+                new THREE.MeshBasicMaterial({ color: 0x818cf8 })
+            );
+            ring.rotation.x = Math.PI / 2;
+            ring.position.y = -0.98;
+            group.add(ring);
+
+            var palette = [0x6366f1, 0x0ea5e9, 0x10b981, 0xf59e0b, 0xec4899];
+            var pi = 0;
+
+            return {
+                update: function () {
+                    var t = Date.now() * 0.001;
+                    small.position.set(Math.cos(t * 1.1) * 1.7, Math.sin(t * 1.7) * 0.5, Math.sin(t * 1.1) * 1.7);
+                    small.rotation.x += 0.02;
+                    small.rotation.y += 0.03;
+                    ring.rotation.z += 0.006;
+                },
+                reset: function () { },
+                changeColor: function () {
+                    pi = (pi + 1) % palette.length;
+                    main.material.color.setHex(palette[pi]);
+                    ring.material.color.setHex(palette[pi]);
+                }
+            };
+        });
+
+        /* ============ 图标二：轨道星球 ============ */
+        var iconB = createIcon('cvB', function (group) {
+            var planet = new THREE.Mesh(
+                new THREE.SphereGeometry(1.05, 48, 32),
+                new THREE.MeshStandardMaterial({ color: 0x0ea5e9, metalness: 0.35, roughness: 0.42 })
+            );
+            planet.castShadow = true;
+            group.add(planet);
+
+            /* 线框球 */
+            var wire = new THREE.Mesh(
+                new THREE.SphereGeometry(1.08, 24, 16),
+                new THREE.MeshBasicMaterial({ color: 0xe0f2fe, wireframe: true, transparent: true, opacity: 0.45 })
+            );
+            group.add(wire);
+
+            /* 三条轨道 + 卫星 */
+            var sats = [];
+            [
+                { r: 1.75, rx: 0, rz: 0, color: 0xf472b6 },
+                { r: 2.05, rx: Math.PI / 2.6, rz: 0.5, color: 0xfbbf24 },
+                { r: 2.35, rx: Math.PI / 2, rz: -0.7, color: 0x34d399 }
+            ].forEach(function (cfg) {
+                var ring = new THREE.Mesh(
+                    new THREE.TorusGeometry(cfg.r, 0.022, 8, 120),
+                    new THREE.MeshBasicMaterial({ color: cfg.color, transparent: true, opacity: 0.85 })
+                );
+                ring.rotation.x = cfg.rx;
+                ring.rotation.z = cfg.rz;
+                group.add(ring);
+
+                var sat = new THREE.Mesh(
+                    new THREE.SphereGeometry(0.13, 16, 12),
+                    new THREE.MeshStandardMaterial({ color: cfg.color, metalness: 0.7, roughness: 0.2 })
+                );
+                sat.castShadow = true;
+                group.add(sat);
+                sats.push({ mesh: sat, r: cfg.r, rx: cfg.rx, rz: cfg.rz, speed: 0.6 + Math.random() * 0.6 });
+            });
+
+            /* 粒子星云 */
+            var pts = [];
+            for (var i = 0; i < 400; i++) {
+                var r = 2.6 + Math.random() * 1.4;
+                var th = Math.random() * Math.PI * 2;
+                var ph = Math.acos(2 * Math.random() - 1);
+                pts.push(
+                    r * Math.sin(ph) * Math.cos(th),
+                    r * Math.cos(ph) * 0.7,
+                    r * Math.sin(ph) * Math.sin(th)
+                );
+            }
+            var pGeo = new THREE.BufferGeometry();
+            pGeo.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
+            var points = new THREE.Points(
+                pGeo,
+                new THREE.PointsMaterial({ color: 0x94a3b8, size: 0.045, transparent: true, opacity: 0.75 })
+            );
+            group.add(points);
+
+            var palette = [0x0ea5e9, 0x8b5cf6, 0x10b981, 0xf59e0b];
+            var pi = 0;
+
+            return {
+                update: function () {
+                    var t = Date.now() * 0.001;
+                    planet.rotation.y += 0.006;
+                    wire.rotation.y -= 0.004;
+                    points.rotation.y += 0.0025;
+                    sats.forEach(function (s) {
+                        var a = t * s.speed;
+                        var x = Math.cos(a) * s.r;
+                        var z = Math.sin(a) * s.r;
+                        /* 按轨道的欧拉角旋转坐标 */
+                        var y = z * Math.sin(s.rx);
+                        var z2 = z * Math.cos(s.rx);
+                        s.mesh.position.set(x, y, z2);
+                    });
+                },
+                reset: function () { },
+                changeColor: function () {
+                    pi = (pi + 1) % palette.length;
+                    planet.material.color.setHex(palette[pi]);
+                    wire.material.color.setHex(palette[pi]);
+                }
+            };
+        });
+
+        /* ---------- 代码展示 ---------- */
+        document.getElementById('code').innerHTML =
+            '<span class="c">// ① 创建渲染器、场景、相机</span>\n' +
+            '<span class="k">var</span> renderer = <span class="k">new</span> THREE.WebGLRenderer({ canvas: canvas, antialias: <span class="k">true</span> });\n' +
+            'renderer.setPixelRatio(window.devicePixelRatio);\n' +
+            'renderer.shadowMap.enabled = <span class="k">true</span>;\n' +
+            '<span class="k">var</span> scene = <span class="k">new</span> THREE.Scene();\n' +
+            '<span class="k">var</span> camera = <span class="k">new</span> THREE.PerspectiveCamera(45, w / h, 0.1, 100);\n' +
+            'camera.position.set(0, 1.8, 6.6);\n' +
+            'camera.lookAt(0, 0.1, 0);      <span class="c">// 相机对准模型中心</span>\n\n' +
+            '<span class="c">// ② 灯光（没有光就只是一堆黑块）</span>\n' +
+            'scene.add(<span class="k">new</span> THREE.AmbientLight(0xffffff, 0.55));\n' +
+            '<span class="k">var</span> key = <span class="k">new</span> THREE.DirectionalLight(0xffffff, 0.9);\n' +
+            'key.position.set(4, 7, 5); key.castShadow = <span class="k">true</span>; scene.add(key);\n\n' +
+            '<span class="c">// ③ 几何体 + 材质 = 网格</span>\n' +
+            '<span class="k">var</span> mesh = <span class="k">new</span> THREE.Mesh(\n' +
+            '    <span class="k">new</span> THREE.BoxGeometry(1.7, 1.7, 1.7),\n' +
+            '    <span class="k">new</span> THREE.MeshStandardMaterial({ color: 0x6366f1, metalness: 0.45, roughness: 0.28 })\n' +
+            ');\n' +
+            'mesh.castShadow = <span class="k">true</span>;\n' +
+            'group.add(mesh);\n\n' +
+            '<span class="c">// ④ 渲染循环 + 交互</span>\n' +
+            '<span class="k">function</span> animate() {\n' +
+            '    requestAnimationFrame(animate);\n' +
+            '    group.rotation.y += 0.006;          <span class="c">// 自转</span>\n' +
+            '    renderer.render(scene, camera);\n' +
+            '}\n' +
+            'animate();\n\n' +
+            '<span class="c">// 鼠标拖动：group.rotation.y += dx * 0.01</span>\n' +
+            '<span class="c">// 滚轮缩放：camera.position.z += deltaY * 0.002</span>';
+    </script>
+
+</body>
+</html>

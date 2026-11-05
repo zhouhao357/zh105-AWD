@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="周浩 24001010105">
+    <meta name="description" content="基于知识库的智能客服系统架构图（SVG，科研方向）- 周浩 24001010105">
+    <title>18-3 知识库智能客服系统架构图</title>
+    <style>
+        /* ============================================================
+           18-3 基于知识库的智能客服系统架构图（纯手写 SVG）
+           作者：周浩 24001010105 计科24001
+           ============================================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            line-height: 1.75;
+            padding: 20px 16px 40px;
+        }
+
+        .wrap {
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #4f46e5;
+            margin-bottom: 4px;
+        }
+
+        .sub {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 14px;
+            margin-bottom: 18px;
+        }
+
+        .figure {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            box-shadow: 0 16px 40px rgba(15, 23, 42, .08);
+            padding: 10px;
+            overflow-x: auto;
+        }
+
+        .figure svg {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* 图例与说明 */
+        .legend {
+            margin-top: 16px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 12px;
+        }
+
+        .lg {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .lg b {
+            display: block;
+            color: #1e293b;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .lg .dot {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 4px;
+            margin-right: 6px;
+            vertical-align: -1px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            font-size: 13px;
+            margin-top: 16px;
+        }
+
+        th, td {
+            border: 1px solid #e2e8f0;
+            padding: 8px 12px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            background: #eef2ff;
+            color: #4f46e5;
+        }
+
+        td code {
+            font-family: Consolas, monospace;
+            background: #f1f5f9;
+            padding: 1px 5px;
+            border-radius: 4px;
+            color: #4f46e5;
+        }
+
+        footer {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 13px;
+            margin-top: 24px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="wrap">
+        <h1>基于知识库的智能客服系统架构图</h1>
+        <div class="sub">作者：周浩　学号：24001010105　班级：计科24001　（纯手写 SVG 绘制，可直接保存为 .svg 文件使用）</div>
+
+        <!-- ============ 架构图 ============ -->
+        <div class="figure">
+            <svg viewBox="0 0 1240 880" xmlns="http://www.w3.org/2000/svg" font-family="Microsoft YaHei, sans-serif">
+                <defs>
+                    <!-- 箭头 -->
+                    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                        <path d="M0,0 L10,5 L0,10 z" fill="#94a3b8"></path>
+                    </marker>
+                    <marker id="arrowR" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                        <path d="M0,0 L10,5 L0,10 z" fill="#e11d48"></path>
+                    </marker>
+                    <marker id="arrowG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                        <path d="M0,0 L10,5 L0,10 z" fill="#10b981"></path>
+                    </marker>
+                    <linearGradient id="gChannel" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#e0f2fe"></stop>
+                        <stop offset="100%" stop-color="#bae6fd"></stop>
+                    </linearGradient>
+                    <linearGradient id="gApp" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#eef2ff"></stop>
+                        <stop offset="100%" stop-color="#e0e7ff"></stop>
+                    </linearGradient>
+                    <linearGradient id="gModel" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#f5f3ff"></stop>
+                        <stop offset="100%" stop-color="#ede9fe"></stop>
+                    </linearGradient>
+                    <linearGradient id="gKnow" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#ecfdf5"></stop>
+                        <stop offset="100%" stop-color="#d1fae5"></stop>
+                    </linearGradient>
+                    <linearGradient id="gData" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#fff7ed"></stop>
+                        <stop offset="100%" stop-color="#ffedd5"></stop>
+                    </linearGradient>
+                    <linearGradient id="gSci" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#fef2f2"></stop>
+                        <stop offset="100%" stop-color="#ffe4e6"></stop>
+                    </linearGradient>
+                </defs>
+
+                <rect x="0" y="0" width="1240" height="880" fill="#ffffff"></rect>
+
+                <!-- ===== 左侧层标题 ===== -->
+                <!-- 渠道层 -->
+                <rect x="20" y="26" width="118" height="76" rx="10" fill="#0284c7"></rect>
+                <text x="79" y="56" fill="#fff" font-size="15" text-anchor="middle" font-weight="bold">用户与渠道层</text>
+                <text x="79" y="78" fill="#e0f2fe" font-size="11" text-anchor="middle">接入层</text>
+
+                <!-- 应用层 -->
+                <rect x="20" y="136" width="118" height="76" rx="10" fill="#4f46e5"></rect>
+                <text x="79" y="166" fill="#fff" font-size="15" text-anchor="middle" font-weight="bold">应用层</text>
+                <text x="79" y="188" fill="#e0e7ff" font-size="11" text-anchor="middle">对话与编排</text>
+
+                <!-- 模型层 -->
+                <rect x="20" y="246" width="118" height="76" rx="10" fill="#7c3aed"></rect>
+                <text x="79" y="276" fill="#fff" font-size="15" text-anchor="middle" font-weight="bold">模型层</text>
+                <text x="79" y="298" fill="#ede9fe" font-size="11" text-anchor="middle">算法与推理</text>
+
+                <!-- 知识层 -->
+                <rect x="20" y="356" width="118" height="76" rx="10" fill="#059669"></rect>
+                <text x="79" y="386" fill="#fff" font-size="15" text-anchor="middle" font-weight="bold">知识库层</text>
+                <text x="79" y="408" fill="#d1fae5" font-size="11" text-anchor="middle">检索与治理</text>
+
+                <!-- 数据层 -->
+                <rect x="20" y="466" width="118" height="76" rx="10" fill="#ea580c"></rect>
+                <text x="79" y="496" fill="#fff" font-size="15" text-anchor="middle" font-weight="bold">数据层</text>
+                <text x="79" y="518" fill="#ffedd5" font-size="11" text-anchor="middle">资产与评测</text>
+
+                <!-- ===== 第一行：用户与渠道 ===== -->
+                <g>
+                    <rect x="155" y="26" width="115" height="76" rx="10" fill="url(#gChannel)" stroke="#38bdf8"></rect>
+                    <text x="212" y="58" font-size="14" text-anchor="middle" fill="#075985">网页客服</text>
+                    <text x="212" y="78" font-size="11" text-anchor="middle" fill="#0369a1">Web Widget</text>
+
+                    <rect x="282" y="26" width="115" height="76" rx="10" fill="url(#gChannel)" stroke="#38bdf8"></rect>
+                    <text x="339" y="58" font-size="14" text-anchor="middle" fill="#075985">小程序</text>
+                    <text x="339" y="78" font-size="11" text-anchor="middle" fill="#0369a1">微信生态</text>
+
+                    <rect x="409" y="26" width="115" height="76" rx="10" fill="url(#gChannel)" stroke="#38bdf8"></rect>
+                    <text x="466" y="58" font-size="14" text-anchor="middle" fill="#075985">企业微信</text>
+                    <text x="466" y="78" font-size="11" text-anchor="middle" fill="#0369a1">公众号</text>
+
+                    <rect x="536" y="26" width="115" height="76" rx="10" fill="url(#gChannel)" stroke="#38bdf8"></rect>
+                    <text x="593" y="58" font-size="14" text-anchor="middle" fill="#075985">移动 App</text>
+                    <text x="593" y="78" font-size="11" text-anchor="middle" fill="#0369a1">iOS / Android</text>
+
+                    <rect x="663" y="26" width="115" height="76" rx="10" fill="url(#gChannel)" stroke="#38bdf8"></rect>
+                    <text x="720" y="58" font-size="14" text-anchor="middle" fill="#075985">电话客服</text>
+                    <text x="720" y="78" font-size="11" text-anchor="middle" fill="#0369a1">ASR 语音</text>
+
+                    <rect x="790" y="26" width="115" height="76" rx="10" fill="url(#gChannel)" stroke="#38bdf8"></rect>
+                    <text x="847" y="58" font-size="14" text-anchor="middle" fill="#075985">人工坐席</text>
+                    <text x="847" y="78" font-size="11" text-anchor="middle" fill="#0369a1">转人工</text>
+                </g>
+
+                <!-- ===== 第二行：应用层 ===== -->
+                <g>
+                    <rect x="155" y="136" width="115" height="76" rx="10" fill="url(#gApp)" stroke="#6366f1"></rect>
+                    <text x="212" y="162" font-size="13.5" text-anchor="middle" fill="#312e81">多轮对话管理</text>
+                    <text x="212" y="182" font-size="11" text-anchor="middle" fill="#4338ca">Dialog State</text>
+                    <text x="212" y="198" font-size="11" text-anchor="middle" fill="#4338ca">上下文记忆</text>
+
+                    <rect x="282" y="136" width="115" height="76" rx="10" fill="url(#gApp)" stroke="#6366f1"></rect>
+                    <text x="339" y="162" font-size="13.5" text-anchor="middle" fill="#312e81">意图识别 NLU</text>
+                    <text x="339" y="182" font-size="11" text-anchor="middle" fill="#4338ca">意图分类器</text>
+                    <text x="339" y="198" font-size="11" text-anchor="middle" fill="#4338ca">槽位抽取</text>
+
+                    <rect x="409" y="136" width="115" height="76" rx="10" fill="url(#gApp)" stroke="#6366f1"></rect>
+                    <text x="466" y="162" font-size="13.5" text-anchor="middle" fill="#312e81">情感与情绪</text>
+                    <text x="466" y="182" font-size="11" text-anchor="middle" fill="#4338ca">满意度预测</text>
+                    <text x="466" y="198" font-size="11" text-anchor="middle" fill="#4338ca">情绪识别</text>
+
+                    <rect x="536" y="136" width="115" height="76" rx="10" fill="url(#gApp)" stroke="#6366f1"></rect>
+                    <text x="593" y="162" font-size="13.5" text-anchor="middle" fill="#312e81">RAG 检索生成</text>
+                    <text x="593" y="182" font-size="11" text-anchor="middle" fill="#4338ca">检索 → 重排</text>
+                    <text x="593" y="198" font-size="11" text-anchor="middle" fill="#4338ca">引用溯源</text>
+
+                    <rect x="663" y="136" width="115" height="76" rx="10" fill="url(#gApp)" stroke="#6366f1"></rect>
+                    <text x="720" y="162" font-size="13.5" text-anchor="middle" fill="#312e81">答案可信评估</text>
+                    <text x="720" y="182" font-size="11" text-anchor="middle" fill="#4338ca">事实一致性</text>
+                    <text x="720" y="198" font-size="11" text-anchor="middle" fill="#4338ca">幻觉检测</text>
+
+                    <rect x="790" y="136" width="115" height="76" rx="10" fill="url(#gApp)" stroke="#6366f1"></rect>
+                    <text x="847" y="162" font-size="13.5" text-anchor="middle" fill="#312e81">业务编排</text>
+                    <text x="847" y="182" font-size="11" text-anchor="middle" fill="#4338ca">订单/退款查询</text>
+                    <text x="847" y="198" font-size="11" text-anchor="middle" fill="#4338ca">API 工具调用</text>
+                </g>
+
+                <!-- ===== 第三行：模型层 ===== -->
+                <g>
+                    <rect x="155" y="246" width="115" height="76" rx="10" fill="url(#gModel)" stroke="#8b5cf6"></rect>
+                    <text x="212" y="272" font-size="13.5" text-anchor="middle" fill="#4c1d95">大语言模型</text>
+                    <text x="212" y="292" font-size="11" text-anchor="middle" fill="#6d28d9">LLM / SFT</text>
+                    <text x="212" y="308" font-size="11" text-anchor="middle" fill="#6d28d9">指令微调</text>
+
+                    <rect x="282" y="246" width="115" height="76" rx="10" fill="url(#gModel)" stroke="#8b5cf6"></rect>
+                    <text x="339" y="272" font-size="13.5" text-anchor="middle" fill="#4c1d95">Embedding</text>
+                    <text x="339" y="292" font-size="11" text-anchor="middle" fill="#6d28d9">向量编码</text>
+                    <text x="339" y="308" font-size="11" text-anchor="middle" fill="#6d28d9">bge / m3e</text>
+
+                    <rect x="409" y="246" width="115" height="76" rx="10" fill="url(#gModel)" stroke="#8b5cf6"></rect>
+                    <text x="466" y="272" font-size="13.5" text-anchor="middle" fill="#4c1d95">Reranker</text>
+                    <text x="466" y="292" font-size="11" text-anchor="middle" fill="#6d28d9">交叉编码器</text>
+                    <text x="466" y="308" font-size="11" text-anchor="middle" fill="#6d28d9">精排</text>
+
+                    <rect x="536" y="246" width="115" height="76" rx="10" fill="url(#gModel)" stroke="#8b5cf6"></rect>
+                    <text x="593" y="272" font-size="13.5" text-anchor="middle" fill="#4c1d95">Guardrail</text>
+                    <text x="593" y="292" font-size="11" text-anchor="middle" fill="#6d28d9">内容安全</text>
+                    <text x="593" y="308" font-size="11" text-anchor="middle" fill="#6d28d9">敏感信息过滤</text>
+
+                    <rect x="663" y="246" width="115" height="76" rx="10" fill="url(#gModel)" stroke="#8b5cf6"></rect>
+                    <text x="720" y="272" font-size="13.5" text-anchor="middle" fill="#4c1d95">模型蒸馏</text>
+                    <text x="720" y="292" font-size="11" text-anchor="middle" fill="#6d28d9">轻量化部署</text>
+                    <text x="720" y="308" font-size="11" text-anchor="middle" fill="#6d28d9">边缘推理</text>
+
+                    <rect x="790" y="246" width="115" height="76" rx="10" fill="url(#gModel)" stroke="#8b5cf6"></rect>
+                    <text x="847" y="272" font-size="13.5" text-anchor="middle" fill="#4c1d95">Prompt 编排</text>
+                    <text x="847" y="292" font-size="11" text-anchor="middle" fill="#6d28d9">Few-shot</text>
+                    <text x="847" y="308" font-size="11" text-anchor="middle" fill="#6d28d9">思维链 CoT</text>
+                </g>
+
+                <!-- ===== 第四行：知识库层 ===== -->
+                <g>
+                    <rect x="155" y="356" width="115" height="76" rx="10" fill="url(#gKnow)" stroke="#10b981"></rect>
+                    <text x="212" y="382" font-size="13.5" text-anchor="middle" fill="#064e3b">知识接入</text>
+                    <text x="212" y="402" font-size="11" text-anchor="middle" fill="#047857">FAQ / 文档 / 工单</text>
+                    <text x="212" y="418" font-size="11" text-anchor="middle" fill="#047857">表格 / 网页</text>
+
+                    <rect x="282" y="356" width="115" height="76" rx="10" fill="url(#gKnow)" stroke="#10b981"></rect>
+                    <text x="339" y="382" font-size="13.5" text-anchor="middle" fill="#064e3b">切分与结构化</text>
+                    <text x="339" y="402" font-size="11" text-anchor="middle" fill="#047857">Chunking</text>
+                    <text x="339" y="418" font-size="11" text-anchor="middle" fill="#047857">实体关系抽取</text>
+
+                    <rect x="409" y="356" width="115" height="76" rx="10" fill="url(#gKnow)" stroke="#10b981"></rect>
+                    <text x="466" y="382" font-size="13.5" text-anchor="middle" fill="#064e3b">向量索引</text>
+                    <text x="466" y="402" font-size="11" text-anchor="middle" fill="#047857">向量库 / HNSW</text>
+                    <text x="466" y="418" font-size="11" text-anchor="middle" fill="#047857">增量更新</text>
+
+                    <rect x="536" y="356" width="115" height="76" rx="10" fill="url(#gKnow)" stroke="#10b981"></rect>
+                    <text x="593" y="382" font-size="13.5" text-anchor="middle" fill="#064e3b">混合检索</text>
+                    <text x="593" y="402" font-size="11" text-anchor="middle" fill="#047857">BM25 + 向量</text>
+                    <text x="593" y="418" font-size="11" text-anchor="middle" fill="#047857">语义 + 关键词</text>
+
+                    <rect x="663" y="356" width="115" height="76" rx="10" fill="url(#gKnow)" stroke="#10b981"></rect>
+                    <text x="720" y="382" font-size="13.5" text-anchor="middle" fill="#064e3b">知识图谱</text>
+                    <text x="720" y="402" font-size="11" text-anchor="middle" fill="#047857">实体关系</text>
+                    <text x="720" y="418" font-size="11" text-anchor="middle" fill="#047857">多跳推理</text>
+
+                    <rect x="790" y="356" width="115" height="76" rx="10" fill="url(#gKnow)" stroke="#10b981"></rect>
+                    <text x="847" y="382" font-size="13.5" text-anchor="middle" fill="#064e3b">知识治理</text>
+                    <text x="847" y="402" font-size="11" text-anchor="middle" fill="#047857">版本 / 生效期</text>
+                    <text x="847" y="418" font-size="11" text-anchor="middle" fill="#047857">时效性标注</text>
+                </g>
+
+                <!-- ===== 第五行：数据层 ===== -->
+                <g>
+                    <rect x="155" y="466" width="115" height="76" rx="10" fill="url(#gData)" stroke="#f97316"></rect>
+                    <text x="212" y="492" font-size="13.5" text-anchor="middle" fill="#7c2d12">会话日志</text>
+                    <text x="212" y="512" font-size="11" text-anchor="middle" fill="#c2410c">Trace / 埋点</text>
+                    <text x="212" y="528" font-size="11" text-anchor="middle" fill="#c2410c">全链路追踪</text>
+
+                    <rect x="282" y="466" width="115" height="76" rx="10" fill="url(#gData)" stroke="#f97316"></rect>
+                    <text x="339" y="492" font-size="13.5" text-anchor="middle" fill="#7c2d12">用户画像</text>
+                    <text x="339" y="512" font-size="11" text-anchor="middle" fill="#c2410c">历史工单</text>
+                    <text x="339" y="528" font-size="11" text-anchor="middle" fill="#c2410c">偏好标签</text>
+
+                    <rect x="409" y="466" width="115" height="76" rx="10" fill="url(#gData)" stroke="#f97316"></rect>
+                    <text x="466" y="492" font-size="13.5" text-anchor="middle" fill="#7c2d12">反馈与标注</text>
+                    <text x="466" y="512" font-size="11" text-anchor="middle" fill="#c2410c">点赞/点踩</text>
+                    <text x="466" y="528" font-size="11" text-anchor="middle" fill="#c2410c">人工纠错</text>
+
+                    <rect x="536" y="466" width="115" height="76" rx="10" fill="url(#gData)" stroke="#f97316"></rect>
+                    <text x="593" y="492" font-size="13.5" text-anchor="middle" fill="#7c2d12">评测基准</text>
+                    <text x="593" y="512" font-size="11" text-anchor="middle" fill="#c2410c">问答对数据集</text>
+                    <text x="593" y="528" font-size="11" text-anchor="middle" fill="#c2410c">A/B 实验</text>
+
+                    <rect x="663" y="466" width="115" height="76" rx="10" fill="url(#gData)" stroke="#f97316"></rect>
+                    <text x="720" y="492" font-size="13.5" text-anchor="middle" fill="#7c2d12">监控告警</text>
+                    <text x="720" y="512" font-size="11" text-anchor="middle" fill="#c2410c">超时 / 失败率</text>
+                    <text x="720" y="528" font-size="11" text-anchor="middle" fill="#c2410c">成本统计</text>
+
+                    <rect x="790" y="466" width="115" height="76" rx="10" fill="url(#gData)" stroke="#f97316"></rect>
+                    <text x="847" y="492" font-size="13.5" text-anchor="middle" fill="#7c2d12">知识资产</text>
+                    <text x="847" y="512" font-size="11" text-anchor="middle" fill="#c2410c">知识图谱库</text>
+                    <text x="847" y="528" font-size="11" text-anchor="middle" fill="#c2410c">数据湖</text>
+                </g>
+
+                <!-- ===== 层间箭头（数据自下而上流动） ===== -->
+                <g stroke="#94a3b8" stroke-width="1.6" fill="none" marker-end="url(#arrow)">
+                    <path d="M212 118 L212 132"></path>
+                    <path d="M466 118 L466 132"></path>
+                    <path d="M720 118 L720 132"></path>
+                    <path d="M212 228 L212 242"></path>
+                    <path d="M593 228 L593 242"></path>
+                    <path d="M212 338 L212 352"></path>
+                    <path d="M593 338 L593 352"></path>
+                    <path d="M212 448 L212 462"></path>
+                    <path d="M720 448 L720 462"></path>
+                </g>
+                <text x="222" y="129" font-size="10.5" fill="#94a3b8">用户提问</text>
+                <text x="476" y="129" font-size="10.5" fill="#94a3b8">会话请求</text>
+                <text x="222" y="239" font-size="10.5" fill="#94a3b8">检索请求</text>
+                <text x="603" y="239" font-size="10.5" fill="#94a3b8">生成请求</text>
+                <text x="222" y="349" font-size="10.5" fill="#94a3b8">知识召回</text>
+                <text x="603" y="349" font-size="10.5" fill="#94a3b8">索引写入</text>
+                <text x="222" y="459" font-size="10.5" fill="#94a3b8">日志/反馈回流</text>
+
+                <!-- ===== 右侧：科研创新点 ===== -->
+                <rect x="930" y="26" width="290" height="516" rx="12" fill="url(#gSci)" stroke="#f43f5e"></rect>
+                <text x="1075" y="56" font-size="16" text-anchor="middle" fill="#9f1239" font-weight="bold">科研创新方向</text>
+                <text x="1075" y="76" font-size="11.5" text-anchor="middle" fill="#be123c">Knowledge-based LLM Service</text>
+
+                <g font-size="12.5" fill="#881337">
+                    <circle cx="952" cy="108" r="4" fill="#e11d48"></circle>
+                    <text x="966" y="112">领域知识抽取与结构化</text>
+                    <text x="966" y="128" font-size="11" fill="#be123c">非结构化文档 → 实体/事件三元组</text>
+
+                    <circle cx="952" cy="166" r="4" fill="#e11d48"></circle>
+                    <text x="966" y="170">跨模态检索</text>
+                    <text x="966" y="186" font-size="11" fill="#be123c">文本 / 表格 / 图片统一向量化</text>
+
+                    <circle cx="952" cy="224" r="4" fill="#e11d48"></circle>
+                    <text x="966" y="228">知识时效性与增量索引</text>
+                    <text x="966" y="244" font-size="11" fill="#be123c">旧知识失效检测 + 局部重建</text>
+
+                    <circle cx="952" cy="282" r="4" fill="#e11d48"></circle>
+                    <text x="966" y="286">幻觉抑制与可验证生成</text>
+                    <text x="966" y="302" font-size="11" fill="#be123c">引用溯源 + 事实一致性打分</text>
+
+                    <circle cx="952" cy="340" r="4" fill="#e11d48"></circle>
+                    <text x="966" y="344">小样本与轻量化部署</text>
+                    <text x="966" y="360" font-size="11" fill="#be123c">领域 LoRA + 蒸馏 + 边缘推理</text>
+
+                    <circle cx="952" cy="398" r="4" fill="#e11d48"></circle>
+                    <text x="966" y="402">对话评测基准建设</text>
+                    <text x="966" y="418" font-size="11" fill="#be123c">任务型客服问答自动评测指标</text>
+                </g>
+
+                <rect x="948" y="444" width="254" height="80" rx="10" fill="#fff" stroke="#fda4af"></rect>
+                <text x="1075" y="466" font-size="12.5" text-anchor="middle" fill="#9f1239" font-weight="bold">预期研究产出</text>
+                <text x="966" y="488" font-size="11.5" fill="#881337">① 领域知识库构建方法与数据集</text>
+                <text x="966" y="506" font-size="11.5" fill="#881337">② 检索增强与幻觉抑制算法</text>
+                <text x="966" y="522" font-size="11.5" fill="#881337">③ 客服问答系统原型 + 评测报告</text>
+
+                <!-- 右侧回流箭头：数据/反馈 → 科研 -->
+                <path d="M905 504 C 918 504 918 300 928 300" stroke="#e11d48" stroke-width="1.6" fill="none" marker-end="url(#arrowR)" stroke-dasharray="5 4"></path>
+                <text x="905" y="530" font-size="10.5" fill="#e11d48" text-anchor="end">数据沉淀 → 科研分析</text>
+
+                <!-- ===== 底部：一次问答的完整链路 ===== -->
+                <rect x="20" y="574" width="1200" height="150" rx="12" fill="#f8fafc" stroke="#e2e8f0"></rect>
+                <text x="40" y="602" font-size="15" font-weight="bold" fill="#1e293b">一次问答的完整链路（Request Flow）</text>
+
+                <g font-size="12" text-anchor="middle">
+                    <g fill="#e0f2fe" stroke="#38bdf8">
+                        <rect x="40" y="622" width="140" height="46" rx="10"></rect>
+                        <rect x="220" y="622" width="140" height="46" rx="10"></rect>
+                        <rect x="400" y="622" width="140" height="46" rx="10"></rect>
+                        <rect x="580" y="622" width="140" height="46" rx="10"></rect>
+                        <rect x="760" y="622" width="140" height="46" rx="10"></rect>
+                        <rect x="940" y="622" width="140" height="46" rx="10"></rect>
+                    </g>
+                    <g fill="#075985" font-weight="bold">
+                        <text x="110" y="642">① 用户提问</text>
+                        <text x="290" y="642">② 意图识别</text>
+                        <text x="470" y="642">③ 混合检索</text>
+                        <text x="650" y="642">④ Reranker</text>
+                        <text x="830" y="642">⑤ LLM 生成</text>
+                        <text x="1010" y="642">⑥ 校验与引用</text>
+                    </g>
+                    <g fill="#0369a1" font-size="10.5">
+                        <text x="110" y="659">自然语言 / 语音</text>
+                        <text x="290" y="659">意图 + 槽位</text>
+                        <text x="470" y="659">向量 + BM25</text>
+                        <text x="650" y="659">相关性精排</text>
+                        <text x="830" y="659">Prompt + CoT</text>
+                        <text x="1010" y="659">事实一致性</text>
+                    </g>
+                    <g stroke="#94a3b8" stroke-width="1.6" fill="none" marker-end="url(#arrow)">
+                        <path d="M182 645 L216 645"></path>
+                        <path d="M362 645 L396 645"></path>
+                        <path d="M542 645 L576 645"></path>
+                        <path d="M722 645 L756 645"></path>
+                        <path d="M902 645 L936 645"></path>
+                    </g>
+                </g>
+
+                <text x="40" y="700" font-size="11.5" fill="#64748b">回退策略：若检索置信度低或校验不通过 → 转人工坐席 / 引导澄清提问；所有问答写入会话日志用于后续标注与评测。</text>
+
+                <!-- ===== 底部：图例 ===== -->
+                <rect x="20" y="740" width="1200" height="120" rx="12" fill="#ffffff" stroke="#e2e8f0"></rect>
+                <text x="40" y="768" font-size="15" font-weight="bold" fill="#1e293b">图例</text>
+
+                <g font-size="12" fill="#475569">
+                    <rect x="40" y="782" width="16" height="16" rx="4" fill="#0284c7"></rect>
+                    <text x="64" y="795">接入层：用户与渠道</text>
+
+                    <rect x="40" y="810" width="16" height="16" rx="4" fill="#4f46e5"></rect>
+                    <text x="64" y="823">应用层：对话编排与业务逻辑</text>
+
+                    <rect x="40" y="838" width="16" height="16" rx="4" fill="#7c3aed"></rect>
+                    <text x="64" y="851">模型层：算法与推理引擎</text>
+
+                    <rect x="300" y="782" width="16" height="16" rx="4" fill="#059669"></rect>
+                    <text x="324" y="795">知识库层：知识接入、检索与治理</text>
+
+                    <rect x="300" y="810" width="16" height="16" rx="4" fill="#ea580c"></rect>
+                    <text x="324" y="823">数据层：数据资产与效果评测</text>
+
+                    <rect x="300" y="838" width="16" height="16" rx="4" fill="#e11d48"></rect>
+                    <text x="324" y="851">科研方向：本文的创新点与研究产出</text>
+
+                    <line x1="580" y1="790" x2="630" y2="790" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arrow)"></line>
+                    <text x="642" y="795">数据流（自下而上：数据 → 知识 → 模型 → 应用 → 用户）</text>
+
+                    <line x1="580" y1="818" x2="630" y2="818" stroke="#e11d48" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#arrowR)"></line>
+                    <text x="642" y="823">反馈回流：真实数据反哺科研与模型迭代</text>
+
+                    <text x="580" y="851" font-size="11.5" fill="#94a3b8">本图为纯手写 SVG（无图片依赖），可另存为 架构图.svg 直接用于论文或答辩 PPT</text>
+                </g>
+            </svg>
+        </div>
+
+        <!-- 图例说明 -->
+        <div class="legend">
+            <div class="lg">
+                <b><span class="dot" style="background:#4f46e5"></span>分层设计</b>
+                系统自下而上分为数据层、知识库层、模型层、应用层、接入层共五层，
+                层间用箭头表示数据与请求的流动方向，职责单一、便于分工实现。
+            </div>
+            <div class="lg">
+                <b><span class="dot" style="background:#059669"></span>知识库是核心</b>
+                知识库层承担“知识接入 → 切分向量化 → 混合检索 → 图谱多跳 → 版本治理”，
+                是把通用大模型变成“懂业务的客服”的关键。
+            </div>
+            <div class="lg">
+                <b><span class="dot" style="background:#e11d48"></span>科研落点</b>
+                右侧红色区域列出六个可展开的研究点：领域知识抽取、跨模态检索、
+                知识时效性、幻觉抑制、轻量化部署、对话评测基准。
+            </div>
+            <div class="lg">
+                <b><span class="dot" style="background:#0ea5e9"></span>工程闭环</b>
+                底部链路展示一次问答经过的六个环节，并给出低置信度转人工的回退策略，
+                所有数据回流到数据层形成闭环。
+            </div>
+        </div>
+
+        <!-- 模块说明表 -->
+        <table>
+            <tr>
+                <th>层次</th>
+                <th>核心模块</th>
+                <th>关键技术</th>
+                <th>可衡量的科研指标</th>
+            </tr>
+            <tr>
+                <td>接入层</td>
+                <td>网页/小程序/App/电话/人工</td>
+                <td>ASR、渠道 SDK 接入</td>
+                <td>渠道接入成本、消息到达时延</td>
+            </tr>
+            <tr>
+                <td>应用层</td>
+                <td>多轮对话、NLU、情感、RAG 编排</td>
+                <td>状态机、槽位填充、检索编排</td>
+                <td>意图准确率、多轮完成率</td>
+            </tr>
+            <tr>
+                <td>模型层</td>
+                <td>LLM、Embedding、Reranker</td>
+                <td>SFT / LoRA、CoT、蒸馏</td>
+                <td>生成质量、推理延迟与成本</td>
+            </tr>
+            <tr>
+                <td>知识库层</td>
+                <td>接入、切分、索引、图谱、治理</td>
+                <td>混合检索、HNSW、增量索引</td>
+                <td>Recall@K、知识新鲜度</td>
+            </tr>
+            <tr>
+                <td>数据层</td>
+                <td>日志、画像、标注、评测</td>
+                <td>全链路追踪、离线评测、A/B</td>
+                <td>任务成功率、幻觉率、满意度</td>
+            </tr>
+        </table>
+
+        <footer>周浩 · 高级网页设计 18-3 · 2026</footer>
+    </div>
+
+</body>
+</html>

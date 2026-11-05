@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="周浩 24001010105">
+    <meta name="description" content="Canvas 文字粒子动画 - 周浩 24001010105">
+    <title>18-1 Canvas 文字动画</title>
+    <style>
+        /* ============================================================
+           18-1 Canvas 文字动画（文字：袁磊）
+           作者：周浩 24001010105 计科24001
+           原理：离屏 canvas 采样文字像素 → 生成粒子 → requestAnimationFrame 逐帧更新
+           ============================================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", sans-serif;
+            background: #0b1020;
+            color: #e2e8f0;
+            line-height: 1.7;
+        }
+
+        .wrap {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 18px 16px 40px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 26px;
+            letter-spacing: 2px;
+            margin-bottom: 4px;
+        }
+
+        .sub {
+            text-align: center;
+            color: #7c8aa5;
+            font-size: 13px;
+            margin-bottom: 14px;
+        }
+
+        /* 舞台 */
+        .stage {
+            position: relative;
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px solid #1e293b;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, .45);
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 560px;
+            background: radial-gradient(circle at 50% 40%, #16203c 0%, #0b1020 70%);
+        }
+
+        /* 打字机标题 */
+        .type {
+            position: absolute;
+            left: 50%;
+            top: 46%;
+            transform: translate(-50%, -50%);
+            font-size: clamp(42px, 8vw, 86px);
+            font-weight: 700;
+            letter-spacing: 12px;
+            color: #fff;
+            text-shadow: 0 0 26px rgba(99, 102, 241, .85);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity .6s;
+        }
+
+        .type.show {
+            opacity: 1;
+        }
+
+        .type .cursor {
+            display: inline-block;
+            width: 4px;
+            height: .95em;
+            background: #818cf8;
+            margin-left: 6px;
+            vertical-align: -3px;
+            animation: blink 1s steps(1) infinite;
+        }
+
+        @keyframes blink {
+            50% {
+                opacity: 0;
+            }
+        }
+
+        .hint {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 14px;
+            text-align: center;
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        /* 控制面板 */
+        .ctrl {
+            margin-top: 14px;
+            background: #111a30;
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            padding: 14px 18px;
+            display: flex;
+            gap: 18px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .ctrl label {
+            font-size: 13px;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ctrl input[type="range"] {
+            width: 130px;
+            accent-color: #6366f1;
+        }
+
+        button {
+            font: inherit;
+            font-size: 14px;
+            padding: 7px 16px;
+            border: 1px solid #334155;
+            background: #1e293b;
+            color: #cbd5e1;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #6366f1;
+            border-color: #6366f1;
+            color: #fff;
+        }
+
+        .ctrl .val {
+            font-family: Consolas, monospace;
+            color: #818cf8;
+            width: 42px;
+        }
+
+        /* 说明区 */
+        .notes {
+            margin-top: 16px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 12px;
+        }
+
+        .note {
+            background: #111a30;
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+        .note b {
+            display: block;
+            color: #e2e8f0;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .note code {
+            color: #a5b4fc;
+            font-family: Consolas, monospace;
+        }
+
+        footer {
+            text-align: center;
+            color: #475569;
+            font-size: 13px;
+            margin-top: 26px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="wrap">
+        <h1>Canvas 文字动画</h1>
+        <div class="sub">作者：周浩　学号：24001010105　班级：计科24001　（离屏采样文字像素 → 粒子系统 → requestAnimationFrame 逐帧渲染）</div>
+
+        <!-- 动画舞台 -->
+        <div class="stage">
+            <canvas id="cv" width="1140" height="560"></canvas>
+            <div class="type" id="type"></div>
+            <div class="hint">鼠标移动 → 粒子被吸引 / 推开　　点击画布 → 冲击波炸开　　字母键 → 重新生成粒子</div>
+        </div>
+
+        <!-- 控制面板 -->
+        <div class="ctrl">
+            <button onclick="toggle()">⏸ 暂停 / ▶ 继续</button>
+            <button onclick="rebuild()">🔄 重新生成粒子</button>
+            <label>粒子数
+                <input type="range" id="pNum" min="60" max="420" step="20" value="220" oninput="onNum()">
+                <span class="val" id="pNumV">220</span>
+            </label>
+            <label>连线距离
+                <input type="range" id="pDist" min="50" max="160" step="5" value="100" oninput="onDist()">
+                <span class="val" id="pDistV">100</span>
+            </label>
+            <label><input type="checkbox" id="pLine" checked onchange="onLine()"> 显示连线</label>
+            <label><input type="checkbox" id="pFollow" checked onchange="onFollow()"> 鼠标跟随</label>
+            <label>配色
+                <select id="pColor" onchange="onColor()">
+                    <option value="blue">蓝紫</option>
+                    <option value="warm">橙红</option>
+                    <option value="green">青绿</option>
+                    <option value="white">纯白</option>
+                </select>
+            </label>
+        </div>
+
+        <!-- 知识点说明 -->
+        <div class="notes">
+            <div class="note">
+                <b>① 用 canvas 把文字画出来</b>
+                先创建一个离屏 canvas，调用 <code>fillText('袁磊', …)</code> 把文字画上去，
+                再用 <code>getImageData()</code> 读出像素，逐格扫描透明度大于阈值的点，
+                这些点就是粒子的初始坐标。
+            </div>
+            <div class="note">
+                <b>② 粒子动画循环</b>
+                <code>requestAnimationFrame(cb)</code> 里：更新每个粒子的位置与速度、
+                边界反弹、鼠标吸引/排斥、计算与鼠标的距离，最后统一绘制。
+                每一帧都要先 <code>clearRect</code> 再画。
+            </div>
+            <div class="note">
+                <b>③ 粒子连线</b>
+                遍历粒子两两比较距离，小于阈值就画一条线，透明度随距离衰减。
+                粒子多了是 O(n²)，所以要把粒子数控制在几百以内。
+            </div>
+            <div class="note">
+                <b>④ 文字也能有动画效果</b>
+                上面的“袁磊”用打字机效果逐字出现（setTimeout 逐个插入），
+                与 canvas 粒子动画配合，形成“粒子聚成文字 + 文字打字出现”的双层效果。
+            </div>
+        </div>
+
+        <footer>周浩 · 高级网页设计 18-1 · 2026</footer>
+    </div>
+
+    <script>
+        /* ============================================================
+         * Canvas 文字粒子动画 —— 作者：周浩 24001010105
+         * ============================================================ */
+        var cv = document.getElementById('cv');
+        var ctx = cv.getContext('2d');
+        var W = cv.width, H = cv.height;
+
+        var COLORS = {
+            blue: ['#818cf8', '#38bdf8', '#c4b5fd'],
+            warm: ['#fb923c', '#f43f5e', '#fcd34d'],
+            green: ['#34d399', '#22d3ee', '#a7f3d0'],
+            white: ['#ffffff', '#cbd5e1', '#e2e8f0']
+        };
+
+        var particles = [];
+        var mouse = { x: -9999, y: -9999, down: false };
+        var running = true;
+        var showLine = true;
+        var follow = true;
+        var linkDist = 100;
+        var colorSet = COLORS.blue;
+        var TEXT = '袁磊';
+
+        /* ---------- 1. 离屏采样文字，生成粒子初始位置 ---------- */
+        function buildParticles() {
+            var off = document.createElement('canvas');
+            off.width = W;
+            off.height = H;
+            var octx = off.getContext('2d');
+
+            /* 文字样式：粗体、居中 */
+            var fontSize = 190;
+            octx.font = 'bold ' + fontSize + 'px "Microsoft YaHei", sans-serif';
+            octx.textAlign = 'center';
+            octx.textBaseline = 'middle';
+            octx.fillStyle = '#fff';
+            octx.fillText(TEXT, W / 2, H / 2 - 20);
+
+            var data = octx.getImageData(0, 0, W, H).data;
+            var points = [];
+            /* 隔 6 个像素取一个点，保证粒子数适中 */
+            for (var y = 0; y < H; y += 6) {
+                for (var x = 0; x < W; x += 6) {
+                    var idx = (y * W + x) * 4;
+                    if (data[idx + 3] > 128) {
+                        points.push({ x: x, y: y });
+                    }
+                }
+            }
+
+            var want = Number(document.getElementById('pNum').value);
+            particles = [];
+            for (var i = 0; i < want; i++) {
+                var p = points.length ? points[Math.floor(Math.random() * points.length)] : { x: W / 2, y: H / 2 };
+                particles.push({
+                    x: p.x + (Math.random() - .5) * 8,
+                    y: p.y + (Math.random() - .5) * 8,
+                    vx: (Math.random() - .5) * 2.4,
+                    vy: (Math.random() - .5) * 2.4,
+                    r: Math.random() * 1.8 + .8
+                });
+            }
+        }
+
+        /* ---------- 2. 主循环 ---------- */
+        function loop() {
+            ctx.clearRect(0, 0, W, H);
+            update();
+            draw();
+            requestAnimationFrame(loop);
+        }
+
+        function update() {
+            for (var i = 0; i < particles.length; i++) {
+                var p = particles[i];
+
+                /* 鼠标跟随：靠近时被吸引 */
+                if (follow && mouse.x > -1000) {
+                    var dx = mouse.x - p.x, dy = mouse.y - p.y;
+                    var d = Math.sqrt(dx * dx + dy * dy) || 1;
+                    if (d < 190) {
+                        var f = (190 - d) / 190 * 1.5;
+                        p.vx += dx / d * f;
+                        p.vy += dy / d * f;
+                    }
+                }
+
+                /* 阻尼与边界反弹 */
+                p.vx *= .965;
+                p.vy *= .965;
+                p.x += p.vx;
+                p.y += p.vy;
+
+                if (p.x < 0) { p.x = 0; p.vx *= -1; }
+                if (p.x > W) { p.x = W; p.vx *= -1; }
+                if (p.y < 0) { p.y = 0; p.vy *= -1; }
+                if (p.y > H) { p.y = H; p.vy *= -1; }
+            }
+        }
+
+        function draw() {
+            var i, j, p, q;
+
+            /* 先画连线 */
+            if (showLine) {
+                for (i = 0; i < particles.length; i++) {
+                    p = particles[i];
+                    for (j = i + 1; j < particles.length; j++) {
+                        q = particles[j];
+                        var dx = p.x - q.x, dy = p.y - q.y;
+                        var d2 = dx * dx + dy * dy;
+                        if (d2 < linkDist * linkDist) {
+                            var alpha = (1 - Math.sqrt(d2) / linkDist) * .32;
+                            ctx.strokeStyle = 'rgba(129,140,248,' + alpha.toFixed(3) + ')';
+                            ctx.lineWidth = .6;
+                            ctx.beginPath();
+                            ctx.moveTo(p.x, p.y);
+                            ctx.lineTo(q.x, q.y);
+                            ctx.stroke();
+                        }
+                    }
+                }
+            }
+
+            /* 再画粒子 */
+            for (i = 0; i < particles.length; i++) {
+                p = particles[i];
+                ctx.fillStyle = colorSet[i % colorSet.length];
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        /* ---------- 3. 交互 ---------- */
+        cv.addEventListener('mousemove', function (e) {
+            var r = cv.getBoundingClientRect();
+            mouse.x = (e.clientX - r.left) * (W / r.width);
+            mouse.y = (e.clientY - r.top) * (H / r.height);
+        });
+        cv.addEventListener('mouseleave', function () {
+            mouse.x = -9999;
+            mouse.y = -9999;
+        });
+        /* 点击产生冲击波 */
+        cv.addEventListener('click', function (e) {
+            var r = cv.getBoundingClientRect();
+            var cx = (e.clientX - r.left) * (W / r.width);
+            var cy = (e.clientY - r.top) * (H / r.height);
+            for (var i = 0; i < particles.length; i++) {
+                var p = particles[i];
+                var dx = p.x - cx, dy = p.y - cy;
+                var d = Math.sqrt(dx * dx + dy * dy) || 1;
+                if (d < 260) {
+                    p.vx += dx / d * (12 - d / 26);
+                    p.vy += dy / d * (12 - d / 26);
+                }
+            }
+        });
+
+        function toggle() {
+            running = !running;
+            if (running) {
+                loop();
+            }
+        }
+        function rebuild() {
+            buildParticles();
+        }
+        function onNum() {
+            document.getElementById('pNumV').textContent = document.getElementById('pNum').value;
+            buildParticles();
+        }
+        function onDist() {
+            linkDist = Number(document.getElementById('pDist').value);
+            document.getElementById('pDistV').textContent = linkDist;
+        }
+        function onLine() {
+            showLine = document.getElementById('pLine').checked;
+        }
+        function onFollow() {
+            follow = document.getElementById('pFollow').checked;
+        }
+        function onColor() {
+            colorSet = COLORS[document.getElementById('pColor').value];
+        }
+
+        /* ---------- 4. 打字机：逐字显示“袁磊” ---------- */
+        function typeText() {
+            var el = document.getElementById('type');
+            el.innerHTML = '';
+            var i = 0;
+            (function next() {
+                if (i >= TEXT.length) {
+                    el.innerHTML = TEXT + '<span class="cursor"></span>';
+                    return;
+                }
+                el.classList.add('show');
+                el.innerHTML = TEXT.slice(0, i + 1) + '<span class="cursor"></span>';
+                i++;
+                setTimeout(next, 420);
+            })();
+        }
+
+        /* ---------- 5. 键盘：按任意字母键重新生成粒子 ---------- */
+        document.addEventListener('keydown', function (e) {
+            if (/^[a-zA-Z]$/.test(e.key)) {
+                buildParticles();
+            }
+        });
+
+        buildParticles();
+        typeText();
+        loop();
+    </script>
+
+</body>
+</html>
