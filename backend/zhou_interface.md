@@ -415,3 +415,15 @@
 | 500 | 服务器异常 | 未捕获异常，统一返回 `服务器内部错误：xxx` |
 
 - 修改时间：2026-11-09
+---
+
+## 七、数据库切换记录（2026-11-09）
+
+- 变更内容：数据层由 SQLite（Node 内置 node:sqlite）切换为 **MySQL 8.4**（mysql2 连接池），
+  SQLite 方案已按项目规范「二选一」原则删除（`db/zhou_init.sql` 与 SQLite 数据文件不再使用）。
+- 接口影响：**无**。所有接口路径、请求参数、响应结构与错误码保持不变，
+  仅底层实现由同步调用改为 async/await，数据访问层接口由 `db/zhou_db.js` 统一屏蔽驱动差异。
+- 数据一致性：测试数据已通过 `npm run initdb` 全量迁移到 MySQL，表结构与数据条数与原 SQLite 版本一致。
+- 连接配置：`backend/.env` 的 DB_HOST / DB_PORT / DB_USER / DB_PASSWORD / DB_NAME，
+  服务启动时由 `db/zhou_db.js` 的 `zhou_check()` 自检连接，连接失败会在控制台给出明确提示。
+- 修改时间：2026-11-09

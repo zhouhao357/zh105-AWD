@@ -13,7 +13,8 @@
   并以 express.static 托管 frontend/ 目录
   后端支持所有跨域访问。
 - 后端依赖安装：优先 cnpm i 包名；失败或超时则使用 npm i 包名
-- 数据库： SQLite； MySQL （用户名root、密码：****），二选一，另外一个删除
+- 数据库： SQLite 与 MySQL 二选一（本项目已选 **MySQL 8.4**，驱动 mysql2 连接池；
+  SQLite 方案已按"另一个删除"的要求清理，建表脚本为 backend/db/zhou_init_mysql.sql）
 - 数据库凭据写入 backend/.env（变量名：DB_USER、DB_PASSWORD、
   DB_HOST、DB_NAME），不得出现在代码或 AGENTS.md 中；
   .env 同时加入 .gitignore

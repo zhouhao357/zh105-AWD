@@ -2,79 +2,90 @@
  * 姓名：周浩 | 学号：24001010105 |
  * 时间：2026-11-09 | 大模型：Space Bunny
  *
- * zhou_db.js —— 数据库连接封装（SQLite）
- * 使用 Node.js 内置的 node:sqlite 模块，零原生依赖；旧版本 Node 回退 sqlite3 包。
- * 数据库文件路径来自 backend/.env 的 DB_NAME。
+ * zhou_db.js —— 数据库连接封装（MySQL）
+ * 使用 mysql2 连接池，凭据来自 backend/.env：
+ *   DB_HOST / DB_USER / DB_PASSWORD / DB_NAME
+ * 对外暴露统一的 zhou_all / zhou_get / zhou_run / zhou_tx 接口，
+ * 与具体驱动解耦，models 层无需关心数据库类型。
  */
 
 'use strict';
 
 const path = require('path');
-const fs = require('fs');
 const dotenv = require('dotenv');
+const mysql = require('mysql2/promise');
 
 dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
-/* Node 22.5+ 内置 node:sqlite */
-let DatabaseSync = null;
-try {
-    ({ DatabaseSync } = require('node:sqlite'));
-} catch (e) {
-    console.warn('[zhou_db] 未检测到 node:sqlite，回退 sqlite3 第三方包');
-    ({ DatabaseSync } = require('sqlite3'));
+const zhou_config = {
+    host: process.env.DB_HOST || '127.0.0.1',
+    port: Number(process.env.DB_PORT) || 3306,
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || '',
+    database: process.env.DB_NAME || 'zhou_campus_market',
+    waitForConnections: true,
+    connectionLimit: Number(process.env.DB_POOL_SIZE) || 10,
+    queueLimit: 0,
+    charset: 'utf8mb4',
+    dateStrings: true
+};
+
+const zhou_pool = mysql.createPool(zhou_config);
+
+console.log('[zhou_db] MySQL 连接池已创建：' + zhou_config.user + '@' + zhou_config.host + ':' + zhou_config.port + '/' + zhou_config.database);
+
+/** 连接可用性自检 */
+async function zhou_check() {
+    const zhou_conn = await zhou_pool.getConnection();
+    try {
+        const [zhou_rows] = await zhou_conn.query('SELECT VERSION() AS zhou_version, DATABASE() AS zhou_db');
+        console.log('[zhou_db] 连接成功：MySQL ' + zhou_rows[0].zhou_version + '，当前库 ' + zhou_rows[0].zhou_db);
+    } finally {
+        zhou_conn.release();
+    }
 }
-
-/* .env 的 DB_NAME 即 SQLite 数据库文件路径 */
-const zhou_dbName = process.env.DB_NAME || 'data/zhou_campus_market.db';
-const zhou_dbFile = path.isAbsolute(zhou_dbName)
-    ? zhou_dbName
-    : path.join(__dirname, '..', zhou_dbName);
-
-const zhou_dbDir = path.dirname(zhou_dbFile);
-if (!fs.existsSync(zhou_dbDir)) {
-    fs.mkdirSync(zhou_dbDir, { recursive: true });
-}
-
-const zhou_db = new DatabaseSync(zhou_dbFile);
-zhou_db.exec('PRAGMA foreign_keys = ON;');
-
-console.log('[zhou_db] 数据库已连接：' + zhou_dbFile);
 
 /** 查询多行 */
-function zhou_all(zhou_sql, zhou_params = []) {
-    return zhou_db.prepare(zhou_sql).all(...zhou_params);
+async function zhou_all(zhou_sql, zhou_params = []) {
+    const [zhou_rows] = await zhou_pool.execute(zhou_sql, zhou_params);
+    return zhou_rows;
 }
 
 /** 查询单行 */
-function zhou_get(zhou_sql, zhou_params = []) {
-    return zhou_db.prepare(zhou_sql).get(...zhou_params);
+async function zhou_get(zhou_sql, zhou_params = []) {
+    const zhou_rows = await zhou_all(zhou_sql, zhou_params);
+    return zhou_rows.length ? zhou_rows[0] : null;
 }
 
 /** 执行写入语句（INSERT / UPDATE / DELETE） */
-function zhou_run(zhou_sql, zhou_params = []) {
-    const zhou_info = zhou_db.prepare(zhou_sql).run(...zhou_params);
+async function zhou_run(zhou_sql, zhou_params = []) {
+    const [zhou_info] = await zhou_pool.execute(zhou_sql, zhou_params);
     return {
-        changes: Number(zhou_info.changes),
-        lastInsertRowid: Number(zhou_info.lastInsertRowid)
+        changes: zhou_info.affectedRows,
+        lastInsertRowid: zhou_info.insertId
     };
 }
 
 /** 事务：回调内抛错则整体回滚 */
-function zhou_tx(zhou_fn) {
-    zhou_db.exec('BEGIN');
+async function zhou_tx(zhou_fn) {
+    const zhou_conn = await zhou_pool.getConnection();
     try {
-        const zhou_result = zhou_fn();
-        zhou_db.exec('COMMIT');
+        await zhou_conn.beginTransaction();
+        const zhou_result = await zhou_fn(zhou_conn);
+        await zhou_conn.commit();
         return zhou_result;
     } catch (e) {
-        zhou_db.exec('ROLLBACK');
+        await zhou_conn.rollback();
         throw e;
+    } finally {
+        zhou_conn.release();
     }
 }
 
 module.exports = {
-    zhou_db,
-    zhou_dbFile,
+    zhou_pool,
+    zhou_config,
+    zhou_check,
     zhou_all,
     zhou_get,
     zhou_run,

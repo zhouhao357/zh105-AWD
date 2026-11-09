@@ -11,14 +11,14 @@ const { zhou_success } = require('../middleware/zhou_response');
 const zhou_notice_model = require('../models/zhou_notice_model');
 
 /** GET /api/notice 公告列表 */
-function zhou_notice_list(req, res) {
-    const zhou_list = zhou_notice_model.zhou_list_notices(req.query.zhou_type || '');
+async function zhou_notice_list(req, res) {
+    const zhou_list = await zhou_notice_model.zhou_list_notices(req.query.zhou_type || '');
     return zhou_success(res, { zhou_list: zhou_list }, '获取公告列表成功');
 }
 
 /** GET /api/home 首页聚合数据 */
-function zhou_home_stat(req, res) {
-    const zhou_data = zhou_notice_model.zhou_home_stat();
+async function zhou_home_stat(req, res) {
+    const zhou_data = await zhou_notice_model.zhou_home_stat();
     return zhou_success(res, zhou_data, '获取首页数据成功');
 }
 

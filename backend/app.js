@@ -45,6 +45,14 @@ zhou_app.get('/', function (req, res) {
 zhou_app.use(zhou_error_handler);
 
 /* ---------- 启动服务 ---------- */
+/* 数据库连接自检：连接失败时给出明确提示，但不阻断静态页面访问 */
+const { zhou_check } = require('./db/zhou_db');
+zhou_check().catch(function (e) {
+    console.error('[zhou_db] 数据库连接失败：' + e.message);
+    console.error('[zhou_db] 请检查 backend/.env 中的 DB_HOST / DB_PORT / DB_USER / DB_PASSWORD / DB_NAME 配置');
+    console.error('[zhou_db] 若数据库尚未初始化，请先执行：npm run initdb');
+});
+
 zhou_app.listen(zhou_PORT, function () {
     console.log('==============================================');
     console.log(' 校园二手交易平台后端服务已启动');

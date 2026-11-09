@@ -93,3 +93,18 @@ SQ
 （说明：选择 SQLite 作为数据库，MySQL 相关配置与驱动不引入，数据库凭据写入 backend/.env）
 
 ---
+---
+
+## 记录 5
+
+时间：2026-11-09 15:10
+大模型：Space Bunny
+
+提示词全文：
+
+用mysql
+
+（说明：数据库由 SQLite 切换为 MySQL 8.4，驱动改用 mysql2 连接池，SQLite 相关文件与脚本删除，
+建表与测试数据迁移到 MySQL，凭据写入 backend/.env）
+
+---
