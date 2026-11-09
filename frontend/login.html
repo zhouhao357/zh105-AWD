@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="周浩 24001010105">
+    <title>登录注册 - 校园二手交易平台</title>
+    <link rel="icon" href="images/logo.svg">
+    <link rel="stylesheet" href="css/zhou_main.css">
+</head>
+<body>
+    <!--
+      姓名：周浩 | 学号：24001010105 |
+      时间：2026-11-09 | 大模型：Space Bunny
+    -->
+
+    <nav class="zhou_nav" id="zhou_nav"></nav>
+
+    <div class="zhou_wrap">
+        <h1 class="zhou_page_title">登录 / 注册</h1>
+        <p class="zhou_page_desc">后端接口：POST /api/user/login、POST /api/user/register　测试账号 zhou01 ~ zhou10，初始密码 123456</p>
+
+        <div class="zhou_tip" id="zhou_msg"></div>
+
+        <div class="zhou_card" style="max-width:560px">
+            <div class="zhou_form">
+                <div class="zhou_field">
+                    <label class="zhou_label" for="zhou_username">账号 <i>*</i></label>
+                    <input type="text" class="zhou_input" id="zhou_username" placeholder="例如 zhou01">
+                </div>
+                <div class="zhou_field">
+                    <label class="zhou_label" for="zhou_password">密码 <i>*</i></label>
+                    <input type="password" class="zhou_input" id="zhou_password" placeholder="初始密码 123456">
+                </div>
+                <div class="zhou_field">
+                    <label class="zhou_label" for="zhou_nickname">昵称（注册时填写）</label>
+                    <input type="text" class="zhou_input" id="zhou_nickname" placeholder="例如 周浩">
+                </div>
+                <div class="zhou_field">
+                    <label class="zhou_label" for="zhou_college">学院（注册时填写）</label>
+                    <input type="text" class="zhou_input" id="zhou_college" placeholder="例如 计科24001">
+                </div>
+                <div class="zhou_field">
+                    <label class="zhou_label" for="zhou_phone">手机号（注册时填写）</label>
+                    <input type="text" class="zhou_input" id="zhou_phone" placeholder="例如 13800138001">
+                </div>
+                <div class="zhou_row">
+                    <button class="zhou_btn zhou_btn_primary" id="zhou_login_btn">登录</button>
+                    <button class="zhou_btn" id="zhou_reg_btn">注册新账号</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="zhou_footer">周浩 · 学号 24001010105 · 校园二手交易平台</div>
+    </div>
+
+    <script src="js/zhou_api.js"></script>
+    <script src="js/zhou_common.js"></script>
+    <script src="js/zhou_login.js"></script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="周浩 24001010105">
+    <title>发布闲置 - 校园二手交易平台</title>
+    <link rel="icon" href="images/logo.svg">
+    <link rel="stylesheet" href="css/zhou_main.css">
+</head>
+<body>
+    <!--
+      姓名：周浩 | 学号：24001010105 |
+      时间：2026-11-09 | 大模型：Space Bunny
+    -->
+
+    <nav class="zhou_nav" id="zhou_nav"></nav>
+
+    <div class="zhou_wrap">
+        <h1 class="zhou_page_title">发布闲置</h1>
+        <p class="zhou_page_desc">后端接口：POST /api/goods　需要先登录，字段缺失或价格非法会返回 code ≠ 0 的错误提示</p>
+
+        <div class="zhou_tip" id="zhou_msg"></div>
+
+        <div class="zhou_card">
+            <form class="zhou_form" id="zhou_form" onsubmit="return false;">
+                <div class="zhou_field">
+                    <label class="zhou_label" for="zhou_title">商品标题 <i>*</i></label>
+                    <input type="text" class="zhou_input" id="zhou_title" placeholder="例如：高等数学同济第七版 上册">
+                </div>
+                <div class="zhou_field">
+                    <label class="zhou_label" for="zhou_category_id">所属分类 <i>*</i></label>
+                    <select class="zhou_select" id="zhou_category_id"></select>
+                </div>
+                <div class="zhou_field">
+                    <label class="zhou_label" for="zhou_price">出售价格（元） <i>*</i></label>
+                    <input type="number" class="zhou_input" id="zhou_price" step="0.01" min="0.01" placeholder="25.00">
+                </div>
+                <div class="zhou_field">
+                    <label class="zhou_label" for="zhou_original_price">原价（选填）</label>
+                    <input type="number" class="zhou_input" id="zhou_original_price" step="0.01" min="0" placeholder="45.00">
+                </div>
+                <div class="zhou_field">
+                    <label class="zhou_label" for="zhou_stock">库存数量</label>
+                    <input type="number" class="zhou_input" id="zhou_stock" value="1" min="1">
+                </div>
+                <div class="zhou_field">
+                    <label class="zhou_label" for="zhou_condition">成色</label>
+                    <select class="zhou_select" id="zhou_condition">
+                        <option value="全新">全新</option>
+                        <option value="95新">95新</option>
+                        <option value="9成新">9成新</option>
+                        <option value="八成新">八成新</option>
+                        <option value="七成新">七成新</option>
+                        <option value="六成新">六成新</option>
+                    </select>
+                </div>
+                <div class="zhou_field">
+                    <label class="zhou_label" for="zhou_trade_place">交易地点</label>
+                    <input type="text" class="zhou_input" id="zhou_trade_place" placeholder="例如：东区宿舍楼下">
+                </div>
+                <div class="zhou_field">
+                    <label class="zhou_label" for="zhou_description">商品描述</label>
+                    <textarea class="zhou_textarea" id="zhou_description" placeholder="写清楚使用时长、有无损坏、是否可小刀等"></textarea>
+                </div>
+                <button type="button" class="zhou_btn zhou_btn_primary" id="zhou_submit">提交发布</button>
+            </form>
+        </div>
+
+        <div class="zhou_footer">周浩 · 学号 24001010105 · 校园二手交易平台</div>
+    </div>
+
+    <script src="js/zhou_api.js"></script>
+    <script src="js/zhou_common.js"></script>
+    <script src="js/zhou_publish.js"></script>
+</body>
+</html>

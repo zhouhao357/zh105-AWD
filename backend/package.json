@@ -1,0 +1,23 @@
+{
+  "name": "campus-market-backend",
+  "version": "1.0.0",
+  "description": "校园二手交易平台后端服务 - 周浩 24001010105",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "node --watch app.js",
+    "initdb": "node db/zhou_init.js"
+  },
+  "keywords": [
+    "express",
+    "sqlite",
+    "campus-market"
+  ],
+  "author": "周浩 24001010105",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2"
+  }
+}

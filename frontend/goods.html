@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="周浩 24001010105">
+    <title>逛集市 - 校园二手交易平台</title>
+    <link rel="icon" href="images/logo.svg">
+    <link rel="stylesheet" href="css/zhou_main.css">
+</head>
+<body>
+    <!--
+      姓名：周浩 | 学号：24001010105 |
+      时间：2026-11-09 | 大模型：Space Bunny
+    -->
+
+    <nav class="zhou_nav" id="zhou_nav"></nav>
+
+    <div class="zhou_wrap">
+        <h1 class="zhou_page_title">逛集市</h1>
+        <p class="zhou_page_desc">按分类筛选、关键词搜索或排序，后端接口：GET /api/goods、GET /api/category</p>
+
+        <!-- 筛选栏 -->
+        <div class="zhou_card">
+            <div class="zhou_filter">
+                <input type="text" class="zhou_input" id="zhou_keyword" placeholder="搜索商品标题或描述">
+                <select class="zhou_select" id="zhou_sort">
+                    <option value="new">最新发布</option>
+                    <option value="hot">浏览量最高</option>
+                    <option value="price_asc">价格从低到高</option>
+                    <option value="price_desc">价格从高到低</option>
+                </select>
+                <button class="zhou_btn zhou_btn_primary" id="zhou_search_btn">搜索</button>
+                <button class="zhou_btn zhou_btn_ghost" id="zhou_reset">重置条件</button>
+            </div>
+        </div>
+
+        <!-- 分类栏 -->
+        <div class="zhou_cate_bar" id="zhou_cate_bar"></div>
+
+        <!-- 商品列表 -->
+        <div class="zhou_grid" id="zhou_goods_list"></div>
+
+        <!-- 分页 -->
+        <div class="zhou_pager" id="zhou_pager"></div>
+
+        <div class="zhou_footer">周浩 · 学号 24001010105 · 校园二手交易平台</div>
+    </div>
+
+    <script src="js/zhou_api.js"></script>
+    <script src="js/zhou_common.js"></script>
+    <script src="js/zhou_goods.js"></script>
+</body>
+</html>

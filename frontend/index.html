@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="周浩 24001010105">
+    <meta name="description" content="校园二手交易平台 - 周浩 24001010105">
+    <title>校园二手交易平台 - 周浩 24001010105</title>
+    <link rel="icon" href="images/logo.svg">
+    <link rel="stylesheet" href="css/zhou_main.css">
+</head>
+<body>
+    <!--
+      姓名：周浩 | 学号：24001010105 |
+      时间：2026-11-09 | 大模型：Space Bunny
+    -->
+
+    <nav class="zhou_nav" id="zhou_nav"></nav>
+
+    <div class="zhou_wrap">
+        <div class="zhou_card" style="background:linear-gradient(120deg,#4f46e5,#7c3aed);color:#fff;border:none">
+            <h2 style="font-size:22px;margin-bottom:6px">校园二手集市 · 让闲置流动起来</h2>
+            <p style="color:rgba(255,255,255,.9);font-size:13.5px">
+                面向本校师生的二手物品交易平台，前端原生 HTML/CSS/JavaScript，后端 Node.js + Express + SQLite，
+                全部接口以 /api/ 为前缀，统一返回 { code, msg, data } 结构。
+            </p>
+            <div class="zhou_row" style="margin-top:14px">
+                <a class="zhou_btn" style="background:#fff;color:#4f46e5;border-color:#fff" href="goods.html">去逛集市</a>
+                <a class="zhou_btn" style="background:transparent;color:#fff;border-color:rgba(255,255,255,.6)" href="publish.html">发布闲置</a>
+                <a class="zhou_btn" style="background:transparent;color:#fff;border-color:rgba(255,255,255,.6)" href="login.html">登录 / 注册</a>
+            </div>
+        </div>
+
+        <!-- 数据统计 -->
+        <div class="zhou_grid zhou_grid_4" id="zhou_stat" style="margin-bottom:16px"></div>
+
+        <!-- 页面入口：新建 HTML 页面后在此追加超链接（文件名含 detail 的页面除外） -->
+        <div class="zhou_card">
+            <h2>功能入口</h2>
+            <div class="zhou_row">
+                <a class="zhou_btn" href="goods.html">逛集市（商品列表）</a>
+                <a class="zhou_btn" href="publish.html">发布闲置（POST 提交）</a>
+                <a class="zhou_btn" href="login.html">登录 / 注册</a>
+                <span class="zhou_tag zhou_tag_gray">商品详情页 goods-detail.html 按规范不加入口列表</span>
+            </div>
+        </div>
+
+        <!-- 热门商品 -->
+        <div class="zhou_card">
+            <h2>热门商品（按浏览量排序）</h2>
+            <div class="zhou_grid" id="zhou_hot"></div>
+        </div>
+
+        <!-- 平台公告 -->
+        <div class="zhou_card">
+            <h2>平台公告</h2>
+            <table class="zhou_table">
+                <thead>
+                    <tr>
+                        <th>标题</th>
+                        <th style="width:130px">发布人</th>
+                        <th style="width:150px">发布时间</th>
+                    </tr>
+                </thead>
+                <tbody id="zhou_notice"></tbody>
+            </table>
+        </div>
+
+        <div class="zhou_footer">
+            周浩 · 学号 24001010105 · 计科24001 · 高级网页设计 · 2026
+        </div>
+    </div>
+
+    <script src="js/zhou_api.js"></script>
+    <script src="js/zhou_common.js"></script>
+    <script src="js/zhou_index.js"></script>
+</body>
+</html>

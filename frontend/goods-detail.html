@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="周浩 24001010105">
+    <title>商品详情 - 校园二手交易平台</title>
+    <link rel="icon" href="images/logo.svg">
+    <link rel="stylesheet" href="css/zhou_main.css">
+</head>
+<body>
+    <!--
+      姓名：周浩 | 学号：24001010105 |
+      时间：2026-11-09 | 大模型：Space Bunny
+      说明：文件名含 detail，按项目规范不加入 frontend/index.html 的入口列表
+    -->
+
+    <nav class="zhou_nav" id="zhou_nav"></nav>
+
+    <div class="zhou_wrap">
+        <h1 class="zhou_page_title">商品详情</h1>
+        <p class="zhou_page_desc">后端接口：GET /api/goods/:id　可购买、收藏、联系卖家</p>
+
+        <div class="zhou_tip" id="zhou_msg"></div>
+
+        <div class="zhou_card" id="zhou_detail"></div>
+
+        <div class="zhou_card">
+            <h2>用户评价</h2>
+            <div id="zhou_comment"></div>
+        </div>
+
+        <div class="zhou_footer">周浩 · 学号 24001010105 · 校园二手交易平台</div>
+    </div>
+
+    <script src="js/zhou_api.js"></script>
+    <script src="js/zhou_common.js"></script>
+    <script src="js/zhou_detail.js"></script>
+</body>
+</html>

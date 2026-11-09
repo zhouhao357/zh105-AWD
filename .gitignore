@@ -25,3 +25,17 @@ Thumbs.db
 
 # Word lock files
 ~$*
+
+# 环境变量与数据库凭据（禁止提交）
+backend/.env
+.env
+
+
+# Node 依赖与后端运行产物
+node_modules/
+backend/data/
+backend/server.log
+backend/server.err
+npm-debug.log*
+# CodeBuddy 项目数据目录（保留在本地，不入库）
+.codebuddy/

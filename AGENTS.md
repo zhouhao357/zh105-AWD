@@ -1,10 +1,15 @@
+<!--
+  姓名：周浩 | 学号：24001010105 |
+  时间：2026-11-09 | 大模型：Space Bunny
+-->
+
 ## 项目结构与技术栈
 - 前端：frontend/ 目录
   - 原生 HTML、CSS、JavaScript，禁止使用任何第三方库、框架、CDN 链接
   - 目录结构：frontend/ 下建 css/、js/、fonts/、images/ 子目录；
     fonts/ 存放 iconfont 图标文件（如果有）
 - 后端：backend/ 目录，Node.js + Express，RESTful+MVC 风格，
-  所有接口以 /api/ 为前缀，端口固定为 8325，
+  所有接口以 /api/ 为前缀，端口固定为 8105，
   并以 express.static 托管 frontend/ 目录
   后端支持所有跨域访问。
 - 后端依赖安装：优先 cnpm i 包名；失败或超时则使用 npm i 包名
