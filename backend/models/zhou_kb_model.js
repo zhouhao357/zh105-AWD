@@ -223,25 +223,77 @@ const ZHOU_KB_DICT = [
     '说明', '手册', '参考', '资料', '毕业', '搬迁', '学位', '课程', '器材', '选购'
 ];
 
+/** 通用词词典：用于正向最大匹配分词，避免产生跨字组合 */
+const ZHOU_KB_COMMON = [
+    '校园', '集市', '二手', '交易', '推荐', '宿舍区', '楼道', '路灯', '公共区域',
+    '补充', '购买', '出售', '交接', '当面', '验货', '议价', '还价', '订单', '发货',
+    '收货', '签收', '退换', '保修', '发票', '凭证', '现金', '微信', '支付宝', '银行卡',
+    '补差价', '定金', '尾款', '押金', '违约', '赔付', '仲裁', '举报', '拉黑', '信誉',
+    '评分', '评价', '留言', '私信', '收藏', '分享', '浏览', '搜索', '筛选', '排序',
+    '上架', '下架', '改价', '砍价', '包邮', '自提', '送货', '运费', '打包', '原装',
+    '正品', '全新', '几乎', '接近', '九成', '八成', '七成', '小磕碰', '划痕', '配件',
+    '电池', '充电器', '数据线', '耳机', '包', '盒', '说明书', '保修卡', '发票', '行李箱',
+    '书架', '台灯', '风扇', '插线板', '暖水壶', '收纳', '被子', '床单', '枕头', '蚊帐',
+    '篮球', '足球', '羽毛球', '球拍', '哑铃', '瑜伽', '滑板', '头盔', '车锁', '打气筒',
+    '教材', '课本', '讲义', '笔记', '真题', '试卷', '答案', '大纲', '词汇', '听力',
+    '阅读', '作文', '口语', '听力', '计算机', '程序设计', '数据库', '操作系统', '数据结构',
+    '算法', '网络', '组成原理', '数字媒体', '广告学', '传播学', '摄影基础', '剪辑', '后期',
+    '单反', '微单', '镜头', '三脚架', '滤镜', '存储卡', '读卡器', '稳定器', '补光灯',
+    '教材', '书目', '参考书', '工具书', '字典', '词典', '习题', '答案册', '课程表'
+];
+
 /** 虚词字符：包含这些字的切分组合视为噪声 */
 const ZHOU_KB_STOP_CHAR = '在有和与的了是就都也很并而或但把被让从向给对及其之以于所再更还只又这那我你他她它们个些上下前后中里外时候可以能够应该需要';
 
+/** 纯数字或金额单位：不做关键词 */
+const ZHOU_KB_NUM_UNIT = /^[0-9.]+(元|块|折|成新|分|角|个|套|件|台|本|册|支|条|双|只)?$/;
+
+/**
+ * 正向最大匹配分词：优先切出词典中的完整词，
+ * 词典未覆盖的字按单字保留，因此不会产生跨字组合（如"园二""手集"）
+ */
+function zhou_segment(zhou_text) {
+    const zhou_raw = String(zhou_text || '').replace(/[^a-zA-Z0-9\u4e00-\u9fa5]+/g, ' ');
+    const zhou_all = ZHOU_KB_DICT.concat(ZHOU_KB_COMMON).filter(function (w, i, arr) {
+        return arr.indexOf(w) === i;
+    });
+    const zhou_maxLen = zhou_all.reduce(function (m, w) { return Math.max(m, w.length); }, 0);
+    const zhou_words = [];
+
+    zhou_raw.split(/\s+/).forEach(function (seg) {
+        let i = 0;
+        while (i < seg.length) {
+            let zhou_hit = '';
+            for (let len = Math.min(zhou_maxLen, seg.length - i); len >= 2; len--) {
+                const w = seg.slice(i, i + len);
+                if (zhou_all.indexOf(w) >= 0) { zhou_hit = w; break; }
+            }
+            if (zhou_hit) {
+                zhou_words.push(zhou_hit);
+                i += zhou_hit.length;
+            } else {
+                zhou_words.push(seg.charAt(i));
+                i += 1;
+            }
+        }
+    });
+
+    return zhou_words;
+}
+
 /**
  * 从切片文本中提取关键词
- * 策略：业务词典命中 + 2 字高频词（过滤虚词噪声）+ 长词覆盖短词去重
+ * 策略：正向最大匹配分词 → 词频统计 → 过滤虚词/纯数字 → 长词覆盖短词去重
  */
 function zhou_extract_keywords(zhou_text, zhou_limit) {
     const zhou_max = Number(zhou_limit) || 12;
     const zhou_raw = String(zhou_text || '');
-    const zhou_clean = zhou_raw.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]+/g, ' ');
+    const zhou_words = zhou_segment(zhou_raw);
     const zhou_freq = {};
 
-    /* 2 字滑窗统计 */
-    zhou_clean.split(/\s+/).forEach(function (seg) {
-        for (let i = 0; i + 2 <= seg.length; i++) {
-            const w = seg.slice(i, i + 2);
-            zhou_freq[w] = (zhou_freq[w] || 0) + 1;
-        }
+    zhou_words.forEach(function (w) {
+        if (w.length < 2) return;
+        zhou_freq[w] = (zhou_freq[w] || 0) + 1;
     });
 
     const zhou_pick = [];
@@ -253,17 +305,17 @@ function zhou_extract_keywords(zhou_text, zhou_limit) {
         }
     });
 
-    /* 2. 2 字高频词补充（频次 >= 2，且不含虚词） */
+    /* 2. 分词结果按词频补充（频次 >= 1，排除虚词、纯数字、金额单位） */
     Object.keys(zhou_freq).filter(function (w) {
-        if (zhou_freq[w] < 2) return false;
-        if (/^[0-9]+$/.test(w)) return false;
         if (zhou_pick.indexOf(w) >= 0) return false;
+        if (ZHOU_KB_NUM_UNIT.test(w)) return false;
         for (let i = 0; i < w.length; i++) {
             if (ZHOU_KB_STOP_CHAR.indexOf(w.charAt(i)) >= 0) return false;
         }
         return true;
     }).sort(function (a, b) {
-        return zhou_freq[b] - zhou_freq[a];
+        if (zhou_freq[b] !== zhou_freq[a]) return zhou_freq[b] - zhou_freq[a];
+        return zhou_words.indexOf(a) - zhou_words.indexOf(b);
     }).forEach(function (w) {
         zhou_pick.push(w);
     });
