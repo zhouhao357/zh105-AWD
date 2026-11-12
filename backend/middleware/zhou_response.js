@@ -46,9 +46,14 @@ function zhou_not_found(req, res) {
 /** 全局异常处理 */
 function zhou_error_handler(err, req, res, next) {
     console.error('[zhou_api] 未捕获异常：' + err.message);
-    if (!res.headersSent) {
-        zhou_fail(res, 500, '服务器内部错误：' + err.message);
+    if (res.headersSent) {
+        return;
     }
+    /* 请求体 JSON 解析失败属于客户端错误，返回 400 而不是 500 */
+    if (err && err.type === 'entity.parse.failed') {
+        return zhou_fail(res, 400, '请求体不是合法的 JSON 格式');
+    }
+    zhou_fail(res, 500, '服务器内部错误：' + err.message);
 }
 
 module.exports = {

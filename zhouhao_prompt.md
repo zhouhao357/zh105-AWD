@@ -108,3 +108,25 @@ SQ
 建表与测试数据迁移到 MySQL，凭据写入 backend/.env）
 
 ---
+## 记录 6
+
+时间：2026-11-12
+大模型：Space Bunny（业务大模型 deepseek-ai/DeepSeek-V4-Flash）
+
+提示词全文：
+
+完成一个 chat.html，内容是调用接口完成聊天功能，发送的提示词和接收的数据都在控制台输出。
+
+Api-key：sk-****（已提供，按规范不写入代码与文档，实际只写入 backend/.env 的 LLM_API_KEY，
+backend/.env 已在 .gitignore 中）
+
+curl 示例：
+curl -X POST https://api.siliconflow.cn/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer sk-****" \
+  -d '{"model":"deepseek-ai/DeepSeek-V4-Flash","messages":[{"role":"system","content":"你是一个有用的助手"}]}'
+
+（说明：新增后端接口 POST /api/ai/chat、GET /api/ai/model，
+新增前端页面 frontend/chat.html 及其 css/js，发送的提示词与接收的响应均 console 输出）
+
+---

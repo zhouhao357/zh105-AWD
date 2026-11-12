@@ -427,3 +427,63 @@
 - 连接配置：`backend/.env` 的 DB_HOST / DB_PORT / DB_USER / DB_PASSWORD / DB_NAME，
   服务启动时由 `db/zhou_db.js` 的 `zhou_check()` 自检连接，连接失败会在控制台给出明确提示。
 - 修改时间：2026-11-09
+---
+
+## 八、AI 智能客服接口（2026-11-12 新增）
+
+> 链路：关键词切分 → 词表反查 → MySQL 商品/公告召回 → 相关性打分重排 →
+> 知识上下文拼装 → 大模型生成 → 引用溯源返回。
+> 大模型通过 OpenAI 兼容协议调用，密钥写在 backend/.env（LLM_API_KEY），不进入代码库。
+
+### 24. 智能客服问答
+
+- 接口路径：`/api/ai/chat`
+- HTTP 方法：POST
+- 请求参数：`{ "zhou_question": "有什么耳机" }`
+  - `zhou_question`：必填，字符串，最长 500 字；为空或非字符串返回 400
+- 响应格式：
+
+```json
+{
+  "code": 0,
+  "msg": "智能客服回答成功",
+  "data": {
+    "zhou_question": "有什么耳机",
+    "zhou_answer": "平台上目前有一款耳机在售：索尼 WH-1000XM4 降噪耳机……",
+    "zhou_model": "deepseek-ai/DeepSeek-V4-Flash",
+    "zhou_elapsed": 4847,
+    "zhou_usage": { "prompt_tokens": 288, "completion_tokens": 135, "total_tokens": 423 },
+    "zhou_prompt": [ { "role": "system", "content": "你是校园二手集市平台的智能客服……" }, { "role": "user", "content": "平台知识库：……" } ],
+    "zhou_refs": [
+      { "zhou_goods_id": 9, "zhou_title": "索尼 WH-1000XM4 降噪耳机", "zhou_price": 780, "zhou_cate_name": "电子数码", "zhou_trade_place": "一号宿舍楼", "zhou_score": 12 }
+    ],
+    "zhou_debug": { "zhou_keywords": ["耳机"], "zhou_candidates": 1, "zhou_vocab_size": 313 },
+    "zhou_notices": [ { "zhou_title": "校园二手集市交易守则", "zhou_notice_type": "公告" } ]
+  }
+}
+```
+
+- 错误码：
+  - `400` 缺少参数 / 参数非字符串 / 问题为空 / 超过 500 字 / 请求体非法 JSON
+  - `500` 未配置 `LLM_API_KEY`
+  - `502` 大模型调用失败（超时或上游报错）
+- 修改时间：2026-11-12
+
+### 25. 获取当前大模型信息
+
+- 接口路径：`/api/ai/model`
+- HTTP 方法：GET
+- 请求参数：无
+- 响应格式：`{ "code": 0, "msg": "获取大模型信息成功", "data": { "zhou_ready": true, "zhou_model": "deepseek-ai/DeepSeek-V4-Flash" } }`
+  - `zhou_ready`：为 false 表示 backend/.env 未配置 LLM_API_KEY，聊天接口将返回 500
+- 修改时间：2026-11-12
+
+---
+
+## 九、错误码补充（2026-11-12）
+
+| code | 含义 | 典型场景 |
+| --- | --- | --- |
+| 502 | 上游服务异常 | 大模型接口超时或返回错误 |
+
+- 修改时间：2026-11-12

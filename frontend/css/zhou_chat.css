@@ -1,0 +1,193 @@
+/*
+ * 姓名：周浩 | 学号：24001010105 |
+ * 时间：2026-11-12 | 大模型：Space Bunny（业务大模型 deepseek-ai/DeepSeek-V4-Flash）
+ *
+ * zhou_chat.css —— AI 智能客服聊天窗口样式
+ */
+
+.zhou_chat_box {
+    height: 460px;
+    overflow-y: auto;
+    padding: 18px 18px 8px;
+    background: linear-gradient(180deg, #fbfcff 0%, #f5f6fb 100%);
+}
+
+/* ---------- 消息行 ---------- */
+.zhou_msg {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+    align-items: flex-start;
+}
+
+.zhou_msg_bot {
+    flex-direction: row-reverse;
+}
+
+.zhou_avatar {
+    flex: 0 0 34px;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    background: linear-gradient(135deg, #4f46e5, #a855f7);
+}
+
+.zhou_avatar_me {
+    background: linear-gradient(135deg, #0ea5e9, #22d3ee);
+}
+
+.zhou_bubble {
+    max-width: 74%;
+    background: #fff;
+    border: 1px solid #e6e8f0;
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-size: 13.5px;
+    line-height: 1.75;
+    color: #334155;
+    white-space: normal;
+    word-break: break-word;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, .05);
+}
+
+/* ---------- 轻量 Markdown 渲染 ---------- */
+.zhou_bubble strong {
+    color: #1e293b;
+    font-weight: 700;
+}
+
+.zhou_msg_me .zhou_bubble strong {
+    color: #fff;
+}
+
+.zhou_md_li {
+    padding-left: 15px;
+    position: relative;
+}
+
+.zhou_md_li::before {
+    content: '·';
+    position: absolute;
+    left: 5px;
+    color: #94a3b8;
+    font-weight: 700;
+}
+
+.zhou_msg_me .zhou_bubble {
+    background: linear-gradient(120deg, #4f46e5, #7c3aed);
+    border-color: transparent;
+    color: #fff;
+}
+
+/* 打字等待动画 */
+.zhou_typing span {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin-right: 4px;
+    border-radius: 50%;
+    background: #94a3b8;
+    animation: zhou_blink 1.2s infinite;
+}
+
+.zhou_typing span:nth-child(2) { animation-delay: .2s; }
+.zhou_typing span:nth-child(3) { animation-delay: .4s; }
+
+@keyframes zhou_blink {
+    0%, 80%, 100% { opacity: .25; transform: translateY(0); }
+    40% { opacity: 1; transform: translateY(-3px); }
+}
+
+/* ---------- 引用商品 ---------- */
+.zhou_refs {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed #e2e8f0;
+}
+
+.zhou_ref {
+    display: block;
+    font-size: 12.5px;
+    color: #4f46e5;
+    text-decoration: none;
+    line-height: 1.9;
+}
+
+.zhou_ref:hover { text-decoration: underline; }
+
+.zhou_ref_meta {
+    color: #94a3b8;
+    font-size: 11.5px;
+}
+
+/* ---------- 快捷提问 ---------- */
+.zhou_chat_quick {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding: 10px 18px;
+    border-top: 1px solid #eef2f7;
+    background: #fff;
+}
+
+.zhou_quick_btn {
+    font: inherit;
+    font-size: 12.5px;
+    padding: 5px 12px;
+    border-radius: 16px;
+    border: 1px solid #c7d2fe;
+    background: #eef2ff;
+    color: #4f46e5;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.zhou_quick_btn:hover {
+    background: #4f46e5;
+    color: #fff;
+}
+
+/* ---------- 输入区 ---------- */
+.zhou_chat_input {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+    padding: 12px 18px 16px;
+    border-top: 1px solid #eef2f7;
+    background: #fff;
+}
+
+.zhou_chat_textarea {
+    flex: 1;
+    resize: none;
+    padding: 10px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    font: inherit;
+    font-size: 13.5px;
+    background: #fbfcfe;
+    line-height: 1.6;
+}
+
+.zhou_chat_textarea:focus {
+    outline: none;
+    border-color: #a5b4fc;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, .12);
+}
+
+.zhou_send_btn {
+    flex: 0 0 auto;
+    padding: 10px 22px;
+    height: 44px;
+}
+
+@media (max-width: 620px) {
+    .zhou_bubble { max-width: 88%; }
+}

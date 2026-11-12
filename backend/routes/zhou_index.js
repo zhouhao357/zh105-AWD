@@ -15,6 +15,7 @@ const zhou_user_controller = require('../controllers/zhou_user_controller');
 const zhou_order_controller = require('../controllers/zhou_order_controller');
 const zhou_message_controller = require('../controllers/zhou_message_controller');
 const zhou_notice_controller = require('../controllers/zhou_notice_controller');
+const zhou_ai_controller = require('../controllers/zhou_ai_controller');
 
 const zhou_router = express.Router();
 
@@ -43,6 +44,10 @@ zhou_router.post('/order', zhou_async(zhou_order_controller.zhou_order_create));
 zhou_router.put('/order/:zhou_id/status', zhou_async(zhou_order_controller.zhou_order_status));
 zhou_router.get('/comment', zhou_async(zhou_order_controller.zhou_comment_list));
 zhou_router.post('/comment', zhou_async(zhou_order_controller.zhou_comment_add));
+
+/* ---------- 智能客服（知识库 + 大模型） ---------- */
+zhou_router.post('/ai/chat', zhou_async(zhou_ai_controller.zhou_ai_chat));
+zhou_router.get('/ai/model', zhou_async(zhou_ai_controller.zhou_ai_model));
 
 /* ---------- 私信与收藏 ---------- */
 zhou_router.get('/message', zhou_async(zhou_message_controller.zhou_message_list));

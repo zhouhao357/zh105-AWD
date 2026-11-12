@@ -62,6 +62,11 @@ function zhou_request(zhou_path, zhou_method, zhou_data) {
             });
         })
         .catch(function (e) {
+            /* 业务失败（如 code=400）在上一环节 reject，这里保留原始 msg */
+            if (e && typeof e.code === 'number' && e.msg) {
+                console.error('[zhou_api] 接口业务失败：' + e.msg);
+                return Promise.reject(e);
+            }
             console.error('[zhou_api] 请求异常：', e);
             return Promise.reject({ code: -1, msg: '网络异常，请检查后端服务是否启动', data: null });
         });
