@@ -130,3 +130,19 @@ curl -X POST https://api.siliconflow.cn/v1/chat/completions \
 新增前端页面 frontend/chat.html 及其 css/js，发送的提示词与接收的响应均 console 输出）
 
 ---
+
+## 记录 7
+
+时间：2026-11-12
+大模型：Space Bunny（业务大模型 deepseek-ai/DeepSeek-V4-Flash）
+
+提示词全文：
+
+按《LLM应用设计 实验指导书》与《LLM应用设计 项目报告》模板完善本项目：
+补充多轮对话与会话管理、上下文压缩、RAG 文件上传与解析切分、结构化 JSON 输出、
+流式输出与中断、模型切换与 token 用量统计，端口改为 8325，并同步 yuan_ 前缀记录文件、
+完善 README，生成实验报告与源码压缩包。
+
+（说明：本次按实验指导书补齐 AI 功能完整性与工程规范；密钥仅存于 backend/.env，不入库）
+
+---

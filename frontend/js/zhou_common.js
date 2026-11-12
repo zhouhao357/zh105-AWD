@@ -12,7 +12,9 @@ function zhou_render_nav(zhou_current) {
         { zhou_key: 'index', zhou_name: '首页', zhou_href: 'index.html' },
         { zhou_key: 'goods', zhou_name: '逛集市', zhou_href: 'goods.html' },
         { zhou_key: 'publish', zhou_name: '发布闲置', zhou_href: 'publish.html' },
-        { zhou_key: 'chat', zhou_name: 'AI 客服', zhou_href: 'chat.html' }
+        { zhou_key: 'chat', zhou_name: 'AI 客服', zhou_href: 'chat.html' },
+        { zhou_key: 'kb', zhou_name: '知识库', zhou_href: 'kb.html' },
+        { zhou_key: 'structured', zhou_name: '结构化输出', zhou_href: 'structured.html' }
     ];
     var zhou_html = '';
     zhou_items.forEach(function (zhou_item) {

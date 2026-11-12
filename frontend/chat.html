@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="周浩 24001010105">
-    <meta name="description" content="基于大模型的智能客服聊天 - 周浩 24001010105">
+    <meta name="description" content="基于大模型的智能客服与多轮对话 - 周浩 24001010105">
     <title>AI 智能客服 - 校园二手交易平台</title>
     <link rel="icon" href="images/logo.svg">
     <link rel="stylesheet" href="css/zhou_main.css">
@@ -13,7 +13,7 @@
 <body>
     <!--
       姓名：周浩 | 学号：24001010105 |
-      时间：2026-11-12 | 大模型：Space Bunny（业务大模型 deepseek-ai/DeepSeek-V4-Flash）
+      时间：2026-11-12 | 大模型：Space Bunny
     -->
 
     <nav class="zhou_nav" id="zhou_nav"></nav>
@@ -21,46 +21,68 @@
     <div class="zhou_wrap">
         <h1 class="zhou_page_title">AI 智能客服</h1>
         <p class="zhou_page_desc">
-            后端接口：POST /api/ai/chat　知识库来自商品库与公告库（混合检索 + 重排），
+            后端接口：POST /api/ai/chat（支持 SSE 流式输出与多轮上下文）　知识库来自商品库、公告库与上传的本地文件（混合检索 + 重排），
             由大模型生成带引用溯源的回答；发送的提示词与接收的数据都会输出到浏览器控制台。
         </p>
 
-        <div class="zhou_card" style="padding:0;overflow:hidden">
-            <!-- 聊天窗口 -->
-            <div class="zhou_chat_box" id="zhou_chat_box">
-                <div class="zhou_msg zhou_msg_bot">
-                    <div class="zhou_avatar zhou_avatar_bot">AI</div>
-                    <div class="zhou_bubble">
-                        你好！我是校园二手集市的智能客服。<br>
-                        问我「有什么耳机」「笔记本多少钱」「教材怎么交易」都可以，我会基于平台在售商品回答，
-                        并附上对应的商品链接。
+        <div class="zhou_chat_layout">
+            <!-- 左侧：会话列表 -->
+            <aside class="zhou_chat_side">
+                <button class="zhou_btn zhou_btn_primary zhou_side_new" id="zhou_new_session">＋ 新建会话</button>
+                <div class="zhou_session_list" id="zhou_session_list"></div>
+                <div class="zhou_side_stat" id="zhou_side_stat"></div>
+            </aside>
+
+            <!-- 右侧：聊天区 -->
+            <section class="zhou_chat_main">
+                <div class="zhou_chat_toolbar">
+                    <label class="zhou_tool_label">
+                        模型
+                        <select class="zhou_model_select" id="zhou_model_select"></select>
+                    </label>
+                    <span class="zhou_tool_info" id="zhou_model_info">读取中…</span>
+                    <span class="zhou_tool_info" id="zhou_token_info"></span>
+                </div>
+
+                <div class="zhou_chat_box" id="zhou_chat_box">
+                    <div class="zhou_msg zhou_msg_bot">
+                        <div class="zhou_avatar zhou_avatar_bot">AI</div>
+                        <div class="zhou_bubble">
+                            你好！我是校园二手集市的智能客服。<br>
+                            问我「有什么耳机」「教材多少钱」「交易要注意什么」都可以，我会基于平台在售商品与知识库资料回答，
+                            并附上对应的商品链接。支持多轮追问，历史记录会自动保存并可压缩成摘要。
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- 快捷提问 -->
-            <div class="zhou_chat_quick" id="zhou_quick">
-                <button class="zhou_quick_btn">平台上有什么耳机在卖？</button>
-                <button class="zhou_quick_btn">帮我找价格低于 100 元的教材</button>
-                <button class="zhou_quick_btn">宿舍能用的自行车有哪些？</button>
-                <button class="zhou_quick_btn">交易要注意什么？</button>
-            </div>
+                <div class="zhou_chat_quick" id="zhou_quick">
+                    <button class="zhou_quick_btn">平台上有什么耳机在卖？</button>
+                    <button class="zhou_quick_btn">帮我找价格低于 100 元的教材</button>
+                    <button class="zhou_quick_btn">宿舍能用的自行车有哪些？</button>
+                    <button class="zhou_quick_btn">交易要注意什么？</button>
+                    <button class="zhou_quick_btn">知识库里的教材推荐清单有什么？</button>
+                </div>
 
-            <!-- 输入区 -->
-            <div class="zhou_chat_input">
-                <textarea class="zhou_chat_textarea" id="zhou_input" rows="3" placeholder="输入你的问题，按 Enter 发送，Shift+Enter 换行"></textarea>
-                <button class="zhou_btn zhou_btn_primary zhou_send_btn" id="zhou_send">发送</button>
-            </div>
+                <div class="zhou_chat_input">
+                    <textarea class="zhou_chat_textarea" id="zhou_input" rows="3" placeholder="输入你的问题，按 Enter 发送，Shift+Enter 换行"></textarea>
+                    <div class="zhou_chat_btn_col">
+                        <button class="zhou_btn zhou_btn_primary zhou_send_btn" id="zhou_send">发送</button>
+                        <button class="zhou_btn zhou_btn_stop" id="zhou_stop" disabled>中断</button>
+                    </div>
+                </div>
+            </section>
         </div>
 
         <div class="zhou_card">
             <h2>接口与调试信息</h2>
             <table class="zhou_table">
-                <tr><td style="width:150px;color:#94a3b8">请求接口</td><td>POST /api/ai/chat</td></tr>
-                <tr><td style="color:#94a3b8">请求参数</td><td>zhou_question（必填字符串，最长 500 字）</td></tr>
+                <tr><td style="width:150px;color:#94a3b8">请求接口</td><td>POST /api/ai/chat（SSE 流式，事件体沿用 { code, msg, data } 统一格式）</td></tr>
+                <tr><td style="color:#94a3b8">请求参数</td><td>zhou_question（必填字符串，最长 500 字）、zhou_session_id（可选，多轮上下文）、zhou_user_id、zhou_model（可选，切换模型）、zhou_stream</td></tr>
+                <tr><td style="color:#94a3b8">会话接口</td><td>GET /api/session（列表）、GET /api/session/:id（历史回放）、PUT /api/session/:id（重命名）、DELETE /api/session/:id（删除）、GET /api/session/:id/export（导出）</td></tr>
+                <tr><td style="color:#94a3b8">上下文策略</td><td>保留最近 6 轮原文，更早的消息由大模型压缩为摘要写入会话表，并按 Token 预算裁剪</td></tr>
                 <tr><td style="color:#94a3b8">当前模型</td><td id="zhou_model">读取中…</td></tr>
-                <tr><td style="color:#94a3b8">控制台</td><td>发送的提示词（[chat] 发送提示词 / 完整 messages）与接收的响应数据均已 console 输出</td></tr>
-                <tr><td style="color:#94a3b8">知识来源</td><td>MySQL 商品库 zhou_goods + 公告库 zhou_notice（关键词召回后按标题/分类命中打分重排）</td></tr>
+                <tr><td style="color:#94a3b8">控制台</td><td>发送的提示词（[chat] 发送提示词 / 完整请求参数 / 完整 messages）与接收的响应数据均已 console 输出</td></tr>
+                <tr><td style="color:#94a3b8">知识来源</td><td>MySQL 商品库 zhou_goods + 公告库 zhou_notice + 知识库切片 zhou_kb_chunk（全文索引 ngram 召回后重排）</td></tr>
             </table>
         </div>
 
@@ -69,6 +91,7 @@
 
     <script src="js/zhou_api.js"></script>
     <script src="js/zhou_common.js"></script>
+    <script src="js/zhou_md.js"></script>
     <script src="js/zhou_chat.js"></script>
 </body>
 </html>

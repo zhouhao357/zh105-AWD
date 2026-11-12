@@ -53,6 +53,10 @@ function zhou_error_handler(err, req, res, next) {
     if (err && err.type === 'entity.parse.failed') {
         return zhou_fail(res, 400, '请求体不是合法的 JSON 格式');
     }
+    /* 文件上传错误（超限、格式不符） */
+    if (err && (err.name === 'MulterError' || err.code === 'LIMIT_FILE_SIZE')) {
+        return zhou_fail(res, 400, '文件上传失败：' + (err.message || '文件超过大小限制'));
+    }
     zhou_fail(res, 500, '服务器内部错误：' + err.message);
 }
 

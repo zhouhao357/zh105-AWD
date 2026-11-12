@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="周浩 24001010105">
+    <meta name="description" content="评论情感分类与实体抽取的结构化 JSON 输出 - 周浩 24001010105">
+    <title>结构化输出 - 校园二手交易平台</title>
+    <link rel="icon" href="images/logo.svg">
+    <link rel="stylesheet" href="css/zhou_main.css">
+    <link rel="stylesheet" href="css/zhou_chat.css">
+</head>
+<body>
+    <!--
+      姓名：周浩 | 学号：24001010105 |
+      时间：2026-11-12 | 大模型：Space Bunny
+    -->
+
+    <nav class="zhou_nav" id="zhou_nav"></nav>
+
+    <div class="zhou_wrap">
+        <h1 class="zhou_page_title">结构化输出（评论情感分类）</h1>
+        <p class="zhou_page_desc">
+            Harness Engineering 实践：先定义返回的 JSON 结构，再用提示词 + 少样本示例约束模型输出；
+            后端对模型结果做 JSON 解析、字段校验与类型校验，失败自动重试，仍失败则返回兜底结果。
+        </p>
+
+        <div class="zhou_grid zhou_grid_2">
+            <div class="zhou_card">
+                <h2>输入评论</h2>
+                <textarea class="zhou_chat_textarea" id="zhou_text" rows="5" placeholder="输入一条商品评论，例如：卖家很靠谱，耳机降噪效果超出预期。"></textarea>
+                <div class="zhou_row" style="margin-top:10px">
+                    <button class="zhou_btn zhou_btn_primary" id="zhou_analyze">开始分析</button>
+                    <button class="zhou_btn" id="zhou_sample">填入示例</button>
+                </div>
+                <div class="zhou_tip" id="zhou_tip"></div>
+
+                <h3 style="font-size:14px;margin:16px 0 6px">约定的 JSON 结构</h3>
+                <pre class="zhou_code"><code>{
+  "zhou_sentiment": "positive | neutral | negative",
+  "zhou_confidence": 0.93,
+  "zhou_aspects": ["物流", "包装"],
+  "zhou_entities": [{ "zhou_name": "索尼", "zhou_type": "brand" }],
+  "zhou_summary": "整体满意，物流较慢。",
+  "zhou_need_review": false
+}</code></pre>
+            </div>
+
+            <div class="zhou_card">
+                <h2>结构化结果</h2>
+                <div id="zhou_result" class="zhou_kb_result">尚无分析结果</div>
+                <h3 style="font-size:14px;margin:16px 0 6px">模型原始输出</h3>
+                <div id="zhou_raw" class="zhou_kb_chunks">（用于核对模型是否严格输出 JSON）</div>
+            </div>
+        </div>
+
+        <div class="zhou_card">
+            <h2>校验与兜底规则</h2>
+            <table class="zhou_table">
+                <tr><td style="width:190px;color:#94a3b8">解析</td><td>去掉 Markdown 代码块包裹后截取首个 JSON 对象，解析失败则重试一次</td></tr>
+                <tr><td style="color:#94a3b8">字段校验</td><td>zhou_sentiment 必须属于 positive / neutral / negative；zhou_confidence 必须在 0~1</td></tr>
+                <tr><td style="color:#94a3b8">类型校验</td><td>zhou_aspects 与 zhou_entities 必须是数组，实体元素必须含 zhou_name</td></tr>
+                <tr><td style="color:#94a3b8">自纠重试</td><td>校验失败时把错误原因回灌给模型，要求其重新输出合法 JSON</td></tr>
+                <tr><td style="color:#94a3b8">兜底</td><td>两次均失败时返回 neutral / confidence=0 / need_review=true，并附带 zhou_error 说明</td></tr>
+            </table>
+        </div>
+
+        <div class="zhou_footer">周浩 · 学号 24001010105 · 校园二手交易平台 · 2026</div>
+    </div>
+
+    <script src="js/zhou_api.js"></script>
+    <script src="js/zhou_common.js"></script>
+    <script src="js/zhou_md.js"></script>
+    <script src="js/zhou_structured.js"></script>
+</body>
+</html>

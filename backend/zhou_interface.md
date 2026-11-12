@@ -487,3 +487,149 @@
 | 502 | 上游服务异常 | 大模型接口超时或返回错误 |
 
 - 修改时间：2026-11-12
+
+---
+
+## 十、LLM 应用设计实验新增接口（2026-11-12）
+
+### 26. 智能客服问答（支持多轮上下文与 SSE 流式）
+
+- 接口路径：`/api/ai/chat`
+- HTTP 方法：POST
+- 请求参数：
+  - `zhou_question`（必填，字符串，最长 500 字）
+  - `zhou_session_id`（可选，指定会话则携带历史上下文，不传则自动新建会话）
+  - `zhou_user_id`（可选，默认 1）、`zhou_model`（可选，切换模型）
+  - `zhou_stream`（可选，布尔，true 时以 SSE 流式返回）
+- 响应格式（非流式）：`{ "code": 0, "msg": "智能客服回答成功", "data": { "zhou_session_id": 14, "zhou_answer": "...", "zhou_model": "deepseek-ai/DeepSeek-V4-Flash", "zhou_elapsed": 11836, "zhou_usage": { "prompt_tokens": 490, "completion_tokens": 85, "total_tokens": 575 }, "zhou_cost": { "zhou_cost_yuan": 0.0017 }, "zhou_prompt": [], "zhou_summary": "", "zhou_context_rounds": 6, "zhou_compressed": 0, "zhou_refs": [], "zhou_kb_refs": [], "zhou_debug": {} } }`
+- 响应格式（流式 SSE，事件体沿用统一格式）：
+  - `data: {"code":0,"msg":"增量文本","data":{"zhou_delta":"目前平台上"}}`
+  - `data: {"code":0,"msg":"完成","data":{"zhou_answer":"...","zhou_elapsed":11836,"zhou_usage":{},"zhou_refs":[]}}`
+- 错误码：`400` 参数非法 / `404` 会话不存在 / `500` 未配置密钥 / `502` 大模型调用失败
+- 修改时间：2026-11-12
+
+### 27. 获取当前大模型信息
+
+- 接口路径：`/api/ai/model`
+- HTTP 方法：GET
+- 请求参数：无
+- 响应格式：`{ "code": 0, "msg": "获取大模型信息成功", "data": { "zhou_ready": true, "zhou_model": "deepseek-ai/DeepSeek-V4-Flash", "zhou_keep_rounds": 6, "zhou_ctx_budget": 4000 } }`
+- 修改时间：2026-11-12
+
+### 28. 获取平台可用模型列表
+
+- 接口路径：`/api/ai/models`
+- HTTP 方法：GET
+- 请求参数：无
+- 响应格式：`{ "code": 0, "msg": "获取模型列表成功", "data": { "zhou_list": [{ "zhou_id": "deepseek-ai/DeepSeek-V4-Flash", "zhou_owned": "siliconflow" }], "zhou_current": "deepseek-ai/DeepSeek-V4-Flash" } }`
+- 修改时间：2026-11-12
+
+### 29. Token 用量与费用统计
+
+- 接口路径：`/api/ai/stats`
+- HTTP 方法：GET
+- 请求参数：`zhou_user_id`（可选，默认 1）
+- 响应格式：`{ "code": 0, "msg": "获取用量统计成功", "data": { "zhou_session_count": 6, "zhou_message_total": 12, "zhou_token_total": 3357, "zhou_cost": { "zhou_cost_yuan": 0.0067 } } }`
+- 修改时间：2026-11-12
+
+### 30. 评论情感分类（结构化 JSON 输出）
+
+- 接口路径：`/api/ai/structured`
+- HTTP 方法：POST
+- 请求参数：`{ "zhou_text": "卖家很靠谱，耳机降噪效果超出预期。" }`（必填，最长 1000 字）
+- 响应格式：`{ "code": 0, "msg": "结构化解析成功", "data": { "zhou_result": { "zhou_sentiment": "positive", "zhou_confidence": 0.95, "zhou_aspects": ["商品质量", "物流"], "zhou_entities": [{ "zhou_name": "耳机", "zhou_type": "other" }], "zhou_summary": "卖家靠谱，耳机降噪与续航超出预期。", "zhou_need_review": false }, "zhou_raw": "{...}", "zhou_retry": 0, "zhou_schema": {} } }`
+- 说明：后端对模型输出执行 JSON 解析、字段与类型校验，失败自动重试一次，仍失败返回兜底结果（need_review=true）
+- 修改时间：2026-11-12
+
+### 31. 会话列表
+
+- 接口路径：`/api/session`
+- HTTP 方法：GET
+- 请求参数：`zhou_user_id`（可选，默认 1）
+- 响应格式：`{ "code": 0, "msg": "获取会话列表成功", "data": { "zhou_list": [{ "zhou_session_id": 1, "zhou_title": "询问降噪耳机价格", "zhou_model": "deepseek-ai/DeepSeek-V4-Flash", "zhou_summary": "...", "zhou_message_count": 4, "zhou_token_total": 812, "zhou_created_at": "2026-11-09 09:12:00", "zhou_updated_at": "2026-11-09 09:18:00" }] } }`
+- 修改时间：2026-11-12
+
+### 32. 新建会话
+
+- 接口路径：`/api/session`
+- HTTP 方法：POST
+- 请求参数：`{ "zhou_user_id": 1, "zhou_title": "新的对话", "zhou_model": "deepseek-ai/DeepSeek-V4-Flash" }`（除 zhou_user_id 外均可选）
+- 响应格式：`{ "code": 0, "msg": "创建会话成功", "data": { "zhou_session_id": 15, "zhou_title": "新的对话" } }`
+- 修改时间：2026-11-12
+
+### 33. 会话详情与历史消息回放
+
+- 接口路径：`/api/session/:zhou_id`
+- HTTP 方法：GET
+- 请求参数：路径参数 `zhou_id`（会话主键）
+- 响应格式：`{ "code": 0, "msg": "获取会话详情成功", "data": { "zhou_session": {}, "zhou_messages": [{ "zhou_message_id": 1, "zhou_role": "user", "zhou_content": "...", "zhou_tokens": 26, "zhou_elapsed": 0, "zhou_created_at": "2026-11-09 09:12:00" }] } }`
+- 修改时间：2026-11-12
+
+### 34. 重命名会话
+
+- 接口路径：`/api/session/:zhou_id`
+- HTTP 方法：PUT
+- 请求参数：`{ "zhou_title": "耳机咨询改" }`
+- 响应格式：`{ "code": 0, "msg": "重命名会话成功", "data": { "zhou_session_id": 14, "zhou_title": "耳机咨询改" } }`
+- 修改时间：2026-11-12
+
+### 35. 删除会话
+
+- 接口路径：`/api/session/:zhou_id`
+- HTTP 方法：DELETE
+- 请求参数：路径参数 `zhou_id`
+- 响应格式：`{ "code": 0, "msg": "删除会话成功", "data": { "zhou_session_id": 14 } }`（消息随外键级联删除）
+- 修改时间：2026-11-12
+
+### 36. 导出会话
+
+- 接口路径：`/api/session/:zhou_id/export`
+- HTTP 方法：GET
+- 请求参数：路径参数 `zhou_id`
+- 响应格式：`{ "code": 0, "msg": "导出会话成功", "data": { "zhou_session_id": 14, "zhou_title": "耳机咨询改", "zhou_text": "# 耳机咨询改\n模型：deepseek-ai/DeepSeek-V4-Flash\n\n我：平台上有什么耳机在卖？\n\nAI：平台上目前有一款耳机在售……" } }`
+- 修改时间：2026-11-12
+
+### 37. 知识库文件上传
+
+- 接口路径：`/api/kb/upload`
+- HTTP 方法：POST（multipart/form-data）
+- 请求参数：表单字段 `zhou_file`（必填，PDF/TXT，≤10MB）、`zhou_user_id`（可选，默认 1）
+- 响应格式：`{ "code": 0, "msg": "知识库文件解析入库成功", "data": { "zhou_doc_id": 9, "zhou_file_name": "教材推荐清单.txt", "zhou_file_type": "txt", "zhou_file_size": 297, "zhou_char_count": 72, "zhou_chunk_count": 1, "zhou_chunks": [{ "zhou_chunk_index": 0, "zhou_keywords": "教材,交易", "zhou_excerpt": "..." }] } }`
+- 说明：PDF 用 pdf-parse 解析，TXT 按 UTF-8 直读；文本按句切分（默认 300 字）后写入 zhou_kb_chunk
+- 错误码：`400` 未收到文件 / 格式不支持 / 内容为空 / 超过 10MB
+- 修改时间：2026-11-12
+
+### 38. 知识库文档列表
+
+- 接口路径：`/api/kb/doc`
+- HTTP 方法：GET
+- 请求参数：`zhou_user_id`（可选，默认 1）
+- 响应格式：`{ "code": 0, "msg": "获取知识库文档列表成功", "data": { "zhou_list": [{ "zhou_doc_id": 1, "zhou_file_name": "校园二手集市交易守则.txt", "zhou_file_type": "txt", "zhou_file_size": 2048, "zhou_chunk_count": 2, "zhou_char_count": 386, "zhou_status": "已解析", "zhou_created_at": "2026-11-08 10:00:00" }] } }`
+- 修改时间：2026-11-12
+
+### 39. 知识库文档切片详情
+
+- 接口路径：`/api/kb/doc/:zhou_id`
+- HTTP 方法：GET
+- 请求参数：路径参数 `zhou_id`（文档主键）
+- 响应格式：`{ "code": 0, "msg": "获取文档切片成功", "data": { "zhou_doc": {}, "zhou_chunks": [{ "zhou_chunk_id": 1, "zhou_chunk_index": 0, "zhou_content": "...", "zhou_keywords": "交易守则,当面交易" }] } }`
+- 修改时间：2026-11-12
+
+### 40. 删除知识库文档
+
+- 接口路径：`/api/kb/doc/:zhou_id`
+- HTTP 方法：DELETE
+- 请求参数：路径参数 `zhou_id`
+- 响应格式：`{ "code": 0, "msg": "删除知识库文档成功", "data": { "zhou_doc_id": 9 } }`（切片随外键级联删除）
+- 修改时间：2026-11-12
+
+---
+
+## 十一、端口变更记录（2026-11-12）
+
+- 变更内容：后端服务端口由 **8105** 调整为 **8325**，与《LLM应用设计 实验指导书》
+  「网络与端口：后端服务端口固定为 8325」的要求一致。
+- 影响范围：`backend/.env` 的 PORT、`backend/.env.example`、`backend/app.js` 默认端口；
+  前端页面由后端 express.static 托管，使用相对路径 /api/... 调用，无需改动。
+- 访问地址：http://127.0.0.1:8325/ （聊天页 http://127.0.0.1:8325/chat.html ）
+- 修改时间：2026-11-12

@@ -19,7 +19,7 @@ const dotenv = require('dotenv');
 dotenv.config({ path: path.join(__dirname, '.env') });
 
 const zhou_app = express();
-const zhou_PORT = Number(process.env.PORT) || 8105;
+const zhou_PORT = Number(process.env.PORT) || 8325;
 const zhou_FRONTEND = path.join(__dirname, '..', 'frontend');
 
 /* ---------- 全局中间件 ---------- */

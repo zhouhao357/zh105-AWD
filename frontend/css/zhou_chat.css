@@ -1,10 +1,161 @@
 /*
  * 姓名：周浩 | 学号：24001010105 |
- * 时间：2026-11-12 | 大模型：Space Bunny（业务大模型 deepseek-ai/DeepSeek-V4-Flash）
+ * 时间：2026-11-12 | 大模型：Space Bunny
  *
- * zhou_chat.css —— AI 智能客服聊天窗口样式
+ * zhou_chat.css —— AI 智能客服聊天窗口样式（会话侧栏 + 气泡 + Markdown）
  */
 
+/* ---------- 整体布局 ---------- */
+.zhou_chat_layout {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    gap: 14px;
+    align-items: start;
+    margin-bottom: 16px;
+}
+
+.zhou_chat_side {
+    background: #fff;
+    border: 1px solid #e6e8f0;
+    border-radius: 14px;
+    padding: 12px;
+    position: sticky;
+    top: 74px;
+}
+
+.zhou_chat_main {
+    background: #fff;
+    border: 1px solid #e6e8f0;
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.zhou_side_new {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+/* ---------- 会话列表 ---------- */
+.zhou_session_list {
+    max-height: 380px;
+    overflow-y: auto;
+}
+
+.zhou_session_item {
+    border: 1px solid #eef2f7;
+    border-radius: 10px;
+    padding: 8px 10px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: .18s;
+}
+
+.zhou_session_item:hover {
+    border-color: #c7d2fe;
+    background: #f8f9ff;
+}
+
+.zhou_session_active {
+    border-color: #a5b4fc;
+    background: #eef2ff;
+}
+
+.zhou_session_title {
+    font-size: 13px;
+    color: #1e293b;
+    font-weight: 600;
+    line-height: 1.5;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.zhou_session_meta {
+    font-size: 11px;
+    color: #94a3b8;
+    margin-top: 2px;
+}
+
+.zhou_session_ops {
+    display: flex;
+    gap: 4px;
+    margin-top: 6px;
+    flex-wrap: wrap;
+}
+
+.zhou_session_op {
+    font: inherit;
+    font-size: 11px;
+    padding: 2px 7px;
+    border-radius: 6px;
+    border: 1px solid #dbe3f0;
+    background: #fff;
+    color: #64748b;
+    cursor: pointer;
+}
+
+.zhou_session_op:hover {
+    border-color: #a5b4fc;
+    color: #4f46e5;
+}
+
+.zhou_session_del:hover {
+    border-color: #fca5a5;
+    color: #dc2626;
+}
+
+.zhou_session_empty {
+    font-size: 12px;
+    color: #94a3b8;
+    text-align: center;
+    padding: 18px 0;
+}
+
+.zhou_side_stat {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px dashed #e2e8f0;
+    font-size: 11.5px;
+    color: #94a3b8;
+    line-height: 1.9;
+}
+
+/* ---------- 工具栏 ---------- */
+.zhou_chat_toolbar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    padding: 10px 16px;
+    border-bottom: 1px solid #eef2f7;
+    background: #fbfcff;
+}
+
+.zhou_tool_label {
+    font-size: 12.5px;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.zhou_model_select {
+    font: inherit;
+    font-size: 12.5px;
+    padding: 4px 8px;
+    border: 1px solid #dbe3f0;
+    border-radius: 8px;
+    background: #fff;
+    color: #334155;
+    max-width: 320px;
+}
+
+.zhou_tool_info {
+    font-size: 12px;
+    color: #94a3b8;
+}
+
+/* ---------- 消息窗口 ---------- */
 .zhou_chat_box {
     height: 460px;
     overflow-y: auto;
@@ -12,7 +163,6 @@
     background: linear-gradient(180deg, #fbfcff 0%, #f5f6fb 100%);
 }
 
-/* ---------- 消息行 ---------- */
 .zhou_msg {
     display: flex;
     gap: 10px;
@@ -43,45 +193,26 @@
 }
 
 .zhou_bubble {
-    max-width: 74%;
+    max-width: 76%;
     background: #fff;
     border: 1px solid #e6e8f0;
     border-radius: 12px;
     padding: 10px 14px;
     font-size: 13.5px;
-    line-height: 1.75;
+    line-height: 1.78;
     color: #334155;
-    white-space: normal;
     word-break: break-word;
     box-shadow: 0 4px 12px rgba(15, 23, 42, .05);
-}
-
-/* ---------- 轻量 Markdown 渲染 ---------- */
-.zhou_bubble strong {
-    color: #1e293b;
-    font-weight: 700;
-}
-
-.zhou_msg_me .zhou_bubble strong {
-    color: #fff;
-}
-
-.zhou_md_li {
-    padding-left: 15px;
-    position: relative;
-}
-
-.zhou_md_li::before {
-    content: '·';
-    position: absolute;
-    left: 5px;
-    color: #94a3b8;
-    font-weight: 700;
 }
 
 .zhou_msg_me .zhou_bubble {
     background: linear-gradient(120deg, #4f46e5, #7c3aed);
     border-color: transparent;
+    color: #fff;
+}
+
+.zhou_msg_me .zhou_bubble code {
+    background: rgba(255, 255, 255, .22);
     color: #fff;
 }
 
@@ -104,11 +235,78 @@
     40% { opacity: 1; transform: translateY(-3px); }
 }
 
-/* ---------- 引用商品 ---------- */
+/* ---------- Markdown 渲染 ---------- */
+.zhou_md_p {
+    margin: 0 0 6px;
+}
+
+.zhou_md_p:last-child {
+    margin-bottom: 0;
+}
+
+.zhou_md_ul,
+.zhou_md_ol {
+    margin: 4px 0 6px;
+    padding-left: 20px;
+}
+
+.zhou_md_ul li,
+.zhou_md_ol li {
+    margin: 2px 0;
+}
+
+.zhou_md_h {
+    font-size: 14px;
+    color: #1e293b;
+    margin: 6px 0 4px;
+}
+
+.zhou_md_quote {
+    margin: 4px 0;
+    padding: 4px 10px;
+    border-left: 3px solid #c7d2fe;
+    color: #64748b;
+    background: #f8f9ff;
+}
+
+.zhou_md_hr {
+    border: none;
+    border-top: 1px dashed #e2e8f0;
+    margin: 8px 0;
+}
+
+.zhou_code {
+    margin: 6px 0;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: #0f172a;
+    color: #e2e8f0;
+    font-size: 12px;
+    line-height: 1.7;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.zhou_code_inline {
+    background: #eef2ff;
+    color: #4338ca;
+    padding: 1px 5px;
+    border-radius: 5px;
+    font-size: 12px;
+}
+
+/* ---------- 引用溯源 ---------- */
 .zhou_refs {
     margin-top: 8px;
     padding-top: 8px;
     border-top: 1px dashed #e2e8f0;
+}
+
+.zhou_refs_title {
+    font-size: 12px;
+    color: #94a3b8;
+    margin-bottom: 2px;
 }
 
 .zhou_ref {
@@ -120,6 +318,10 @@
 }
 
 .zhou_ref:hover { text-decoration: underline; }
+
+.zhou_ref_doc {
+    color: #0891b2;
+}
 
 .zhou_ref_meta {
     color: #94a3b8;
@@ -182,12 +384,194 @@
     box-shadow: 0 0 0 3px rgba(99, 102, 241, .12);
 }
 
-.zhou_send_btn {
-    flex: 0 0 auto;
-    padding: 10px 22px;
-    height: 44px;
+.zhou_chat_btn_col {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
 }
 
-@media (max-width: 620px) {
+.zhou_send_btn {
+    padding: 10px 22px;
+    height: 42px;
+}
+
+.zhou_btn_stop {
+    padding: 6px 22px;
+    height: 30px;
+    font-size: 12.5px;
+    border-color: #fca5a5;
+    color: #dc2626;
+    background: #fff;
+}
+
+.zhou_btn_stop:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+}
+
+.zhou_btn_stop:hover:enabled {
+    background: #fef2f2;
+    border-color: #f87171;
+}
+
+@media (max-width: 900px) {
+    .zhou_chat_layout {
+        grid-template-columns: 1fr;
+    }
+    .zhou_chat_side {
+        position: static;
+    }
+    .zhou_session_list {
+        max-height: 190px;
+    }
     .zhou_bubble { max-width: 88%; }
+}
+/* ---------- 知识库页面 ---------- */
+.zhou_upload_box {
+    border: 2px dashed #c7d2fe;
+    border-radius: 12px;
+    background: #f8f9ff;
+    padding: 22px 14px;
+    text-align: center;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.zhou_upload_box:hover,
+.zhou_upload_drag {
+    border-color: #4f46e5;
+    background: #eef2ff;
+}
+
+.zhou_upload_icon {
+    width: 38px;
+    height: 38px;
+    margin: 0 auto 8px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4f46e5, #a855f7);
+    color: #fff;
+    font-size: 19px;
+    line-height: 38px;
+}
+
+.zhou_upload_text {
+    font-size: 13.5px;
+    color: #334155;
+}
+
+.zhou_upload_hint {
+    font-size: 11.5px;
+    color: #94a3b8;
+    margin-top: 4px;
+}
+
+.zhou_upload_progress {
+    margin-top: 12px;
+}
+
+.zhou_progress_bar {
+    height: 8px;
+    background: #eef2f7;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.zhou_progress_bar > div {
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, #4f46e5, #a855f7);
+    transition: width .2s;
+}
+
+.zhou_progress_text {
+    font-size: 11.5px;
+    color: #94a3b8;
+    margin-top: 5px;
+}
+
+.zhou_kb_result {
+    font-size: 12.5px;
+    color: #475569;
+}
+
+.zhou_kb_doclist {
+    max-height: 320px;
+    overflow-y: auto;
+}
+
+.zhou_kb_row {
+    border: 1px solid #eef2f7;
+    border-radius: 10px;
+    padding: 9px 11px;
+    margin-bottom: 8px;
+}
+
+.zhou_kb_doc {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.zhou_kb_doc_name {
+    font-size: 13px;
+    color: #1e293b;
+    font-weight: 600;
+}
+
+.zhou_kb_doc_meta {
+    font-size: 11px;
+    color: #94a3b8;
+    margin-top: 3px;
+}
+
+.zhou_kb_ops {
+    display: flex;
+    gap: 5px;
+    flex-shrink: 0;
+}
+
+.zhou_kb_tag {
+    display: inline-block;
+    font-size: 11px;
+    color: #4f46e5;
+    background: #eef2ff;
+    border-radius: 6px;
+    padding: 1px 6px;
+    margin-left: 6px;
+}
+
+.zhou_kb_empty {
+    font-size: 12.5px;
+    color: #94a3b8;
+    text-align: center;
+    padding: 26px 0;
+}
+
+.zhou_kb_chunk_list {
+    margin-top: 8px;
+}
+
+.zhou_kb_chunk {
+    border-left: 3px solid #c7d2fe;
+    background: #f8f9ff;
+    border-radius: 0 8px 8px 0;
+    padding: 8px 11px;
+    margin-bottom: 8px;
+}
+
+.zhou_kb_chunk_head {
+    font-size: 11.5px;
+    color: #64748b;
+    margin-bottom: 4px;
+}
+
+.zhou_kb_kw {
+    color: #4f46e5;
+}
+
+.zhou_kb_chunk_body {
+    font-size: 12.5px;
+    color: #334155;
+    line-height: 1.75;
 }

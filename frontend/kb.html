@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="周浩 24001010105">
+    <meta name="description" content="RAG 知识库文件上传与管理 - 周浩 24001010105">
+    <title>知识库管理 - 校园二手交易平台</title>
+    <link rel="icon" href="images/logo.svg">
+    <link rel="stylesheet" href="css/zhou_main.css">
+    <link rel="stylesheet" href="css/zhou_chat.css">
+</head>
+<body>
+    <!--
+      姓名：周浩 | 学号：24001010105 |
+      时间：2026-11-12 | 大模型：Space Bunny
+    -->
+
+    <nav class="zhou_nav" id="zhou_nav"></nav>
+
+    <div class="zhou_wrap">
+        <h1 class="zhou_page_title">RAG 知识库管理</h1>
+        <p class="zhou_page_desc">
+            上传本地 PDF / TXT 文件 → 后端解析文本 → 按句切分入库（MySQL zhou_kb_doc + zhou_kb_chunk，
+            切片建立 ngram 全文索引）→ 智能客服检索时命中这些资料并标注引用来源。
+        </p>
+
+        <div class="zhou_grid zhou_grid_2">
+            <div class="zhou_card">
+                <h2>上传知识库文件</h2>
+                <div class="zhou_upload_box" id="zhou_upload_box">
+                    <div class="zhou_upload_icon">↑</div>
+                    <div class="zhou_upload_text">点击选择文件，或将文件拖拽到此处</div>
+                    <div class="zhou_upload_hint">支持 PDF / TXT，单个文件不超过 10 MB</div>
+                    <input type="file" id="zhou_file_input" accept=".pdf,.txt,.md" hidden>
+                </div>
+                <div class="zhou_upload_progress" id="zhou_upload_progress" style="display:none">
+                    <div class="zhou_progress_bar"><div id="zhou_progress_inner"></div></div>
+                    <div class="zhou_progress_text" id="zhou_progress_text">上传中…</div>
+                </div>
+                <div class="zhou_tip" id="zhou_upload_tip"></div>
+
+                <h3 style="font-size:14px;margin:14px 0 6px">上传结果（本次）</h3>
+                <div id="zhou_upload_result" class="zhou_kb_result">尚无上传记录</div>
+            </div>
+
+            <div class="zhou_card">
+                <h2>知识库文档列表</h2>
+                <div id="zhou_doc_list" class="zhou_kb_doclist">读取中…</div>
+                <div class="zhou_row" style="margin-top:12px">
+                    <button class="zhou_btn" id="zhou_refresh_doc">刷新列表</button>
+                    <a class="zhou_btn" href="chat.html">前往 AI 客服提问</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="zhou_card">
+            <h2>切片详情</h2>
+            <div id="zhou_chunk_detail" class="zhou_kb_chunks">点击文档列表中的「查看切片」查看该文档的切分结果。</div>
+        </div>
+
+        <div class="zhou_card">
+            <h2>接口说明</h2>
+            <table class="zhou_table">
+                <tr><td style="width:190px;color:#94a3b8">上传接口</td><td>POST /api/kb/upload（multipart/form-data，字段 zhou_file，可选 zhou_user_id）</td></tr>
+                <tr><td style="color:#94a3b8">文档列表</td><td>GET /api/kb/doc?zhou_user_id=1</td></tr>
+                <tr><td style="color:#94a3b8">切片详情</td><td>GET /api/kb/doc/:id</td></tr>
+                <tr><td style="color:#94a3b8">删除文档</td><td>DELETE /api/kb/doc/:id（切片随外键级联删除）</td></tr>
+                <tr><td style="color:#94a3b8">检索链路</td><td>关键词 → MySQL 全文索引 ngram 召回 → 无命中时 LIKE 兜底 → 与商品库、公告库合并后重排 → 拼进 system prompt → 生成时标注引用来源</td></tr>
+            </table>
+        </div>
+
+        <div class="zhou_footer">周浩 · 学号 24001010105 · 校园二手交易平台 · 2026</div>
+    </div>
+
+    <script src="js/zhou_api.js"></script>
+    <script src="js/zhou_common.js"></script>
+    <script src="js/zhou_md.js"></script>
+    <script src="js/zhou_kb.js"></script>
+</body>
+</html>
