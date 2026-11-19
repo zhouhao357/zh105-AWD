@@ -32,6 +32,55 @@ var zhou_clear_login_user = function () {
 };
 
 /**
+ * 当前登录用户 ID
+ * 未登录时回退到默认值，保证演示数据与公开接口仍可访问
+ * @param {number} zhou_default 未登录时的回退用户 ID
+ */
+var zhou_current_user_id = function (zhou_default) {
+    var zhou_user = zhou_get_login_user();
+    if (zhou_user && zhou_user.zhou_user_id) {
+        return Number(zhou_user.zhou_user_id);
+    }
+    return Number(zhou_default) || 1;
+};
+
+/** 当前登录用户昵称（未登录返回空串） */
+var zhou_current_user_name = function () {
+    var zhou_user = zhou_get_login_user();
+    return zhou_user ? (zhou_user.zhou_nickname || zhou_user.zhou_username || '') : '';
+};
+
+/**
+ * 记录来源页：登录/注册成功后跳回该页（用于「从 AI 客服点登录 → 登录后回到 AI 客服」）
+ * 只记录站内页面，避免外部地址注入
+ */
+var zhou_set_redirect = function (zhou_href) {
+    var zhou_url = String(zhou_href || '');
+    if (zhou_url.indexOf('http') === 0 || zhou_url.indexOf('//') === 0) {
+        zhou_url = '';
+    }
+    try {
+        sessionStorage.setItem('zhou_redirect', zhou_url);
+    } catch (e) { /* 隐私模式下 sessionStorage 不可用时忽略 */ }
+};
+
+/** 读取来源页 */
+var zhou_get_redirect = function () {
+    try {
+        return sessionStorage.getItem('zhou_redirect') || '';
+    } catch (e) {
+        return '';
+    }
+};
+
+/** 清除来源页 */
+var zhou_clear_redirect = function () {
+    try {
+        sessionStorage.removeItem('zhou_redirect');
+    } catch (e) { /* 同上 */ }
+};
+
+/**
  * 统一请求方法
  * @param {string} zhou_path 接口路径，如 /goods
  * @param {string} zhou_method 请求方法 GET / POST / PUT / DELETE

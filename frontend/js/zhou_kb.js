@@ -8,7 +8,8 @@
 
 'use strict';
 
-var zhou_kb_user_id = 1;
+/* 当前登录用户 ID；未登录时回退 1 */
+var zhou_kb_user_id = zhou_current_user_id(1);
 
 document.addEventListener('DOMContentLoaded', function () {
     zhou_render_nav('kb');

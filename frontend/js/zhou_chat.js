@@ -12,7 +12,8 @@
 var zhou_state = {
     zhou_session_id: 0,
     zhou_model: '',
-    zhou_user_id: 1,
+    /* 取当前登录用户 ID；未登录时回退 1，保证公开演示数据可用 */
+    zhou_user_id: zhou_current_user_id(1),
     zhou_controller: null,
     zhou_streaming: false,
     zhou_token_total: 0
@@ -20,6 +21,7 @@ var zhou_state = {
 
 document.addEventListener('DOMContentLoaded', function () {
     zhou_render_nav('chat');
+    zhou_render_user();
     zhou_load_models();
     zhou_load_sessions();
     zhou_load_stat();
@@ -95,9 +97,25 @@ function zhou_load_model_options() {
     });
 }
 
+/**
+ * 显示当前会话归属用户
+ * 登录后 AI 会话、用量统计归本人；未登录为游客模式（回退 ID 1）
+ */
+function zhou_render_user() {
+    var zhou_box = document.getElementById('zhou_side_user');
+    if (!zhou_box) {
+        return;
+    }
+    var zhou_name = zhou_current_user_name();
+    zhou_box.innerHTML = zhou_name
+        ? '当前用户：<strong>' + zhou_name + '</strong>（ID ' + zhou_state.zhou_user_id + '）'
+        : '游客模式（ID ' + zhou_state.zhou_user_id + '）· <a href="login.html">登录</a> 后会话归属本人';
+    console.log('[chat] 当前登录用户：', zhou_get_login_user(),
+        '| 本页会话归属 zhou_user_id =', zhou_state.zhou_user_id);
+}
+
 /** 加载 token 用量与费用统计 */
-function zhou_load_stat() {
-    zhou_request('/ai/stats?zhou_user_id=' + zhou_state.zhou_user_id, 'GET').then(function (res) {
+function zhou_load_stat() {    zhou_request('/ai/stats?zhou_user_id=' + zhou_state.zhou_user_id, 'GET').then(function (res) {
         console.log('[chat] 用量统计：', res.data);
         document.getElementById('zhou_side_stat').innerHTML =
             '<div>会话数：' + res.data.zhou_session_count + '</div>' +

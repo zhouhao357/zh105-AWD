@@ -22,14 +22,34 @@ function zhou_render_nav(zhou_current) {
         zhou_html += '<a' + zhou_cls + ' href="' + zhou_item.zhou_href + '">' + zhou_item.zhou_name + '</a>';
     });
     var zhou_right = zhou_user
-        ? '<span>你好，' + zhou_user.zhou_nickname + '</span><a href="login.html">退出</a>'
-        : '<a href="login.html">登录 / 注册</a>';
+        ? '<span>你好，' + zhou_current_user_name() + '</span><a href="javascript:void(0)" id="zhou_logout_link">退出</a>'
+        : '<a href="login.html" id="zhou_login_link">登录 / 注册</a>';
     document.getElementById('zhou_nav').innerHTML =
         '<div class="zhou_nav_inner">' +
         '<a class="zhou_logo" href="index.html"><span>二</span>校园二手集市</a>' +
         zhou_html +
         '<span class="zhou_nav_right">' + zhou_right + '</span>' +
         '</div>';
+
+    /* 点「登录 / 注册」时记住来源页，登录成功后跳回来 */
+    var zhou_login_link = document.getElementById('zhou_login_link');
+    if (zhou_login_link) {
+        zhou_login_link.addEventListener('click', function () {
+            var zhou_now = window.location.pathname.split('/').pop() || 'index.html';
+            zhou_set_redirect(zhou_now);
+            console.log('[导航] 已记录来源页：' + zhou_now);
+        });
+    }
+    /* 点「退出」真正清除本地登录态 */
+    var zhou_logout_link = document.getElementById('zhou_logout_link');
+    if (zhou_logout_link) {
+        zhou_logout_link.addEventListener('click', function () {
+            zhou_clear_login_user();
+            zhou_clear_redirect();
+            console.log('[导航] 已退出登录，已清除 localStorage 中的登录态');
+            window.location.href = 'login.html';
+        });
+    }
 }
 
 /** 显示提示条 */

@@ -23,9 +23,12 @@ function zhou_do_login() {
     zhou_request('/user/login', 'POST', zhou_body).then(function (res) {
         console.log('[登录页] 登录成功：', res);
         zhou_set_login_user(res.data.zhou_user);
-        zhou_tip('zhou_msg', res.msg + '，正在跳转到首页……', 'ok');
+        /* 跳回来源页（从 AI 客服 / 知识库点登录进来时回到原页面） */
+        var zhou_back = zhou_get_redirect();
+        zhou_clear_redirect();
+        zhou_tip('zhou_msg', res.msg + '，正在跳转到' + (zhou_back || '首页') + '……', 'ok');
         setTimeout(function () {
-            window.location.href = 'index.html';
+            window.location.href = zhou_back || 'index.html';
         }, 900);
     }).catch(function (e) {
         console.error('[登录页] 登录失败：', e);
@@ -46,8 +49,7 @@ function zhou_do_register() {
     zhou_request('/user/register', 'POST', zhou_body).then(function (res) {
         console.log('[登录页] 注册成功：', res);
         zhou_tip('zhou_msg', res.msg + '，请用新账号登录', 'ok');
-    }).catch(function (e) {
-        console.error('[登录页] 注册失败：', e);
+    }).catch(function (e) {        console.error('[登录页] 注册失败：', e);
         zhou_tip('zhou_msg', e.msg || '注册失败', 'err');
     });
 }
