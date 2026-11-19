@@ -219,3 +219,20 @@ AI 客服页与知识库页未接入登录态：zhou_user_id 硬编码为 1，�
 四视口（1440/1024/768/390）均无横向溢出、无控制台报错。）
 
 ---
+
+## 记录 11
+- 时间：2026-11-19 | 大模型：Space Bunny
+- 提示词全文：完成项目的后台管理，管理员登陆后有后台管理要有仪表盘管理的实体是数据库……自己考虑
+- 补充指令（续）：自己优化；差不多就行，不要太复杂
+- 完成内容：
+  1. 后端新增 `backend/middleware/zhou_auth.js`（HMAC-SHA256 无状态 Token + 定时安全比较 + 管理员校验中间件 + 操作日志写入）、
+     `backend/controllers/zhou_admin_controller.js`（31 个后台接口）、`backend/db/zhou_init_admin.sql` 与
+     `backend/db/zhou_init_admin.js`（建表 + 角色字段 + 管理员账号 + 10 条日志）。
+  2. 前端新增 `frontend/admin/`（login.html 登录页、index.html 后台主页面、css/zhou_admin.css、
+     js/zhou_admin.js 配置表与请求封装、js/zhou_admin_view.js 仪表盘与实体表格渲染）。
+  3. 仪表盘：8 张统计卡片 + 待办事项 + 原生 Canvas 折线图/环形图/柱状图（不引入第三方库）；
+     实体管理覆盖商品、用户、订单、评论、分类、公告、知识库、AI 会话、操作日志共 9 个模块，
+     支持关键词搜索、状态筛选、分页、编辑弹窗与删除确认。
+  4. 实测：21 项接口自测全部通过（无 Token 401 / 普通用户 403 / 伪造 Token 401 / 增删改查 /
+     关键词搜索 / 非法参数 400 / 修改与删除自己被拦截 400）。
+- 修改时间：2026-11-19

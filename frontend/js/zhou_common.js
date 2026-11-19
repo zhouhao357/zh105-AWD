@@ -16,6 +16,10 @@ function zhou_render_nav(zhou_current) {
         { zhou_key: 'kb', zhou_name: '知识库', zhou_href: 'kb.html' },
         { zhou_key: 'structured', zhou_name: '结构化输出', zhou_href: 'structured.html' }
     ];
+    /* 管理员登录后额外显示「后台管理」入口 */
+    if (zhou_user && zhou_user.zhou_role === '管理员') {
+        zhou_items.push({ zhou_key: 'admin', zhou_name: '后台管理', zhou_href: 'admin/login.html' });
+    }
     var zhou_html = '';
     zhou_items.forEach(function (zhou_item) {
         var zhou_cls = zhou_item.zhou_key === zhou_current ? ' class="zhou_nav_link zhou_active"' : ' class="zhou_nav_link"';

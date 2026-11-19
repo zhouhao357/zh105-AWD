@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="周浩 24001010105">
+    <title>后台管理 - 校园二手交易平台</title>
+    <link rel="icon" href="../images/logo.svg">
+    <link rel="stylesheet" href="../css/zhou_main.css">
+    <link rel="stylesheet" href="css/zhou_admin.css">
+</head>
+<body class="zhou_admin_body">
+    <!--
+      姓名：周浩 | 学号：24001010105 |
+      时间：2026-11-19 | 大模型：Space Bunny
+    -->
+
+    <div class="zhou_admin_layout">
+        <!-- 侧边栏 -->
+        <aside class="zhou_admin_side">
+            <div class="zhou_admin_brand">
+                <b>校园二手集市</b>
+                <span>后台管理中心 v1.0</span>
+            </div>
+            <nav class="zhou_admin_menu" id="zhou_admin_menu"></nav>
+            <div class="zhou_admin_side_foot">
+                周浩 · 24001010105<br>
+                高级网页设计 I<br>
+                MySQL 8.4 + Node.js + Express
+            </div>
+        </aside>
+
+        <!-- 主区域 -->
+        <div class="zhou_admin_main">
+            <header class="zhou_admin_top">
+                <span class="zhou_admin_crumb" id="zhou_admin_crumb">仪表盘</span>
+                <div class="zhou_admin_top_right">
+                    <span id="zhou_admin_time"></span>
+                    <span class="zhou_admin_avatar" id="zhou_admin_avatar">管</span>
+                    <span id="zhou_admin_name">管理员</span>
+                    <a class="zhou_btn zhou_btn_ghost" href="../index.html" style="font-size:12px;padding:5px 12px">返回前台</a>
+                    <button class="zhou_admin_btn" id="zhou_admin_logout">退出登录</button>
+                </div>
+            </header>
+            <main class="zhou_admin_content" id="zhou_admin_content"></main>
+        </div>
+    </div>
+
+    <!-- 编辑弹窗 -->
+    <div class="zhou_admin_mask" id="zhou_admin_mask">
+        <div class="zhou_admin_modal">
+            <h3 id="zhou_admin_modal_title">编辑</h3>
+            <div class="zhou_admin_form" id="zhou_admin_form"></div>
+            <div class="zhou_admin_modal_foot">
+                <button class="zhou_btn zhou_btn_ghost" id="zhou_admin_cancel">取消</button>
+                <button class="zhou_btn zhou_btn_primary" id="zhou_admin_save">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/zhou_admin.js"></script>
+    <script src="js/zhou_admin_view.js"></script>
+</body>
+</html>

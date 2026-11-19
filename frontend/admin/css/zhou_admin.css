@@ -1,0 +1,562 @@
+/*
+ * 姓名：周浩 | 学号：24001010105 |
+ * 时间：2026-11-19 | 大模型：Space Bunny
+ *
+ * zhou_admin.css —— 后台管理系统样式（配合 zhou_main.css 使用）
+ * 命名规范：所有类名以 zhou_ 开头
+ */
+
+body.zhou_admin_body {
+    background: #f1f5f9;
+}
+
+/* ============================================================
+ * 一、管理员登录页
+ * ============================================================ */
+
+.zhou_login_bg {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background:
+        radial-gradient(900px 480px at 12% -8%, rgba(99, 102, 241, .32), transparent 62%),
+        radial-gradient(760px 420px at 92% 8%, rgba(14, 165, 233, .26), transparent 60%),
+        linear-gradient(150deg, #1e1b4b, #312e81 45%, #0f172a);
+}
+
+.zhou_login_card {
+    width: 100%;
+    max-width: 420px;
+    background: rgba(255, 255, 255, .97);
+    border-radius: 18px;
+    padding: 34px 32px 30px;
+    box-shadow: 0 28px 70px rgba(15, 23, 42, .38);
+}
+
+.zhou_login_logo {
+    width: 52px;
+    height: 52px;
+    line-height: 52px;
+    text-align: center;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    color: #fff;
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    box-shadow: 0 10px 22px rgba(79, 70, 229, .34);
+}
+
+.zhou_login_title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.zhou_login_sub {
+    font-size: 12.5px;
+    color: #64748b;
+    margin-bottom: 22px;
+}
+
+.zhou_login_tip {
+    font-size: 12px;
+    color: #94a3b8;
+    background: #f8fafc;
+    border: 1px dashed #e2e8f0;
+    border-radius: 9px;
+    padding: 9px 12px;
+    margin-top: 18px;
+    line-height: 1.8;
+}
+
+.zhou_login_back {
+    display: block;
+    text-align: center;
+    margin-top: 16px;
+    font-size: 12.5px;
+    color: #64748b;
+    text-decoration: none;
+}
+
+.zhou_login_back:hover { color: #4f46e5; }
+
+/* ============================================================
+ * 二、后台整体布局
+ * ============================================================ */
+
+.zhou_admin_layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* ---------- 侧边栏 ---------- */
+.zhou_admin_side {
+    width: 216px;
+    flex-shrink: 0;
+    background: linear-gradient(180deg, #1e1b4b, #312e81);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.zhou_admin_brand {
+    padding: 20px 20px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, .1);
+}
+
+.zhou_admin_brand b {
+    display: block;
+    font-size: 16px;
+    letter-spacing: .5px;
+}
+
+.zhou_admin_brand span {
+    font-size: 11.5px;
+    color: rgba(255, 255, 255, .55);
+}
+
+.zhou_admin_menu {
+    padding: 12px 10px;
+    flex: 1;
+}
+
+.zhou_admin_menu_title {
+    font-size: 11px;
+    color: rgba(255, 255, 255, .42);
+    padding: 12px 10px 6px;
+    letter-spacing: 1px;
+}
+
+.zhou_admin_link {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 9px 12px;
+    border-radius: 9px;
+    color: rgba(255, 255, 255, .76);
+    font-size: 13.5px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background .2s, color .2s;
+    margin-bottom: 2px;
+}
+
+.zhou_admin_link:hover {
+    background: rgba(255, 255, 255, .09);
+    color: #fff;
+}
+
+.zhou_admin_link.zhou_on {
+    background: rgba(255, 255, 255, .16);
+    color: #fff;
+    font-weight: 600;
+}
+
+.zhou_admin_link em {
+    font-style: normal;
+    width: 20px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.zhou_admin_side_foot {
+    padding: 14px 16px 18px;
+    border-top: 1px solid rgba(255, 255, 255, .1);
+    font-size: 11.5px;
+    color: rgba(255, 255, 255, .5);
+    line-height: 1.8;
+}
+
+/* ---------- 主区域 ---------- */
+.zhou_admin_main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.zhou_admin_top {
+    height: 58px;
+    background: #fff;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 0 22px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+
+.zhou_admin_crumb {
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.zhou_admin_top_right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    color: #64748b;
+}
+
+.zhou_admin_avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4f46e5, #a855f7);
+    color: #fff;
+    text-align: center;
+    line-height: 32px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.zhou_admin_content {
+    padding: 18px 22px 40px;
+    flex: 1;
+}
+/* ============================================================
+ * 三、仪表盘
+ * ============================================================ */
+
+.zhou_admin_cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(168px, 1fr));
+    gap: 14px;
+    margin-bottom: 16px;
+}
+
+.zhou_admin_card {
+    background: #fff;
+    border: 1px solid #e6e8f0;
+    border-radius: 14px;
+    padding: 15px 17px;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, .04);
+    transition: transform .22s, box-shadow .22s;
+}
+
+.zhou_admin_card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 28px rgba(79, 70, 229, .12);
+}
+
+.zhou_admin_card b {
+    display: block;
+    font-size: 25px;
+    font-weight: 700;
+    color: #4f46e5;
+    line-height: 1.3;
+    font-variant-numeric: tabular-nums;
+}
+
+.zhou_admin_card span {
+    font-size: 12.5px;
+    color: #94a3b8;
+}
+
+.zhou_admin_card small {
+    display: block;
+    font-size: 11.5px;
+    color: #cbd5e1;
+    margin-top: 3px;
+}
+
+.zhou_admin_panel {
+    background: #fff;
+    border: 1px solid #e6e8f0;
+    border-radius: 14px;
+    padding: 16px 18px;
+    margin-bottom: 16px;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, .04);
+}
+
+.zhou_admin_panel h3 {
+    font-size: 15px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.zhou_admin_panel h3 em {
+    font-style: normal;
+    font-size: 11.5px;
+    color: #94a3b8;
+    font-weight: 400;
+}
+
+.zhou_admin_grid2 {
+    display: grid;
+    grid-template-columns: 1.35fr 1fr;
+    gap: 16px;
+}
+
+.zhou_admin_canvas {
+    width: 100%;
+    height: 250px;
+    display: block;
+}
+
+.zhou_admin_legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    margin-top: 10px;
+    font-size: 12px;
+    color: #64748b;
+}
+
+.zhou_admin_legend i {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    border-radius: 3px;
+    margin-right: 5px;
+}
+
+.zhou_admin_todo {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+
+.zhou_admin_todo_item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 12px;
+    border-radius: 9px;
+    background: #f8fafc;
+    font-size: 13px;
+    color: #475569;
+}
+
+.zhou_admin_todo_item b {
+    color: #e11d48;
+    font-size: 15px;
+}
+
+/* ============================================================
+ * 四、实体管理表格
+ * ============================================================ */
+
+.zhou_admin_toolbar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+
+.zhou_admin_toolbar .zhou_input,
+.zhou_admin_toolbar .zhou_select {
+    width: auto;
+    min-width: 150px;
+    padding: 7px 11px;
+}
+
+.zhou_admin_table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.zhou_admin_table th,
+.zhou_admin_table td {
+    border-bottom: 1px solid #eef2f7;
+    padding: 9px 10px;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.zhou_admin_table th {
+    background: #fafbff;
+    color: #64748b;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.zhou_admin_table tr:hover td { background: #fafbff; }
+
+.zhou_admin_table td.zhou_num {
+    font-variant-numeric: tabular-nums;
+    color: #e11d48;
+    font-weight: 600;
+}
+
+.zhou_admin_ell {
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.zhou_admin_btn {
+    font-size: 12px;
+    padding: 3px 10px;
+    border-radius: 7px;
+    border: 1px solid #c7d2fe;
+    background: #eef2ff;
+    color: #4f46e5;
+    cursor: pointer;
+    transition: .18s;
+}
+
+.zhou_admin_btn:hover { background: #4f46e5; color: #fff; }
+
+.zhou_admin_btn_del {
+    border-color: #fecaca;
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+.zhou_admin_btn_del:hover { background: #dc2626; color: #fff; }
+
+.zhou_admin_rowbtns {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.zhou_admin_pager {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 12px;
+    font-size: 12.5px;
+    color: #64748b;
+}
+
+.zhou_admin_pager button {
+    border: 1px solid #e2e8f0;
+    background: #fff;
+    border-radius: 7px;
+    padding: 4px 11px;
+    font: inherit;
+    font-size: 12.5px;
+    cursor: pointer;
+}
+
+.zhou_admin_pager button:disabled { opacity: .45; cursor: not-allowed; }
+
+/* ============================================================
+ * 五、弹窗
+ * ============================================================ */
+
+.zhou_admin_mask {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, .48);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 900;
+    padding: 20px;
+}
+
+.zhou_admin_mask.zhou_show { display: flex; }
+
+.zhou_admin_modal {
+    width: 100%;
+    max-width: 480px;
+    background: #fff;
+    border-radius: 16px;
+    padding: 22px 24px;
+    max-height: 86vh;
+    overflow-y: auto;
+    box-shadow: 0 26px 60px rgba(15, 23, 42, .3);
+}
+
+.zhou_admin_modal h3 {
+    font-size: 16px;
+    margin-bottom: 14px;
+}
+
+.zhou_admin_form label {
+    display: block;
+    font-size: 12.5px;
+    color: #475569;
+    margin-bottom: 4px;
+}
+
+.zhou_admin_form .zhou_field { margin-bottom: 12px; }
+
+.zhou_admin_form textarea.zhou_textarea { min-height: 84px; }
+
+.zhou_admin_modal_foot {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+/* ---------- 响应式 ---------- */
+@media (max-width: 1000px) {
+    .zhou_admin_grid2 { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 760px) {
+    .zhou_admin_side { width: 62px; }
+    .zhou_admin_brand b,
+    .zhou_admin_brand span,
+    .zhou_admin_link span,
+    .zhou_admin_side_foot,
+    .zhou_admin_menu_title { display: none; }
+    .zhou_admin_link { justify-content: center; padding: 10px 0; }
+    .zhou_admin_content { padding: 14px 12px 32px; }
+}
+
+/* ============================================================
+ * 六、徽章 / 提示 / 表格容器
+ * ============================================================ */
+
+.zhou_badge {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 20px;
+    font-size: 11.5px;
+    line-height: 1.7;
+    white-space: nowrap;
+}
+
+.zhou_badge_ok { background: #dcfce7; color: #15803d; }
+.zhou_badge_warn { background: #fef3c7; color: #b45309; }
+.zhou_badge_err { background: #fee2e2; color: #b91c1c; }
+.zhou_badge_user { background: #e0e7ff; color: #4338ca; }
+.zhou_badge_admin { background: #ede9fe; color: #6d28d9; }
+
+.zhou_table_wrap { overflow-x: auto; }
+
+.zhou_toast {
+    position: fixed;
+    top: 72px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    padding: 9px 20px;
+    border-radius: 10px;
+    background: #1e293b;
+    color: #fff;
+    font-size: 13px;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, .28);
+    animation: zhou_toast_in .25s ease;
+}
+
+.zhou_toast_ok { background: #059669; }
+.zhou_toast_err { background: #e11d48; }
+
+@keyframes zhou_toast_in {
+    from { opacity: 0; transform: translate(-50%, -12px); }
+    to { opacity: 1; transform: translate(-50%, 0); }
+}

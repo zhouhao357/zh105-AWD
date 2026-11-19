@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="周浩 24001010105">
+    <title>后台管理登录 - 校园二手交易平台</title>
+    <link rel="icon" href="../images/logo.svg">
+    <link rel="stylesheet" href="../css/zhou_main.css">
+    <link rel="stylesheet" href="css/zhou_admin.css">
+</head>
+<body class="zhou_admin_body">
+    <!--
+      姓名：周浩 | 学号：24001010105 |
+      时间：2026-11-19 | 大模型：Space Bunny
+    -->
+
+    <div class="zhou_login_bg">
+        <div class="zhou_login_card">
+            <div class="zhou_login_logo">管</div>
+            <h1 class="zhou_login_title">校园二手集市 · 后台管理</h1>
+            <p class="zhou_login_sub">仅平台管理员可登录，登录后可管理商品、用户、订单、评论、分类、公告、知识库与 AI 会话。</p>
+
+            <div class="zhou_tip" id="zhou_msg"></div>
+
+            <div class="zhou_field">
+                <label class="zhou_label" for="zhou_username">管理员账号</label>
+                <input type="text" class="zhou_input" id="zhou_username" placeholder="例如 zhouadmin" autocomplete="username">
+            </div>
+            <div class="zhou_field">
+                <label class="zhou_label" for="zhou_password">登录密码</label>
+                <input type="password" class="zhou_input" id="zhou_password" placeholder="请输入密码" autocomplete="current-password">
+            </div>
+            <button class="zhou_btn zhou_btn_primary" id="zhou_login_btn" style="width:100%;padding:10px 0;font-size:14px">登录后台</button>
+
+            <div class="zhou_login_tip">
+                测试管理员账号：<b>zhouadmin</b> / <b>zhou01</b>（周浩本人）<br>
+                初始密码均为 <b>123456</b><br>
+                普通用户（如 zhou03）即使密码正确也会被拒绝，仅提示「没有后台管理权限」。
+            </div>
+
+            <a class="zhou_login_back" href="../index.html">← 返回平台前台</a>
+        </div>
+    </div>
+
+    <script src="js/zhou_admin_login.js"></script>
+</body>
+</html>

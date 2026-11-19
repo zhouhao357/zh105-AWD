@@ -12,7 +12,7 @@ const { zhou_all, zhou_get, zhou_run } = require('../db/zhou_db');
 /** 登录校验：账号 + MD5 密码 */
 async function zhou_login(zhou_username, zhou_password) {
     return zhou_get(
-        'SELECT zhou_user_id, zhou_username, zhou_nickname, zhou_gender, zhou_college, zhou_phone, zhou_avatar, zhou_balance, zhou_credit, zhou_status, zhou_created_at FROM zhou_user WHERE zhou_username = ? AND zhou_password = ? LIMIT 1',
+        'SELECT zhou_user_id, zhou_username, zhou_nickname, zhou_gender, zhou_college, zhou_phone, zhou_avatar, zhou_balance, zhou_credit, zhou_status, zhou_role, zhou_created_at FROM zhou_user WHERE zhou_username = ? AND zhou_password = ? LIMIT 1',
         [zhou_username, zhou_password]
     );
 }

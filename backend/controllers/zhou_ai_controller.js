@@ -11,7 +11,7 @@
 
 const { zhou_success, zhou_fail } = require('../middleware/zhou_response');
 const { zhou_need } = require('../utils/zhou_util');
-const { zhou_chat, zhou_chat_stream, zhou_models, zhou_cost, zhou_estimate, zhou_llm_ready, zhou_llm_model } = require('../utils/zhou_llm');
+const { zhou_chat, zhou_chat_stream, zhou_models, zhou_cost, zhou_estimate, zhou_llm_ready, zhou_llm_model, zhou_embed } = require('../utils/zhou_llm');
 const zhou_kb_model = require('../models/zhou_kb_model');
 const zhou_session_model = require('../models/zhou_session_model');
 
@@ -100,12 +100,26 @@ async function zhou_prepare_context(zhou_session_id) {
     };
 }
 /**
- * 检索知识：商品库 + 公告库 + 知识库切片
+ * 检索知识：商品库 + 公告库 + 知识库切片（向量召回 + 全文召回混合）
  */
 async function zhou_retrieve(zhou_question) {
     const zhou_goods_kb = await zhou_kb_model.zhou_search_goods(zhou_question, 5);
     const zhou_notices = await zhou_kb_model.zhou_search_notices(zhou_question, 2);
-    const zhou_chunks = await zhou_kb_model.zhou_search_chunks(zhou_question, 3);
+
+    /* 知识库切片：先生成查询向量，再做「向量召回 + 全文召回」混合检索 */
+    let zhou_query_vector = [];
+    try {
+        const zhou_emb = await zhou_llm.zhou_embed(zhou_question);
+        zhou_query_vector = (zhou_emb.zhou_vectors && zhou_emb.zhou_vectors[0]) || [];
+    } catch (e) {
+        console.error('[zhou_ai] 查询向量化失败，退化为全文召回：' + e.message);
+    }
+    const zhou_chunks = await zhou_kb_model.zhou_search_hybrid(
+        zhou_query_vector,
+        zhou_question,
+        3
+    );
+
     const zhou_categories = await zhou_kb_model.zhou_list_category_brief();
     return {
         zhou_goods: zhou_goods_kb.zhou_list,
@@ -114,7 +128,8 @@ async function zhou_retrieve(zhou_question) {
         zhou_vocab_size: zhou_goods_kb.zhou_vocab_size,
         zhou_notices: zhou_notices,
         zhou_chunks: zhou_chunks,
-        zhou_categories: zhou_categories
+        zhou_categories: zhou_categories,
+        zhou_query_vector_dim: zhou_query_vector.length
     };
 }
 

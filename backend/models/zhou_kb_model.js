@@ -412,7 +412,7 @@ async function zhou_search_chunks(zhou_question, zhou_limit) {
     try {
         zhou_rows = await zhou_all(
             'SELECT c.zhou_chunk_id, c.zhou_doc_id, c.zhou_chunk_index, c.zhou_content, c.zhou_keywords, d.zhou_file_name, ' +
-            'MATCH(c.zhou_content) AGAINST (? IN NATURAL LANGUAGE MODE) AS zhou_score ' +
+            'MATCH(c.zhou_content) AGAINST (? IN NATURAL LANGUAGE MODE) AS zhou_score, \'text\' AS zhou_match ' +
             'FROM zhou_kb_chunk c JOIN zhou_kb_doc d ON c.zhou_doc_id = d.zhou_doc_id ' +
             'WHERE MATCH(c.zhou_content) AGAINST (? IN NATURAL LANGUAGE MODE) ORDER BY zhou_score DESC LIMIT ?',
             [zhou_text, zhou_text, zhou_limit_n]
@@ -435,12 +435,220 @@ async function zhou_search_chunks(zhou_question, zhou_limit) {
         return '%' + w + '%';
     });
     const zhou_fallback = await zhou_all(
-        'SELECT c.zhou_chunk_id, c.zhou_doc_id, c.zhou_chunk_index, c.zhou_content, c.zhou_keywords, d.zhou_file_name, 0 AS zhou_score ' +
+        'SELECT c.zhou_chunk_id, c.zhou_doc_id, c.zhou_chunk_index, c.zhou_content, c.zhou_keywords, d.zhou_file_name, 0 AS zhou_score, \'like\' AS zhou_match ' +
         'FROM zhou_kb_chunk c JOIN zhou_kb_doc d ON c.zhou_doc_id = d.zhou_doc_id ' +
         'WHERE (' + zhou_where + ') LIMIT ?',
         zhou_params.concat([zhou_limit_n])
     );
     return zhou_fallback;
+}
+
+/**
+ * 混合检索：向量召回（语义相似） + 全文召回（字面精确） → 去重 → 规则重排
+ * @param {number[]} zhou_query_vector 查询向量（由 embedding 模型生成）
+ * @param {string} zhou_question 用户提问（用于全文召回与 LIKE 兜底）
+ * @param {number} zhou_limit 返回条数
+ * @param {number} zhou_w_vec 向量权重
+ */
+async function zhou_search_hybrid(zhou_query_vector, zhou_question, zhou_limit, zhou_w_vec) {
+    const zhou_top = Number(zhou_limit) || 3;
+    const zhou_w = zhou_w_vec === undefined ? 0.65 : Number(zhou_w_vec);
+
+    const zhou_text_rows = await zhou_search_chunks(zhou_question, zhou_top);
+    const zhou_vec_rows = await zhou_search_by_vector(zhou_query_vector, zhou_top);
+
+    /* 文本分归一化：以本批最大值为 1 */
+    const zhou_text_max = zhou_text_rows.reduce(function (m, r) {
+        return Math.max(m, Number(r.zhou_score) || 0);
+    }, 0) || 1;
+    /* 向量分归一化：余弦值裁剪到 [0,1] */
+    const zhou_vec_max = zhou_vec_rows.reduce(function (m, r) {
+        return Math.max(m, Math.min(1, Number(r.zhou_score) || 0));
+    }, 0) || 1;
+
+    const zhou_map = new Map();
+
+    zhou_text_rows.forEach(function (r) {
+        zhou_map.set(r.zhou_chunk_id, {
+            zhou_chunk_id: r.zhou_chunk_id,
+            zhou_doc_id: r.zhou_doc_id,
+            zhou_chunk_index: r.zhou_chunk_index,
+            zhou_content: r.zhou_content,
+            zhou_keywords: r.zhou_keywords,
+            zhou_file_name: r.zhou_file_name,
+            zhou_text_score: Math.round((Number(r.zhou_score) || 0) * 10000) / 10000,
+            zhou_vector_score: 0,
+            zhou_match: r.zhou_match || 'text'
+        });
+    });
+
+    zhou_vec_rows.forEach(function (r) {
+        const zhou_exist = zhou_map.get(r.zhou_chunk_id);
+        const zhou_v = Math.min(1, Number(r.zhou_score) || 0);
+        if (zhou_exist) {
+            zhou_exist.zhou_vector_score = Math.round(zhou_v * 10000) / 10000;
+            zhou_exist.zhou_match = 'vector+text';
+        } else {
+            zhou_map.set(r.zhou_chunk_id, {
+                zhou_chunk_id: r.zhou_chunk_id,
+                zhou_doc_id: r.zhou_doc_id,
+                zhou_chunk_index: r.zhou_chunk_index,
+                zhou_content: r.zhou_content,
+                zhou_keywords: r.zhou_keywords,
+                zhou_file_name: r.zhou_file_name,
+                zhou_text_score: 0,
+                zhou_vector_score: Math.round(zhou_v * 10000) / 10000,
+                zhou_match: 'vector'
+            });
+        }
+    });
+
+    const zhou_merged = Array.from(zhou_map.values()).map(function (r) {
+        const zhou_t = r.zhou_text_score / zhou_text_max;
+        const zhou_v = r.zhou_vector_score / zhou_vec_max;
+        r.zhou_score = Math.round((zhou_w * zhou_v + (1 - zhou_w) * zhou_t) * 10000) / 10000;
+        return r;
+    });
+
+    zhou_merged.sort(function (a, b) {
+        return b.zhou_score - a.zhou_score;
+    });
+    return zhou_merged.slice(0, zhou_top);
+}
+
+/* ============================================================
+ * RAG 向量召回（配合《LLM应用设计 实验指导书》「向量化与入库」要求）
+ *   1. zhou_kb_vector_upsert —— 切片向量写入 / 覆盖
+ *   2. zhou_kb_vector_list   —— 读取全部向量（应用层算余弦相似度）
+ *   3. zhou_search_by_vector —— 查询向量 → 余弦相似度排序召回
+ * 说明：MySQL 8.4 无原生 VECTOR 类型，向量以逗号分隔十进制存入
+ *       zhou_kb_vector.zhou_vector，并冗余存 zhou_norm 模长。
+ * ============================================================ */
+
+/** 把浮点数组序列化为紧凑字符串 */
+function zhou_pack_vector(zhou_vec) {
+    return (zhou_vec || []).map(function (v) {
+        return Number(v).toFixed(6);
+    }).join(',');
+}
+
+/** 解析向量字符串为浮点数组 */
+function zhou_unpack_vector(zhou_str) {
+    if (!zhou_str || zhou_str === 'PENDING_BACKFILL') return [];
+    return String(zhou_str).split(',').map(function (v) {
+        return parseFloat(v);
+    }).filter(function (v) {
+        return !isNaN(v);
+    });
+}
+
+/** 计算向量模长 */
+function zhou_vector_norm(zhou_vec) {
+    let zhou_sum = 0;
+    for (let i = 0; i < zhou_vec.length; i++) {
+        zhou_sum += zhou_vec[i] * zhou_vec[i];
+    }
+    return Math.sqrt(zhou_sum);
+}
+
+/** 余弦相似度（向量已归一化时等价于点积） */
+function zhou_cosine(zhou_a, zhou_b) {
+    if (!zhou_a.length || !zhou_b.length || zhou_a.length !== zhou_b.length) {
+        return 0;
+    }
+    let zhou_dot = 0;
+    for (let i = 0; i < zhou_a.length; i++) {
+        zhou_dot += zhou_a[i] * zhou_b[i];
+    }
+    return zhou_dot;
+}
+
+/**
+ * 写入 / 覆盖某切片的向量
+ */
+async function zhou_kb_vector_upsert(zhou_chunk_id, zhou_doc_id, zhou_model, zhou_vec) {
+    const zhou_arr = Array.isArray(zhou_vec) ? zhou_vec : [];
+    if (!zhou_arr.length) {
+        return { zhou_changes: 0 };
+    }
+    const zhou_norm = zhou_vector_norm(zhou_arr);
+    await zhou_run(
+        'INSERT INTO zhou_kb_vector (zhou_chunk_id, zhou_doc_id, zhou_model, zhou_dim, zhou_vector, zhou_norm)' +
+        ' VALUES (?, ?, ?, ?, ?, ?)' +
+        ' ON DUPLICATE KEY UPDATE zhou_model = VALUES(zhou_model), zhou_dim = VALUES(zhou_dim),' +
+        ' zhou_vector = VALUES(zhou_vector), zhou_norm = VALUES(zhou_norm)',
+        [Number(zhou_chunk_id), Number(zhou_doc_id), zhou_model || 'BAAI/bge-m3', zhou_arr.length,
+            zhou_pack_vector(zhou_arr), zhou_norm]
+    );
+    return { zhou_dim: zhou_arr.length, zhou_norm: zhou_norm };
+}
+
+/**
+ * 读取全部向量（与切片信息联查）
+ */
+async function zhou_kb_vector_list() {
+    return zhou_all(
+        'SELECT v.zhou_vector_id, v.zhou_chunk_id, v.zhou_doc_id, v.zhou_model, v.zhou_dim,' +
+        ' v.zhou_vector, v.zhou_norm, c.zhou_chunk_index, c.zhou_content, c.zhou_keywords,' +
+        ' d.zhou_file_name' +
+        ' FROM zhou_kb_vector v' +
+        ' JOIN zhou_kb_chunk c ON c.zhou_chunk_id = v.zhou_chunk_id' +
+        ' JOIN zhou_kb_doc d ON d.zhou_doc_id = v.zhou_doc_id' +
+        ' ORDER BY v.zhou_chunk_id'
+    );
+}
+
+/** 向量表统计 */
+async function zhou_kb_vector_stats() {
+    const zhou_row = await zhou_get(
+        'SELECT COUNT(*) AS zhou_total, COUNT(DISTINCT zhou_doc_id) AS zhou_docs,' +
+        ' COUNT(DISTINCT zhou_model) AS zhou_models, MAX(zhou_dim) AS zhou_dim' +
+        ' FROM zhou_kb_vector'
+    );
+    return zhou_row || { zhou_total: 0, zhou_docs: 0, zhou_models: 0, zhou_dim: 0 };
+}
+
+/**
+ * 向量召回：用查询向量与库内全部切片向量计算余弦相似度并排序
+ * @param {number[]} zhou_query 查询向量
+ * @param {number} zhou_limit 返回条数
+ * @param {number} zhou_min 相似度阈值，低于该值视为不相关
+ */
+async function zhou_search_by_vector(zhou_query, zhou_limit, zhou_min) {
+    const zhou_vec = Array.isArray(zhou_query) ? zhou_query : [];
+    if (!zhou_vec.length) {
+        return [];
+    }
+    const zhou_top = Number(zhou_limit) || 3;
+    const zhou_min_score = zhou_min === undefined ? 0.25 : Number(zhou_min);
+    const zhou_rows = await zhou_kb_vector_list();
+    const zhou_scored = [];
+
+    for (const r of zhou_rows) {
+        const zhou_arr = zhou_unpack_vector(r.zhou_vector);
+        if (!zhou_arr.length || zhou_arr.length !== zhou_vec.length) {
+            continue;
+        }
+        const zhou_score = zhou_cosine(zhou_vec, zhou_arr);
+        if (zhou_score < zhou_min_score) {
+            continue;
+        }
+        zhou_scored.push({
+            zhou_chunk_id: r.zhou_chunk_id,
+            zhou_doc_id: r.zhou_doc_id,
+            zhou_chunk_index: r.zhou_chunk_index,
+            zhou_content: r.zhou_content,
+            zhou_keywords: r.zhou_keywords,
+            zhou_file_name: r.zhou_file_name,
+            zhou_score: Math.round(zhou_score * 10000) / 10000,
+            zhou_match: 'vector'
+        });
+    }
+
+    zhou_scored.sort(function (a, b) {
+        return b.zhou_score - a.zhou_score;
+    });
+    return zhou_scored.slice(0, zhou_top);
 }
 
 module.exports = {
@@ -459,5 +667,14 @@ module.exports = {
     zhou_kb_doc_get,
     zhou_kb_doc_remove,
     zhou_kb_chunks_by_doc,
-    zhou_search_chunks
+    zhou_search_chunks,
+    zhou_search_hybrid,
+    zhou_pack_vector,
+    zhou_unpack_vector,
+    zhou_vector_norm,
+    zhou_cosine,
+    zhou_kb_vector_upsert,
+    zhou_kb_vector_list,
+    zhou_kb_vector_stats,
+    zhou_search_by_vector
 };

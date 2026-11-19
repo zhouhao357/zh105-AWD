@@ -667,3 +667,230 @@
   AGENTS.md、README.md。
 - 访问地址：http://127.0.0.1:8105/ （聊天页 http://127.0.0.1:8105/chat.html ）
 - 修改时间：2026-11-19
+
+---
+
+## 十二、后台管理接口记录（2026-11-19）
+
+> 统一说明：除「12.1 管理员登录」外，本节所有接口均需在请求头携带 `Authorization: Bearer <zhou_token>`。
+> Token 由 POST /api/admin/login 签发（HMAC-SHA256 无状态令牌，有效期 7200 秒）。
+> 缺少 Token 或 Token 伪造 → `code: 401`；普通用户（角色为「用户」）访问 → `code: 403`。
+> 后台管理的实体为数据库中的 zhou_user / zhou_goods / zhou_order / zhou_comment /
+> zhou_category / zhou_notice / zhou_kb_doc / zhou_session / zhou_admin_log 共 9 张表。
+
+### 12.1 管理员登录
+- 接口路径：/api/admin/login
+- HTTP 方法：POST
+- 请求参数：`{ "zhou_username": "zhouadmin", "zhou_password": "123456" }`
+- 响应格式：`{ "code": 0, "msg": "管理员登录成功", "data": { "zhou_token": "eyJ6aG91X3VzZXJfaWQiOjEzfQ.xxxxx", "zhou_expires": 7200, "zhou_user": { "zhou_user_id": 13, "zhou_username": "zhouadmin", "zhou_nickname": "平台管理员", "zhou_role": "管理员" } } }`
+- 修改时间：2026-11-19
+
+### 12.2 获取当前管理员信息
+- 接口路径：/api/admin/profile
+- HTTP 方法：GET
+- 请求参数：无（请求头携带 Authorization）
+- 响应格式：`{ "code": 0, "msg": "获取管理员信息成功", "data": { "zhou_admin": { "zhou_user_id": 13, "zhou_username": "zhouadmin", "zhou_nick": "平台管理员", "zhou_role": "管理员", "zhou_iat": 1795070348700, "zhou_exp": 1795077548700 } } }`
+- 修改时间：2026-11-19
+
+### 12.3 仪表盘汇总统计
+- 接口路径：/api/admin/stats
+- HTTP 方法：GET
+- 请求参数：无
+- 响应格式：`{ "code": 0, "msg": "获取仪表盘统计成功", "data": { "zhou_user_count": 13, "zhou_admin_count": 2, "zhou_goods_count": 16, "zhou_goods_on": 12, "zhou_order_count": 9, "zhou_order_done": 5, "zhou_comment_count": 9, "zhou_category_count": 8, "zhou_notice_count": 8, "zhou_session_count": 22, "zhou_message_count": 34, "zhou_kb_doc_count": 11, "zhou_kb_chunk_count": 38, "zhou_kb_vector_count": 19, "zhou_admin_log_count": 20, "zhou_token_total": 5820, "zhou_avg_rating": 4.33, "zhou_total_amount": 9415, "zhou_todo": { "zhou_pending_order": 1, "zhou_shipped_order": 1, "zhou_off_shelf": 4, "zhou_banned_user": 1, "zhou_low_comment": 0 } } }`
+- 修改时间：2026-11-19
+
+### 12.4 近 N 天订单趋势图
+- 接口路径：/api/admin/chart/orders
+- HTTP 方法：GET
+- 请求参数：`zhou_days`（整数，3~30，默认 7），示例：`?zhou_days=7`
+- 响应格式：`{ "code": 0, "msg": "获取订单趋势成功", "data": { "zhou_list": [ { "zhou_day": "2026-11-19", "zhou_count": 2, "zhou_amount": 380.00 } ], "zhou_days": 7 } }`
+- 修改时间：2026-11-19
+
+### 12.5 商品分类分布图
+- 接口路径：/api/admin/chart/category
+- HTTP 方法：GET
+- 请求参数：无
+- 响应格式：`{ "code": 0, "msg": "获取分类分布成功", "data": { "zhou_list": [ { "zhou_name": "电子数码", "zhou_count": 6, "zhou_avg_price": 1435 } ] } }`
+- 修改时间：2026-11-19
+
+### 12.6 评价评分分布图
+- 接口路径：/api/admin/chart/rating
+- HTTP 方法：GET
+- 请求参数：无
+- 响应格式：`{ "code": 0, "msg": "获取评分分布成功", "data": { "zhou_list": [ { "zhou_score": 5, "zhou_count": 6 } ] } }`
+- 修改时间：2026-11-19
+
+### 12.7 商品列表
+- 接口路径：/api/admin/goods
+- HTTP 方法：GET
+- 请求参数：`zhou_page`（页码，默认 1）、`zhou_size`（每页条数，5~100，默认 10）、`zhou_keyword`（按标题/描述模糊搜索）、`zhou_status`（商品状态筛选），示例：`?zhou_page=1&zhou_size=10&zhou_keyword=耳机&zhou_status=在售`
+- 响应格式：`{ "code": 0, "msg": "获取商品列表成功", "data": { "zhou_list": [ { "zhou_id": 1, "zhou_title": "数据结构教材（全新）", "zhou_price": 20, "zhou_original_price": 45, "zhou_stock": 3, "zhou_condition": "全新", "zhou_status": "在售", "zhou_view_count": 56, "zhou_created_at": "2026-11-01 09:00:00", "zhou_user_id": 2, "zhou_seller": "李同学", "zhou_cate": "教材教辅" } ], "zhou_total": 16, "zhou_page": 1, "zhou_size": 10 } }`
+- 修改时间：2026-11-19
+
+### 12.8 修改商品
+- 接口路径：/api/admin/goods/:zhou_id
+- HTTP 方法：PUT
+- 请求参数：路径参数 `zhou_id`；请求体可传 `zhou_title` / `zhou_price`（大于 0）/ `zhou_stock`（≥0）/ `zhou_status`（在售 / 已下架 / 已售出 / 已锁定），示例：`{ "zhou_price": 25.00, "zhou_stock": 5, "zhou_status": "已下架" }`
+- 响应格式：`{ "code": 0, "msg": "商品修改成功", "data": { "zhou_id": 1 } }`
+- 修改时间：2026-11-19
+
+### 12.9 删除商品
+- 接口路径：/api/admin/goods/:zhou_id
+- HTTP 方法：DELETE
+- 请求参数：路径参数 `zhou_id`
+- 响应格式：`{ "code": 0, "msg": "商品删除成功", "data": { "zhou_id": 1 } }`；被订单或收藏引用时返回 `{ "code": 409, "msg": "该商品已被订单或收藏引用，无法删除（可改为「已下架」）", "data": null }`
+- 修改时间：2026-11-19
+
+### 12.10 用户列表
+- 接口路径：/api/admin/users
+- HTTP 方法：GET
+- 请求参数：`zhou_page`、`zhou_size`、`zhou_keyword`（账号/昵称/学院模糊搜索）、`zhou_role`（角色筛选：用户 / 管理员）
+- 响应格式：`{ "code": 0, "msg": "获取用户列表成功", "data": { "zhou_list": [ { "zhou_id": 1, "zhou_username": "zhou01", "zhou_nickname": "周浩", "zhou_college": "计算机学院", "zhou_phone": "13800138001", "zhou_balance": 128.5, "zhou_credit": 100, "zhou_status": "正常", "zhou_role": "管理员", "zhou_created_at": "2026-02-20 09:00:00", "zhou_goods_count": 3, "zhou_order_count": 5 } ], "zhou_total": 13, "zhou_page": 1, "zhou_size": 10 } }`
+- 修改时间：2026-11-19
+
+### 12.11 修改用户
+- 接口路径：/api/admin/users/:zhou_id
+- HTTP 方法：PUT
+- 请求参数：路径参数 `zhou_id`；请求体可传 `zhou_role`（用户 / 管理员）、`zhou_status`（正常 / 封禁）、`zhou_credit`（0~100），示例：`{ "zhou_status": "封禁", "zhou_credit": 60 }`
+- 响应格式：`{ "code": 0, "msg": "用户修改成功", "data": { "zhou_id": 8 } }`；修改自己时返回 `{ "code": 400, "msg": "不能修改当前登录管理员自己的角色或状态", "data": null }`
+- 修改时间：2026-11-19
+
+### 12.12 删除用户
+- 接口路径：/api/admin/users/:zhou_id
+- HTTP 方法：DELETE
+- 请求参数：路径参数 `zhou_id`
+- 响应格式：`{ "code": 0, "msg": "用户删除成功", "data": { "zhou_id": 8 } }`；存在关联商品或订单返回 `code: 409`；删除自己返回 `{ "code": 400, "msg": "不能删除当前登录的管理员账号", "data": null }`
+- 修改时间：2026-11-19
+
+### 12.13 订单列表
+- 接口路径：/api/admin/orders
+- HTTP 方法：GET
+- 请求参数：`zhou_page`、`zhou_size`、`zhou_keyword`（按订单号模糊搜索）、`zhou_status`（待付款 / 待发货 / 待收货 / 已完成 / 已取消）
+- 响应格式：`{ "code": 0, "msg": "获取订单列表成功", "data": { "zhou_list": [ { "zhou_id": 1, "zhou_order_no": "ZO2026111500001", "zhou_goods_id": 3, "zhou_price": 780, "zhou_quantity": 1, "zhou_total_amount": 780, "zhou_status": "已完成", "zhou_remark": "", "zhou_created_at": "2026-11-15 10:00:00", "zhou_goods_title": "索尼 WH-1000XM4 降噪耳机", "zhou_buyer": "王同学", "zhou_seller": "李同学" } ], "zhou_total": 9, "zhou_page": 1, "zhou_size": 10 } }`
+- 修改时间：2026-11-19
+
+### 12.14 修改订单状态
+- 接口路径：/api/admin/orders/:zhou_id
+- HTTP 方法：PUT
+- 请求参数：路径参数 `zhou_id`；请求体 `zhou_status`，示例：`{ "zhou_status": "已完成" }`
+- 响应格式：`{ "code": 0, "msg": "订单状态修改成功", "data": { "zhou_id": 1 } }`
+- 修改时间：2026-11-19
+
+### 12.15 删除订单
+- 接口路径：/api/admin/orders/:zhou_id
+- HTTP 方法：DELETE
+- 请求参数：路径参数 `zhou_id`
+- 响应格式：`{ "code": 0, "msg": "订单删除成功", "data": { "zhou_id": 1 } }`
+- 修改时间：2026-11-19
+
+### 12.16 评论列表
+- 接口路径：/api/admin/comments
+- HTTP 方法：GET
+- 请求参数：`zhou_page`、`zhou_size`、`zhou_keyword`（按评论内容模糊搜索）
+- 响应格式：`{ "code": 0, "msg": "获取评论列表成功", "data": { "zhou_list": [ { "zhou_id": 1, "zhou_rating": 5, "zhou_content": "描述相符，包装完好", "zhou_reply": "", "zhou_created_at": "2026-11-12 14:31:35", "zhou_goods_title": "数据结构教材（全新）", "zhou_user": "王同学" } ], "zhou_total": 9, "zhou_page": 1, "zhou_size": 10 } }`
+- 修改时间：2026-11-19
+
+### 12.17 回复评论
+- 接口路径：/api/admin/comments/:zhou_id
+- HTTP 方法：PUT
+- 请求参数：路径参数 `zhou_id`；请求体 `zhou_reply`，示例：`{ "zhou_reply": "感谢您的支持，欢迎再次光临！" }`
+- 响应格式：`{ "code": 0, "msg": "评论回复成功", "data": { "zhou_id": 1 } }`
+- 修改时间：2026-11-19
+
+### 12.18 删除评论
+- 接口路径：/api/admin/comments/:zhou_id
+- HTTP 方法：DELETE
+- 请求参数：路径参数 `zhou_id`
+- 响应格式：`{ "code": 0, "msg": "评论删除成功", "data": { "zhou_id": 1 } }`
+- 修改时间：2026-11-19
+
+### 12.19 分类列表
+- 接口路径：/api/admin/categories
+- HTTP 方法：GET
+- 请求参数：无
+- 响应格式：`{ "code": 0, "msg": "获取分类列表成功", "data": { "zhou_list": [ { "zhou_id": 1, "zhou_cate_name": "教材教辅", "zhou_cate_desc": "教材、考研资料", "zhou_sort_order": 1, "zhou_created_at": "2026-02-20 09:00:00", "zhou_goods_count": 5 } ], "zhou_total": 8 } }`
+- 修改时间：2026-11-19
+
+### 12.20 新增分类
+- 接口路径：/api/admin/categories
+- HTTP 方法：POST
+- 请求参数：`zhou_cate_name`（必填，名称唯一）、`zhou_cate_desc`、`zhou_sort_order`，示例：`{ "zhou_cate_name": "票券卡", "zhou_cate_desc": "各类票券与卡片", "zhou_sort_order": 9 }`
+- 响应格式：`{ "code": 0, "msg": "分类新增成功", "data": { "zhou_id": 9 } }`；名称重复返回 `{ "code": 409, "msg": "该分类名称已存在", "data": null }`
+- 修改时间：2026-11-19
+
+### 12.21 修改分类
+- 接口路径：/api/admin/categories/:zhou_id
+- HTTP 方法：PUT
+- 请求参数：路径参数 `zhou_id`；请求体可传 `zhou_cate_name` / `zhou_cate_desc` / `zhou_sort_order`
+- 响应格式：`{ "code": 0, "msg": "分类修改成功", "data": { "zhou_id": 9 } }`
+- 修改时间：2026-11-19
+
+### 12.22 删除分类
+- 接口路径：/api/admin/categories/:zhou_id
+- HTTP 方法：DELETE
+- 请求参数：路径参数 `zhou_id`
+- 响应格式：`{ "code": 0, "msg": "分类删除成功", "data": { "zhou_id": 9 } }`；分类下仍有商品时返回 `code: 409`
+- 修改时间：2026-11-19
+
+### 12.23 公告列表
+- 接口路径：/api/admin/notices
+- HTTP 方法：GET
+- 请求参数：`zhou_page`、`zhou_size`
+- 响应格式：`{ "code": 0, "msg": "获取公告列表成功", "data": { "zhou_list": [ { "zhou_id": 1, "zhou_title": "关于规范校园交易秩序的公告", "zhou_content": "请各位同学诚信交易……", "zhou_publisher": "平台管理员", "zhou_notice_type": "通知", "zhou_created_at": "2026-11-15 14:05:00" } ], "zhou_total": 8, "zhou_page": 1, "zhou_size": 10 } }`
+- 修改时间：2026-11-19
+
+### 12.24 发布公告
+- 接口路径：/api/admin/notices
+- HTTP 方法：POST
+- 请求参数：`zhou_title`（必填）、`zhou_content`、`zhou_notice_type`（通知 / 公告 / 活动）、`zhou_publisher`，示例：`{ "zhou_title": "关于国庆假期交易安排", "zhou_content": "假期期间订单发货时间顺延。", "zhou_notice_type": "公告" }`
+- 响应格式：`{ "code": 0, "msg": "公告发布成功", "data": { "zhou_id": 9 } }`
+- 修改时间：2026-11-19
+
+### 12.25 修改公告
+- 接口路径：/api/admin/notices/:zhou_id
+- HTTP 方法：PUT
+- 请求参数：路径参数 `zhou_id`；请求体可传 `zhou_title` / `zhou_content` / `zhou_notice_type`
+- 响应格式：`{ "code": 0, "msg": "公告修改成功", "data": { "zhou_id": 9 } }`
+- 修改时间：2026-11-19
+
+### 12.26 删除公告
+- 接口路径：/api/admin/notices/:zhou_id
+- HTTP 方法：DELETE
+- 请求参数：路径参数 `zhou_id`
+- 响应格式：`{ "code": 0, "msg": "公告删除成功", "data": { "zhou_id": 9 } }`
+- 修改时间：2026-11-19
+
+### 12.27 知识库文档列表
+- 接口路径：/api/admin/kb
+- HTTP 方法：GET
+- 请求参数：`zhou_page`、`zhou_size`、`zhou_keyword`（按文件名模糊搜索）
+- 响应格式：`{ "code": 0, "msg": "获取知识库文档列表成功", "data": { "zhou_list": [ { "zhou_id": 1, "zhou_file_name": "校园二手集市交易守则.pdf", "zhou_file_type": "pdf", "zhou_file_size": 12, "zhou_chunk_count": 2, "zhou_char_count": 186, "zhou_status": "已解析", "zhou_created_at": "2026-11-08 10:00:00", "zhou_user": "周浩", "zhou_chunk_real": 2, "zhou_vector_count": 2 } ], "zhou_total": 11, "zhou_page": 1, "zhou_size": 10 } }`
+- 修改时间：2026-11-19
+
+### 12.28 删除知识库文档
+- 接口路径：/api/admin/kb/:zhou_id
+- HTTP 方法：DELETE
+- 请求参数：路径参数 `zhou_id`（切片与向量随外键级联删除）
+- 响应格式：`{ "code": 0, "msg": "知识库文档删除成功", "data": { "zhou_id": 1 } }`
+- 修改时间：2026-11-19
+
+### 12.29 AI 会话列表
+- 接口路径：/api/admin/sessions
+- HTTP 方法：GET
+- 请求参数：`zhou_page`、`zhou_size`
+- 响应格式：`{ "code": 0, "msg": "获取会话列表成功", "data": { "zhou_list": [ { "zhou_id": 1, "zhou_title": "教材求购咨询", "zhou_model": "deepseek-ai/DeepSeek-V4-Flash", "zhou_summary": "", "zhou_message_count": 6, "zhou_token_total": 320, "zhou_status": "进行中", "zhou_created_at": "2026-11-12 14:30:00", "zhou_updated_at": "2026-11-12 14:35:00", "zhou_user": "周浩" } ], "zhou_total": 22, "zhou_page": 1, "zhou_size": 10 } }`
+- 修改时间：2026-11-19
+
+### 12.30 删除 AI 会话
+- 接口路径：/api/admin/sessions/:zhou_id
+- HTTP 方法：DELETE
+- 请求参数：路径参数 `zhou_id`（会话消息随外键级联删除）
+- 响应格式：`{ "code": 0, "msg": "会话删除成功", "data": { "zhou_id": 1 } }`
+- 修改时间：2026-11-19
+
+### 12.31 管理员操作日志
+- 接口路径：/api/admin/logs
+- HTTP 方法：GET
+- 请求参数：`zhou_page`、`zhou_size`
+- 响应格式：`{ "code": 0, "msg": "获取操作日志成功", "data": { "zhou_list": [ { "zhou_id": 1, "zhou_admin_name": "周浩", "zhou_action": "商品下架", "zhou_target": "数据结构教材（全新）", "zhou_detail": "因卖家长时间未回复，管理员将商品下架", "zhou_created_at": "2026-11-15 09:12:00" } ], "zhou_total": 20, "zhou_page": 1, "zhou_size": 10 } }`
+- 修改时间：2026-11-19

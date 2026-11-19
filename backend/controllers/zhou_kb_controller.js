@@ -10,6 +10,7 @@
 
 const { zhou_success, zhou_fail } = require('../middleware/zhou_response');
 const zhou_kb_model = require('../models/zhou_kb_model');
+const zhou_llm = require('../utils/zhou_llm');
 
 /* 上传限制：单个文件最大 10 MB */
 const ZHOU_MAX_SIZE = 10 * 1024 * 1024;
@@ -88,13 +89,39 @@ async function zhou_kb_upload(req, res) {
 
     /* 切分并入库 */
     const zhou_chunks = zhou_kb_model.zhou_split_text(zhou_text, ZHOU_CHUNK_SIZE);
+    const zhou_chunk_ids = [];
     for (let zhou_i = 0; zhou_i < zhou_chunks.length; zhou_i++) {
-        await zhou_kb_model.zhou_kb_chunk_add(
+        const zhou_add = await zhou_kb_model.zhou_kb_chunk_add(
             zhou_doc_id,
             zhou_i,
             zhou_chunks[zhou_i],
             zhou_kb_model.zhou_extract_keywords(zhou_chunks[zhou_i])
         );
+        zhou_chunk_ids.push(zhou_add);
+    }
+
+    /* 向量化入库（RAG 向量召回）：对每个切片生成 embedding 并写入 zhou_kb_vector */
+    let zhou_vector_count = 0;
+    let zhou_vector_model = zhou_llm.zhou_llm_embed_model();
+    try {
+        const zhou_emb = await zhou_llm.zhou_embed_batch(zhou_chunks);
+        zhou_vector_model = zhou_emb.zhou_model || zhou_vector_model;
+        for (let zhou_i = 0; zhou_i < zhou_emb.zhou_vectors.length; zhou_i++) {
+            const zhou_vec = zhou_emb.zhou_vectors[zhou_i];
+            if (!zhou_vec || !zhou_vec.length) {
+                continue;
+            }
+            await zhou_kb_model.zhou_kb_vector_upsert(
+                zhou_chunk_ids[zhou_i],
+                zhou_doc_id,
+                zhou_vector_model,
+                zhou_vec
+            );
+            zhou_vector_count += 1;
+        }
+    } catch (e) {
+        /* 向量化失败不阻断上传，检索时自动退化为全文召回 */
+        console.error('[zhou_kb] 向量化失败（已降级为全文召回）：' + e.message);
     }
 
     await zhou_kb_model.zhou_kb_doc_update(
@@ -102,11 +129,12 @@ async function zhou_kb_upload(req, res) {
         zhou_chunks.length,
         zhou_text.length,
         '已解析',
-        '自动切分 ' + zhou_chunks.length + ' 个片段'
+        '自动切分 ' + zhou_chunks.length + ' 个片段，已向量化 ' + zhou_vector_count + ' 条'
     );
 
     const zhou_detail = await zhou_kb_model.zhou_kb_chunks_by_doc(zhou_doc_id);
-    console.log('[zhou_kb] 文档入库成功：' + zhou_name + ' → ' + zhou_chunks.length + ' 个切片');
+    console.log('[zhou_kb] 文档入库成功：' + zhou_name + ' → ' + zhou_chunks.length + ' 个切片，' +
+        '向量化 ' + zhou_vector_count + ' 条（' + zhou_vector_model + '）');
 
     return zhou_success(res, {
         zhou_doc_id: zhou_doc_id,
@@ -115,6 +143,8 @@ async function zhou_kb_upload(req, res) {
         zhou_file_size: zhou_file.size,
         zhou_char_count: zhou_text.length,
         zhou_chunk_count: zhou_chunks.length,
+        zhou_vector_count: zhou_vector_count,
+        zhou_vector_model: zhou_vector_model,
         zhou_chunks: zhou_detail.map(function (c) {
             return {
                 zhou_chunk_index: c.zhou_chunk_index,

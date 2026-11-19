@@ -7,7 +7,8 @@
     "start": "node app.js",
     "dev": "node --watch app.js",
     "initdb": "node db/zhou_init.js",
-    "initdb:llm": "node db/zhou_init_llm.js"
+    "initdb:llm": "node db/zhou_init_llm.js",
+    "initdb:admin": "node db/zhou_init_admin.js"
   },
   "keywords": [
     "express",

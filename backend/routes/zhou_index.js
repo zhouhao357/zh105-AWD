@@ -10,6 +10,7 @@
 const express = require('express');
 const multer = require('multer');
 const { zhou_async } = require('../middleware/zhou_response');
+const { zhou_require_admin } = require('../middleware/zhou_auth');
 
 const zhou_goods_controller = require('../controllers/zhou_goods_controller');
 const zhou_user_controller = require('../controllers/zhou_user_controller');
@@ -20,6 +21,7 @@ const zhou_ai_controller = require('../controllers/zhou_ai_controller');
 const zhou_session_controller = require('../controllers/zhou_session_controller');
 const zhou_kb_controller = require('../controllers/zhou_kb_controller');
 const zhou_structured_controller = require('../controllers/zhou_structured_controller');
+const zhou_admin_controller = require('../controllers/zhou_admin_controller');
 
 const zhou_router = express.Router();
 
@@ -83,5 +85,47 @@ zhou_router.post('/message', zhou_async(zhou_message_controller.zhou_message_add
 zhou_router.put('/message/:zhou_id/read', zhou_async(zhou_message_controller.zhou_message_read));
 zhou_router.get('/favorite', zhou_async(zhou_message_controller.zhou_favorite_list));
 zhou_router.post('/favorite', zhou_async(zhou_message_controller.zhou_favorite_toggle));
+
+/* ---------- 后台管理（除登录外全部需要管理员 Token） ---------- */
+zhou_router.post('/admin/login', zhou_async(zhou_admin_controller.zhou_admin_login));
+zhou_router.get('/admin/profile', zhou_require_admin, zhou_async(zhou_admin_controller.zhou_admin_profile));
+zhou_router.get('/admin/stats', zhou_require_admin, zhou_async(zhou_admin_controller.zhou_admin_stats));
+zhou_router.get('/admin/chart/orders', zhou_require_admin, zhou_async(zhou_admin_controller.zhou_admin_chart_orders));
+zhou_router.get('/admin/chart/category', zhou_require_admin, zhou_async(zhou_admin_controller.zhou_admin_chart_category));
+zhou_router.get('/admin/chart/rating', zhou_require_admin, zhou_async(zhou_admin_controller.zhou_admin_chart_rating));
+
+zhou_router.get('/admin/goods', zhou_require_admin, zhou_async(zhou_admin_controller.zhou_admin_goods_list));
+zhou_router.put('/admin/goods/:zhou_id', zhou_require_admin, zhou_async(zhou_admin_controller.zhou_admin_goods_update));
+zhou_router.delete('/admin/goods/:zhou_id', zhou_require_admin, zhou_async(zhou_admin_controller.zhou_admin_goods_remove));
+
+zhou_router.get('/admin/users', zhou_require_admin, zhou_async(zhou_admin_controller.zhou_admin_users_list));
+zhou_router.put('/admin/users/:zhou_id', zhou_require_admin, zhou_async(zhou_admin_controller.zhou_admin_users_update));
+zhou_router.delete('/admin/users/:zhou_id', zhou_require_admin, zhou_async(zhou_admin_controller.zhou_admin_users_remove));
+
+zhou_router.get('/admin/orders', zhou_require_admin, zhou_async(zhou_admin_controller.zhou_admin_orders_list));
+zhou_router.put('/admin/orders/:zhou_id', zhou_require_admin, zhou_async(zhou_admin_controller.zhou_admin_orders_update));
+zhou_router.delete('/admin/orders/:zhou_id', zhou_require_admin, zhou_async(zhou_admin_controller.zhou_admin_orders_remove));
+
+zhou_router.get('/admin/comments', zhou_require_admin, zhou_async(zhou_admin_controller.zhou_admin_comments_list));
+zhou_router.put('/admin/comments/:zhou_id', zhou_require_admin, zhou_async(zhou_admin_controller.zhou_admin_comments_update));
+zhou_router.delete('/admin/comments/:zhou_id', zhou_require_admin, zhou_async(zhou_admin_controller.zhou_admin_comments_remove));
+
+zhou_router.get('/admin/categories', zhou_require_admin, zhou_async(zhou_admin_controller.zhou_admin_categories_list));
+zhou_router.post('/admin/categories', zhou_require_admin, zhou_async(zhou_admin_controller.zhou_admin_categories_create));
+zhou_router.put('/admin/categories/:zhou_id', zhou_require_admin, zhou_async(zhou_admin_controller.zhou_admin_categories_update));
+zhou_router.delete('/admin/categories/:zhou_id', zhou_require_admin, zhou_async(zhou_admin_controller.zhou_admin_categories_remove));
+
+zhou_router.get('/admin/notices', zhou_require_admin, zhou_async(zhou_admin_controller.zhou_admin_notices_list));
+zhou_router.post('/admin/notices', zhou_require_admin, zhou_async(zhou_admin_controller.zhou_admin_notices_create));
+zhou_router.put('/admin/notices/:zhou_id', zhou_require_admin, zhou_async(zhou_admin_controller.zhou_admin_notices_update));
+zhou_router.delete('/admin/notices/:zhou_id', zhou_require_admin, zhou_async(zhou_admin_controller.zhou_admin_notices_remove));
+
+zhou_router.get('/admin/kb', zhou_require_admin, zhou_async(zhou_admin_controller.zhou_admin_kb_list));
+zhou_router.delete('/admin/kb/:zhou_id', zhou_require_admin, zhou_async(zhou_admin_controller.zhou_admin_kb_remove));
+
+zhou_router.get('/admin/sessions', zhou_require_admin, zhou_async(zhou_admin_controller.zhou_admin_sessions_list));
+zhou_router.delete('/admin/sessions/:zhou_id', zhou_require_admin, zhou_async(zhou_admin_controller.zhou_admin_sessions_remove));
+
+zhou_router.get('/admin/logs', zhou_require_admin, zhou_async(zhou_admin_controller.zhou_admin_logs_list));
 
 module.exports = zhou_router;
