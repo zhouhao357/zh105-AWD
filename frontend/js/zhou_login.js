@@ -11,7 +11,28 @@ document.addEventListener('DOMContentLoaded', function () {
     zhou_render_nav('login');
     document.getElementById('zhou_login_btn').addEventListener('click', zhou_do_login);
     document.getElementById('zhou_reg_btn').addEventListener('click', zhou_do_register);
+    zhou_check_logged();
 });
+
+/**
+ * 若本地已有登录态，直接给出「进入首页」入口，避免重复登录
+ */
+function zhou_check_logged() {
+    var zhou_user = zhou_get_login_user();
+    if (!zhou_user || !zhou_user.zhou_user_id) {
+        return;
+    }
+    console.log('[登录页] 检测到已登录用户：', zhou_user);
+    zhou_tip('zhou_msg', '当前已登录为「' + zhou_current_user_name() + '」（ID ' +
+        zhou_user.zhou_user_id + '），可直接进入首页。', 'info');
+    var zhou_box = document.getElementById('zhou_msg');
+    var zhou_btn = document.createElement('a');
+    zhou_btn.className = 'zhou_btn zhou_btn_primary';
+    zhou_btn.href = 'index.html';
+    zhou_btn.textContent = '进入首页';
+    zhou_btn.style.marginTop = '8px';
+    zhou_box.parentNode.insertBefore(zhou_btn, zhou_box.nextSibling);
+}
 
 /** 登录 */
 function zhou_do_login() {

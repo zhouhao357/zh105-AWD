@@ -8,6 +8,31 @@
     <title>校园二手交易平台 - 周浩 24001010105</title>
     <link rel="icon" href="images/logo.svg">
     <link rel="stylesheet" href="css/zhou_main.css">
+    <link rel="stylesheet" href="css/zhou_anim.css">
+    <script>
+        /*
+         * 姓名：周浩 | 学号：24001010105 |
+         * 时间：2026-11-19 | 大模型：Space Bunny
+         *
+         * 首页登录守卫：未登录时在页面渲染前跳转登录页，
+         * 并记录来源页，登录成功后自动回到首页。
+         * 放在 <head> 内是为了避免首页内容先渲染再跳转产生的闪烁。
+         */
+        (function () {
+            var zhou_user = null;
+            try {
+                zhou_user = JSON.parse(localStorage.getItem('zhou_user') || 'null');
+            } catch (e) {
+                zhou_user = null;
+            }
+            if (!zhou_user || !zhou_user.zhou_user_id) {
+                try {
+                    sessionStorage.setItem('zhou_redirect', 'index.html');
+                } catch (e) { /* 隐私模式下忽略 */ }
+                window.location.replace('login.html');
+            }
+        })();
+    </script>
 </head>
 <body>
     <!--
@@ -17,25 +42,41 @@
 
     <nav class="zhou_nav" id="zhou_nav"></nav>
 
+    <!-- 顶部滚动进度条 -->
+    <div class="zhou_progress"><div class="zhou_progress_bar" id="zhou_progress_bar"></div></div>
+
     <div class="zhou_wrap">
-        <div class="zhou_card" style="background:linear-gradient(120deg,#4f46e5,#7c3aed);color:#fff;border:none">
-            <h2 style="font-size:22px;margin-bottom:6px">校园二手集市 · 让闲置流动起来</h2>
-            <p style="color:rgba(255,255,255,.9);font-size:13.5px">
-                面向本校师生的二手物品交易平台，前端原生 HTML/CSS/JavaScript，后端 Node.js + Express + SQLite，
-                全部接口以 /api/ 为前缀，统一返回 { code, msg, data } 结构。
-            </p>
-            <div class="zhou_row" style="margin-top:14px">
-                <a class="zhou_btn" style="background:#fff;color:#4f46e5;border-color:#fff" href="goods.html">去逛集市</a>
-                <a class="zhou_btn" style="background:transparent;color:#fff;border-color:rgba(255,255,255,.6)" href="publish.html">发布闲置</a>
-                <a class="zhou_btn" style="background:transparent;color:#fff;border-color:rgba(255,255,255,.6)" href="login.html">登录 / 注册</a>
+        <!-- 首屏 Hero -->
+        <section class="zhou_hero">
+            <div class="zhou_hero_grid"></div>
+            <div class="zhou_hero_blob zhou_hero_blob_1"></div>
+            <div class="zhou_hero_blob zhou_hero_blob_2"></div>
+            <div class="zhou_hero_blob zhou_hero_blob_3"></div>
+            <div class="zhou_hero_inner">
+                <span class="zhou_hero_badge">
+                    <i class="zhou_hero_dot"></i>AI 智能客服 · RAG 知识库 · 结构化输出已上线
+                </span>
+                <h1 class="zhou_hero_title" id="zhou_hero_title">校园二手集市 · 让闲置流动起来</h1>
+                <p class="zhou_hero_desc" id="zhou_hero_desc"
+                   data-zhou-text="面向本校师生的二手物品交易平台。前端原生 HTML/CSS/JavaScript，后端 Node.js + Express + MySQL 8.4，全部接口以 /api/ 为前缀，统一返回 { code, msg, data } 结构。内置大模型智能客服：多轮对话、RAG 知识库检索与评论情感结构化输出。"></p>
+                <div class="zhou_hero_actions">
+                    <a class="zhou_hero_btn zhou_hero_btn_primary" href="goods.html">去逛集市</a>
+                    <a class="zhou_hero_btn" href="publish.html">发布闲置</a>
+                    <a class="zhou_hero_btn" href="chat.html">问 AI 客服</a>
+                    <a class="zhou_hero_btn" href="login.html">登录 / 注册</a>
+                </div>
             </div>
-        </div>
+            <div class="zhou_hero_scroll">
+                <span class="zhou_hero_mouse"></span>
+                <span>向下滚动</span>
+            </div>
+        </section>
 
         <!-- 数据统计 -->
         <div class="zhou_grid zhou_grid_4" id="zhou_stat" style="margin-bottom:16px"></div>
 
         <!-- 页面入口：新建 HTML 页面后在此追加超链接（文件名含 detail 的页面除外） -->
-        <div class="zhou_card">
+        <div class="zhou_card" data-zhou-anim="up">
             <h2>功能入口</h2>
             <div class="zhou_row">
                 <a class="zhou_btn" href="goods.html">逛集市（商品列表）</a>
@@ -49,13 +90,13 @@
         </div>
 
         <!-- 热门商品 -->
-        <div class="zhou_card">
+        <div class="zhou_card" data-zhou-anim="up">
             <h2>热门商品（按浏览量排序）</h2>
             <div class="zhou_grid" id="zhou_hot"></div>
         </div>
 
         <!-- 平台公告 -->
-        <div class="zhou_card">
+        <div class="zhou_card" data-zhou-anim="up">
             <h2>平台公告</h2>
             <table class="zhou_table">
                 <thead>
@@ -74,8 +115,12 @@
         </div>
     </div>
 
+    <!-- 返回顶部 -->
+    <button class="zhou_top_btn" id="zhou_top_btn" title="返回顶部">↑</button>
+
     <script src="js/zhou_api.js"></script>
     <script src="js/zhou_common.js"></script>
     <script src="js/zhou_index.js"></script>
+    <script src="js/zhou_anim.js"></script>
 </body>
 </html>

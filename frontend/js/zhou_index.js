@@ -24,9 +24,14 @@ function zhou_load_stat() {
             { zhou_num: zhou_d.zhou_goods_count, zhou_name: '在售商品' },
             { zhou_num: zhou_d.zhou_order_count, zhou_name: '累计订单' },
             { zhou_num: zhou_d.zhou_comment_count, zhou_name: '用户评价' },
-            { zhou_num: zhou_d.zhou_avg_price, zhou_name: '平均价格' }
+            { zhou_num: zhou_d.zhou_avg_price, zhou_name: '平均价格', zhou_dec: 2 }
         ].map(function (zhou_s) {
-            return '<div class="zhou_stat"><b>' + zhou_s.zhou_num + '</b><span>' + zhou_s.zhou_name + '</span></div>';
+            /* DECIMAL 字段可能返回字符串，统一转数字后交给动画做数字滚动 */
+            var zhou_val = Number(zhou_s.zhou_num) || 0;
+            var zhou_dec = zhou_s.zhou_dec || 0;
+            return '<div class="zhou_stat" data-zhou-anim="up">' +
+                '<b data-zhou-count="' + zhou_val + '" data-zhou-dec="' + zhou_dec + '">0</b>' +
+                '<span>' + zhou_s.zhou_name + '</span></div>';
         }).join('');
     }).catch(function (e) {
         console.error('[首页] 统计加载失败：', e);

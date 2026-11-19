@@ -1,0 +1,464 @@
+/*
+ * 姓名：周浩 | 学号：24001010105 |
+ * 时间：2026-11-19 | 大模型：Space Bunny
+ *
+ * zhou_anim.css —— 首页动画样式
+ * 命名规范：所有类名以 zhou_ 开头
+ * 实现方式：纯 CSS 关键帧 + IntersectionObserver 触发，不依赖任何第三方库
+ */
+
+/* ============================================================
+ * 一、关键帧
+ * ============================================================ */
+
+/* 通用上移淡入 */
+@keyframes zhou_kf_fade_up {
+    from { opacity: 0; transform: translateY(26px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* 通用左移淡入 */
+@keyframes zhou_kf_fade_left {
+    from { opacity: 0; transform: translateX(-26px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+/* 缩放淡入 */
+@keyframes zhou_kf_scale {
+    from { opacity: 0; transform: scale(.92); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+/* 光斑漂浮 */
+@keyframes zhou_kf_drift {
+    0%   { transform: translate3d(0, 0, 0) scale(1); }
+    33%  { transform: translate3d(32px, -28px, 0) scale(1.09); }
+    66%  { transform: translate3d(-24px, 20px, 0) scale(.94); }
+    100% { transform: translate3d(0, 0, 0) scale(1); }
+}
+
+/* 标题逐字入场 */
+@keyframes zhou_kf_char {
+    from { opacity: 0; transform: translateY(18px) rotateX(45deg); }
+    to   { opacity: 1; transform: translateY(0) rotateX(0); }
+}
+
+/* 卡片扫光 */
+@keyframes zhou_kf_shine {
+    0%        { transform: translateX(-130%) skewX(-18deg); }
+    60%, 100% { transform: translateX(240%) skewX(-18deg); }
+}
+
+/* 呼吸光点 */
+@keyframes zhou_kf_pulse {
+    0%, 100% { opacity: .5; transform: scale(1); }
+    50%      { opacity: 1; transform: scale(1.14); }
+}
+
+/* 光标闪烁（打字机） */
+@keyframes zhou_kf_blink {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0; }
+}
+
+/* 徽章流光 */
+@keyframes zhou_kf_badge {
+    0%   { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+}
+
+/* 鼠标滚动提示 */
+@keyframes zhou_kf_mouse {
+    0%       { opacity: 0; transform: translate(-50%, 0); }
+    40%      { opacity: 1; }
+    100%     { opacity: 0; transform: translate(-50%, 12px); }
+}
+/* ============================================================
+ * 二、滚动入场（默认隐藏，进入视口后由 JS 添加 .zhou_in）
+ * ============================================================ */
+
+.zhou_anim_ready [data-zhou-anim] {
+    opacity: 0;
+    will-change: opacity, transform;
+}
+
+.zhou_anim [data-zhou-anim="up"] { transform: translateY(26px); }
+.zhou_anim_ready [data-zhou-anim="left"] { transform: translateX(-26px); }
+.zhou_anim_ready [data-zhou-anim="scale"] { transform: scale(.92); }
+
+.zhou_anim_ready [data-zhou-anim].zhou_in {
+    animation: zhou_kf_fade_up .72s cubic-bezier(.22, 1, .36, 1) forwards;
+    animation-delay: var(--zhou-delay, 0s);
+}
+
+.zhou_anim_ready [data-zhou-anim="left"].zhou_in { animation-name: zhou_kf_fade_left; }
+.zhou_anim_ready [data-zhou-anim="scale"].zhou_in { animation-name: zhou_kf_scale; }
+
+/* ============================================================
+ * 三、顶部滚动进度条
+ * ============================================================ */
+
+.zhou_progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    z-index: 300;
+    pointer-events: none;
+}
+
+.zhou_progress_bar {
+    height: 100%;
+    width: 100%;
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+    background: linear-gradient(90deg, #4f46e5, #a855f7 45%, #22d3ee);
+    box-shadow: 0 0 10px rgba(124, 58, 237, .5);
+}
+
+/* ============================================================
+ * 四、Hero 首屏
+ * ============================================================ */
+
+.zhou_hero {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    border-radius: 20px;
+    padding: 48px 40px 44px;
+    margin-bottom: 18px;
+    color: #fff;
+    background: linear-gradient(120deg, #4338ca, #6d28d9 46%, #a21caf);
+    box-shadow: 0 20px 44px rgba(79, 70, 229, .22);
+}
+
+.zhou_hero_grid {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    background-image:
+        linear-gradient(rgba(255, 255, 255, .07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, .07) 1px, transparent 1px);
+    background-size: 46px 46px;
+    -webkit-mask-image: radial-gradient(circle at 28% 22%, #000 0%, transparent 76%);
+    mask-image: radial-gradient(circle at 28% 22%, #000 0%, transparent 76%);
+    animation: zhou_kf_drift 28s ease-in-out infinite;
+}
+
+.zhou_hero_blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(52px);
+    z-index: -1;
+    pointer-events: none;
+    animation: zhou_kf_drift 19s ease-in-out infinite;
+}
+
+.zhou_hero_blob_1 {
+    width: 330px;
+    height: 330px;
+    top: -120px;
+    right: 6%;
+    background: rgba(56, 189, 248, .48);
+}
+
+.zhou_hero_blob_2 {
+    width: 270px;
+    height: 270px;
+    bottom: -140px;
+    left: 10%;
+    background: rgba(244, 114, 182, .4);
+    animation-delay: -7s;
+}
+
+.zhou_hero_blob_3 {
+    width: 180px;
+    height: 180px;
+    top: 44%;
+    right: 32%;
+    background: rgba(250, 204, 21, .26);
+    animation-delay: -13s;
+}
+
+.zhou_hero_inner {
+    position: relative;
+    transition: transform .35s cubic-bezier(.22, 1, .36, 1);
+    will-change: transform;
+}
+
+.zhou_hero_badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12.5px;
+    padding: 5px 14px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, .35);
+    background: linear-gradient(100deg, rgba(255, 255, 255, .22), rgba(255, 255, 255, .06), rgba(255, 255, 255, .22));
+    background-size: 200% 100%;
+    color: #fff;
+    animation: zhou_kf_badge 5s linear infinite;
+}
+
+.zhou_hero_dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #4ade80;
+    animation: zhou_kf_pulse 1.9s ease-in-out infinite;
+}
+
+.zhou_hero_title {
+    font-size: clamp(25px, 3.5vw, 41px);
+    font-weight: 800;
+    letter-spacing: .5px;
+    line-height: 1.26;
+    margin: 15px 0 10px;
+    text-shadow: 0 4px 18px rgba(15, 23, 42, .18);
+}
+
+.zhou_hero_title .zhou_char {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(18px) rotateX(45deg);
+    animation: zhou_kf_char .62s cubic-bezier(.22, 1, .36, 1) forwards;
+    animation-delay: var(--zhou-delay, 0s);
+}
+
+.zhou_hero_desc {
+    max-width: 760px;
+    color: rgba(255, 255, 255, .92);
+    font-size: 14px;
+    line-height: 1.9;
+}
+
+.zhou_hero_caret {
+    display: inline-block;
+    width: 2px;
+    height: 1em;
+    vertical-align: -2px;
+    background: rgba(255, 255, 255, .9);
+    margin-left: 3px;
+    animation: zhou_kf_blink .9s step-end infinite;
+}
+
+.zhou_hero_actions {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-top: 24px;
+}
+
+.zhou_hero_btn {
+    position: relative;
+    overflow: hidden;
+    font-size: 13.5px;
+    padding: 10px 22px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, .55);
+    background: rgba(255, 255, 255, .16);
+    color: #fff;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform .22s, background .22s, box-shadow .22s;
+}
+
+.zhou_hero_btn:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, .28);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, .2);
+}
+
+.zhou_hero_btn_primary {
+    background: #fff;
+    color: #4f46e5;
+    border-color: #fff;
+    font-weight: 600;
+}
+
+.zhou_hero_btn_primary:hover { background: #f8fafc; }
+
+.zhou_hero_scroll {
+    position: absolute;
+    right: 34px;
+    bottom: 22px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, .78);
+}
+
+.zhou_hero_mouse {
+    width: 20px;
+    height: 32px;
+    border: 2px solid rgba(255, 255, 255, .6);
+    border-radius: 12px;
+    position: relative;
+}
+
+.zhou_hero_mouse::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 6px;
+    width: 3px;
+    height: 6px;
+    border-radius: 2px;
+    background: #fff;
+    transform: translateX(-50%);
+    animation: zhou_kf_mouse 1.8s ease-in-out infinite;
+}
+/* ============================================================
+ * 五、统计卡片
+ * ============================================================ */
+
+.zhou_anim .zhou_stat {
+    position: relative;
+    overflow: hidden;
+    transition: transform .25s, box-shadow .25s, border-color .25s;
+}
+
+.zhou_anim .zhou_stat:hover {
+    transform: translateY(-4px);
+    border-color: #c7d2fe;
+    box-shadow: 0 16px 34px rgba(79, 70, 229, .14);
+}
+
+.zhou_anim .zhou_stat::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 3px;
+    transform: scaleX(0);
+    transform-origin: 50% 0;
+    background: linear-gradient(90deg, #4f46e5, #a855f7, #22d3ee);
+    transition: transform .45s cubic-bezier(.22, 1, .36, 1);
+}
+
+.zhou_anim .zhou_stat:hover::before { transform: scaleX(1); }
+
+.zhou_anim .zhou_stat b {
+    font-variant-numeric: tabular-nums;
+    transition: color .25s;
+}
+
+.zhou_anim .zhou_stat:hover b { color: #7c3aed; }
+
+/* ============================================================
+ * 六、商品卡片
+ * ============================================================ */
+
+.zhou_anim .zhou_goods_card {
+    position: relative;
+    overflow: hidden;
+}
+
+.zhou_anim .zhou_goods_card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 42%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .32), transparent);
+    transform: translateX(-130%) skewX(-18deg);
+    pointer-events: none;
+}
+
+.zhou_anim .zhou_goods_card:hover::after {
+    animation: zhou_kf_shine .95s ease;
+}
+
+.zhou_anim .zhou_cover {
+    transition: transform .5s cubic-bezier(.22, 1, .36, 1);
+}
+
+.zhou_anim .zhou_goods_card:hover .zhou_cover { transform: scale(1.06); }
+
+/* ============================================================
+ * 七、表格行入场
+ * ============================================================ */
+
+.zhou_anim_ready .zhou_table tbody tr {
+    opacity: 0;
+    animation: zhou_kf_fade_up .6s cubic-bezier(.22, 1, .36, 1) forwards;
+    animation-delay: var(--zhou-delay, 0s);
+}
+
+/* ============================================================
+ * 八、返回顶部按钮
+ * ============================================================ */
+
+.zhou_top_btn {
+    position: fixed;
+    right: 26px;
+    bottom: 32px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    color: #fff;
+    font-size: 18px;
+    line-height: 44px;
+    text-align: center;
+    cursor: pointer;
+    box-shadow: 0 10px 26px rgba(79, 70, 229, .38);
+    opacity: 0;
+    transform: translateY(14px) scale(.9);
+    pointer-events: none;
+    transition: opacity .3s, transform .3s, box-shadow .3s;
+    z-index: 120;
+}
+
+.zhou_top_btn.zhou_show {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+.zhou_top_btn:hover {
+    box-shadow: 0 14px 32px rgba(79, 70, 229, .5);
+    transform: translateY(-3px) scale(1.04);
+}
+
+/* ============================================================
+ * 九、响应式
+ * ============================================================ */
+
+@media (max-width: 900px) {
+    .zhou_hero { padding: 36px 24px 34px; }
+    .zhou_hero_blob_3 { display: none; }
+    .zhou_hero_scroll { display: none; }
+}
+
+@media (max-width: 560px) {
+    .zhou_hero { padding: 30px 18px 28px; border-radius: 16px; }
+    .zhou_hero_blob_1 { width: 220px; height: 220px; }
+    .zhou_hero_blob_2 { width: 190px; height: 190px; }
+    .zhou_top_btn { right: 14px; bottom: 18px; width: 40px; height: 40px; line-height: 40px; }
+}
+
+/* ============================================================
+ * 十、尊重系统「减少动态效果」偏好
+ * ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+    .zhou_anim *,
+    .zhou_anim *::before,
+    .zhou_anim *::after {
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .001ms !important;
+    }
+
+    .zhou_anim_ready [data-zhou-anim],
+    .zhou_anim_ready .zhou_table tbody tr {
+        opacity: 1 !important;
+        transform: none !important;
+    }
+}
