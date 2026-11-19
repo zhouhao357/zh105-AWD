@@ -74,7 +74,7 @@
 │   ├── js/zhou_chat.js  zhou_kb.js  zhou_structured.js
 │   └── images/  fonts/
 ├── backend/                   后端（Node.js + Express）
-│   ├── app.js                 服务入口（端口 8325，静态托管 frontend/）
+│   ├── app.js                 服务入口（端口 8105，静态托管 frontend/）
 │   ├── .env                   凭据配置（gitignore，不入库）
 │   ├── .env.example           配置示例
 │   ├── db/zhou_db.js          mysql2 连接池封装
@@ -97,7 +97,7 @@
 | --- | --- | --- |
 | `DB_USER` / `DB_PASSWORD` | MySQL 账号密码 | 必填 |
 | `DB_HOST` / `DB_PORT` / `DB_NAME` | 数据库地址、端口、库名 | `127.0.0.1` / `3306` / `zhou_campus_market` |
-| `PORT` | 后端服务端口（实验指导书要求 8325） | `8325` |
+| `PORT` | 后端服务端口（8 + 学号后三位 105） | `8105` |
 | `LLM_API_KEY` | 大模型 API Key（**私密，只放 .env**） | 必填 |
 | `LLM_BASE_URL` | OpenAI 兼容接口地址 | `https://api.siliconflow.cn/v1` |
 | `LLM_MODEL` | 默认模型 | `deepseek-ai/DeepSeek-V4-Flash` |
@@ -130,10 +130,10 @@ npm start                   # 或 node app.js
 
 启动成功后：
 
-- 首页：<http://127.0.0.1:8325/>
-- AI 客服：<http://127.0.0.1:8325/chat.html>
-- 知识库：<http://127.0.0.1:8325/kb.html>
-- 结构化输出：<http://127.0.0.1:8325/structured.html>
+- 首页：<http://127.0.0.1:8105/>
+- AI 客服：<http://127.0.0.1:8105/chat.html>
+- 知识库：<http://127.0.0.1:8105/kb.html>
+- 结构化输出：<http://127.0.0.1:8105/structured.html>
 
 测试账号：`zhou01` ~ `zhou10`，密码均为 `123456`（MD5 加盐存储，盐值 `sbtest_2026`）。
 ---
@@ -219,7 +219,7 @@ node db/zhou_init_llm.js    # 执行 db/zhou_init_llm.sql
 
 | 现象 | 原因与处理 |
 | --- | --- |
-| 启动报 `EADDRINUSE` | 8325 端口被旧进程占用，先结束旧 `node app.js` 进程 |
+| 启动报 `EADDRINUSE` | 8105 端口被旧进程占用，先结束旧 `node app.js` 进程 |
 | 控制台提示「未配置 LLM_API_KEY」 | `backend/.env` 中缺少或未正确填写 `LLM_API_KEY` |
 | 聊天接口返回 502 | 大模型平台超时或网络不通，先用 curl 验证连通性 |
 | 知识库检索无命中 | 全文索引为 ngram 模式，需 MySQL 8.0+；初始化脚本会自动创建索引 |
@@ -232,4 +232,5 @@ node db/zhou_init_llm.js    # 执行 db/zhou_init_llm.sql
 | 日期 | 内容 |
 | --- | --- |
 | 2026-11-09 | 完成平台 8 张表与 23 个接口，SQLite → MySQL 8.4 迁移 |
-| 2026-11-12 | 完成《LLM 应用设计》实验：新增 4 张表、17 个 AI 相关接口、3 个新页面，流式输出、多轮上下文、RAG 上传、结构化输出、模型切换与用量统计；端口调整为 8325 |
+| 2026-11-12 | 完成《LLM 应用设计》实验：新增 4 张表、17 个 AI 相关接口、3 个新页面，流式输出、多轮上下文、RAG 上传、结构化输出、模型切换与用量统计 |
+| 2026-11-19 | 端口统一为 8105（8 + 学号后三位 105，与项目原端口一致）；RAG 增加向量召回（bge-m3）与混合检索 |

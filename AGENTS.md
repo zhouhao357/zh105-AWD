@@ -9,7 +9,7 @@
   - 目录结构：frontend/ 下建 css/、js/、fonts/、images/ 子目录；
     fonts/ 存放 iconfont 图标文件（如果有）
 - 后端：backend/ 目录，Node.js + Express，RESTful+MVC 风格，
-  所有接口以 /api/ 为前缀，端口固定为 8325（与《LLM应用设计 实验指导书》一致），
+  所有接口以 /api/ 为前缀，端口固定为 8105（8 + 学号后三位 105，项目原端口），
   并以 express.static 托管 frontend/ 目录
   后端支持所有跨域访问。
 - 后端依赖安装：优先 cnpm i 包名；失败或超时则使用 npm i 包名
